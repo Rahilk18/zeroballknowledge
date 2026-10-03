@@ -36,13 +36,13 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
       <div className="absolute inset-0" onClick={onClose} />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg bg-[#0E1324] border border-[#00E5FF]/40 rounded-3xl shadow-glow-cyan overflow-hidden z-10 max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-lg bg-[#0E1324] border border-[#FF1744]/40 rounded-3xl shadow-glow-cyan overflow-hidden z-10 max-h-[92vh] flex flex-col">
         
         {/* Modal Header */}
         <div className="relative p-5 sm:p-6 bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border-b border-slate-800">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-xl bg-[#0A0A14] border border-slate-700 hover:border-[#00E5FF] text-slate-400 hover:text-white transition"
+            className="absolute top-4 right-4 p-2 rounded-xl bg-[#0A0A14] border border-slate-700 hover:border-[#FF1744] text-slate-400 hover:text-white transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -52,7 +52,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
             {(() => {
               const avatar = getPlayerAvatarUrl(player);
               return (
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-slate-800 to-[#0A0A14] border-2 border-[#00E5FF]/50 flex items-center justify-center text-white font-black text-xl shadow-glow-cyan overflow-hidden flex-shrink-0">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-slate-800 to-[#0A0A14] border-2 border-[#FF1744]/50 flex items-center justify-center text-white font-black text-xl shadow-glow-cyan overflow-hidden flex-shrink-0">
                   {avatar ? (
                     <img
                       src={avatar}
@@ -90,12 +90,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
                 <span>Foot: <strong className="text-slate-200">{player.preferredFoot || 'Right'}</strong></span>
                 <span>•</span>
-                <span>Value: <strong className="text-[#00E5FF] font-mono">{formatCurrency(player.marketValue)}</strong></span>
+                <span>Value: <strong className="text-[#FF1744] font-mono">{formatCurrency(player.marketValue)}</strong></span>
               </div>
             </div>
 
             {/* OVR Shield */}
-            <div className="flex flex-col items-center justify-center min-w-14 px-3 py-2 rounded-2xl bg-gradient-to-b from-[#00E5FF] to-blue-600 text-slate-950 font-black shadow-glow-cyan border border-[#00E5FF]/60">
+            <div className="flex flex-col items-center justify-center min-w-14 px-3 py-2 rounded-2xl bg-gradient-to-b from-[#FF1744] to-rose-700 text-slate-950 font-black shadow-glow-cyan border border-[#FF1744]/60">
               <span className="text-2xl sm:text-3xl leading-none font-display">{player.overall}</span>
               <span className="text-[9px] uppercase tracking-wider font-extrabold">OVR</span>
             </div>
@@ -107,7 +107,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               onClick={() => setActiveTab('3d')}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
                 activeTab === '3d'
-                  ? 'bg-[#00E5FF]/20 border border-[#00E5FF]/50 text-[#00E5FF] shadow-glow-cyan text-glow-cyan'
+                  ? 'bg-[#FF1744]/20 border border-[#FF1744]/50 text-[#FF1744] shadow-glow-cyan text-glow-cyan'
                   : 'bg-[#0A0A14] border border-slate-800 text-slate-400 hover:text-white'
               }`}
             >
@@ -118,7 +118,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               onClick={() => setActiveTab('stats')}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
                 activeTab === 'stats'
-                  ? 'bg-[#00E5FF]/20 border border-[#00E5FF]/50 text-[#00E5FF] shadow-glow-cyan text-glow-cyan'
+                  ? 'bg-[#FF1744]/20 border border-[#FF1744]/50 text-[#FF1744] shadow-glow-cyan text-glow-cyan'
                   : 'bg-[#0A0A14] border border-slate-800 text-slate-400 hover:text-white'
               }`}
             >
@@ -134,7 +134,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
             <div className="space-y-3">
               <Hero3DViewer
                 player={player}
-                auraHex={player.overall >= 90 ? '#F59E0B' : player.overall >= 85 ? '#00E5FF' : '#A855F7'}
+                auraHex={player.overall >= 90 ? '#F59E0B' : player.overall >= 85 ? '#FF1744' : '#A855F7'}
                 height={380}
                 showControls={true}
               />
@@ -148,7 +148,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               {/* Detailed Attributes */}
               <div>
                 <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-2.5 flex items-center gap-1.5 font-display">
-                  <Award className="w-4 h-4 text-[#00E5FF]" />
+                  <Award className="w-4 h-4 text-[#FF1744]" />
                   Tactical Attributes
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#0A0A14] p-4 rounded-2xl border border-slate-800">
@@ -177,7 +177,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               {/* Season Record */}
               <div>
                 <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5 font-display">
-                  <Calendar className="w-4 h-4 text-[#00E5FF]" />
+                  <Calendar className="w-4 h-4 text-[#FF1744]" />
                   Season Records
                 </h4>
                 <div className="grid grid-cols-4 gap-2 text-center">
@@ -187,7 +187,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
                   </div>
                   <div className="bg-[#0A0A14] p-2.5 rounded-xl border border-slate-800">
                     <span className="text-[9px] text-slate-400 font-bold uppercase block">Goals</span>
-                    <span className="text-sm font-black text-[#00E5FF] font-mono">{player.stats.goals}</span>
+                    <span className="text-sm font-black text-[#FF1744] font-mono">{player.stats.goals}</span>
                   </div>
                   <div className="bg-[#0A0A14] p-2.5 rounded-xl border border-slate-800">
                     <span className="text-[9px] text-slate-400 font-bold uppercase block">Assists</span>
@@ -217,7 +217,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
                 onSwapLineup(player);
                 onClose();
               }}
-              className="px-5 py-2 rounded-xl bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan"
+              className="px-5 py-2 rounded-xl bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan"
             >
               {isStartingLineup ? 'Move To Bench' : 'Place in Starting 7'}
             </button>

@@ -112,7 +112,7 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
               <span>Simulate Match</span>
             </button>
           ) : (
-            <div className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0A0D1A] border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-bold font-mono whitespace-nowrap">
+            <div className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0A0D1A] border border-[#FF1744]/30 text-[#FF1744] text-xs font-bold font-mono whitespace-nowrap">
               <span>HOST WILL LAUNCH FIXTURE</span>
             </div>
           )}

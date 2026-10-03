@@ -18,7 +18,7 @@ export default function LobbyPage({ setActiveTab }: Props) {
 
   if (!currentSession) {
     return (
-      <div className="p-6 max-w-xl mx-auto text-center py-20 bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl my-12 shadow-glow-cyan">
+      <div className="p-6 max-w-xl mx-auto text-center py-20 bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl my-12 shadow-glow-cyan">
         <div className="text-5xl mb-4">🏟️</div>
         <h2 className="text-xl font-black text-white uppercase tracking-wider font-display text-glow-cyan mb-2">
           NO ACTIVE BATTLE ROOM
@@ -26,7 +26,7 @@ export default function LobbyPage({ setActiveTab }: Props) {
         <p className="text-slate-400 text-xs mb-6">Create or join an arena room from the Battle Hub.</p>
         <button
           onClick={() => setActiveTab('dashboard')}
-          className="px-6 py-3 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition shadow-glow-cyan"
+          className="px-6 py-3 bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition shadow-glow-cyan"
         >
           Return to Battle Hub
         </button>
@@ -77,14 +77,14 @@ export default function LobbyPage({ setActiveTab }: Props) {
     <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6 animate-fadeIn pb-16">
       
       {/* Session Header Banner */}
-      <div className="relative bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border border-[#00E5FF]/30 rounded-3xl p-6 sm:p-7 shadow-glow-cyan overflow-hidden">
+      <div className="relative bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border border-[#FF1744]/30 rounded-3xl p-6 sm:p-7 shadow-glow-cyan overflow-hidden">
         <div className="absolute inset-0 cyber-grid-bg opacity-30 pointer-events-none" />
         
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-ping" />
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#00E5FF]/15 text-[#00E5FF] border border-[#00E5FF]/30 tracking-widest text-glow-cyan">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FF1744] animate-ping" />
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#FF1744]/15 text-[#FF1744] border border-[#FF1744]/30 tracking-widest text-glow-cyan">
                 ROOM STATUS: {currentSession.status}
               </span>
             </div>
@@ -96,16 +96,16 @@ export default function LobbyPage({ setActiveTab }: Props) {
             </p>
           </div>
 
-          <div className="text-left sm:text-right bg-[#0A0A14]/80 border border-[#00E5FF]/20 p-4 rounded-2xl">
+          <div className="text-left sm:text-right bg-[#0A0A14]/80 border border-[#FF1744]/20 p-4 rounded-2xl">
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">ROOM CODE</p>
             <button
               onClick={copyCode}
-              className="flex items-center gap-2.5 bg-[#0E1324] hover:bg-slate-800 border border-[#00E5FF]/30 rounded-xl px-4 py-2 transition shadow-glow-cyan group"
+              className="flex items-center gap-2.5 bg-[#0E1324] hover:bg-slate-800 border border-[#FF1744]/30 rounded-xl px-4 py-2 transition shadow-glow-cyan group"
             >
-              <span className="text-2xl font-black text-[#00E5FF] font-mono tracking-widest text-glow-cyan">
+              <span className="text-2xl font-black text-[#FF1744] font-mono tracking-widest text-glow-cyan">
                 {currentSession.sessionCode}
               </span>
-              <span className="text-[#00E5FF] text-sm">
+              <span className="text-[#FF1744] text-sm">
                 {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 group-hover:scale-110 transition-transform" />}
               </span>
             </button>
@@ -114,7 +114,7 @@ export default function LobbyPage({ setActiveTab }: Props) {
 
         {/* Room Parameters Pills */}
         <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-800/80">
-          <span className="bg-[#0A0A14] border border-[#00E5FF]/20 text-[#00E5FF] text-xs font-mono font-bold px-3 py-1 rounded-xl">
+          <span className="bg-[#0A0A14] border border-[#FF1744]/20 text-[#FF1744] text-xs font-mono font-bold px-3 py-1 rounded-xl">
             💰 €{currentSession.startingBudget}M STARTING BUDGET
           </span>
           <span className="bg-[#0A0A14] border border-slate-800 text-slate-300 text-xs font-mono px-3 py-1 rounded-xl">
@@ -127,15 +127,15 @@ export default function LobbyPage({ setActiveTab }: Props) {
       </div>
 
       {/* Connected Managers in Room */}
-      <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl overflow-hidden shadow-xl">
+      <div className="bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl overflow-hidden shadow-xl">
         <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-[#0A0A14]/60">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#00E5FF]" />
+            <Users className="w-4 h-4 text-[#FF1744]" />
             <h2 className="font-black text-white text-xs uppercase tracking-wider font-display text-glow-cyan">
               CONNECTED MANAGERS
             </h2>
           </div>
-          <span className="text-xs text-[#00E5FF] font-mono font-bold">{memberCount} CONNECTED</span>
+          <span className="text-xs text-[#FF1744] font-mono font-bold">{memberCount} CONNECTED</span>
         </div>
 
         <div className="divide-y divide-slate-800/80">
@@ -152,7 +152,7 @@ export default function LobbyPage({ setActiveTab }: Props) {
 
               return (
                 <div key={member.userId} className="flex items-center gap-4 px-6 py-4 hover:bg-[#12182D] transition">
-                  <div className="w-11 h-11 bg-[#0A0A14] border border-[#00E5FF]/30 rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-glow-cyan">
+                  <div className="w-11 h-11 bg-[#0A0A14] border border-[#FF1744]/30 rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-glow-cyan">
                     {memberTeam?.badgeIcon ?? '⚡'}
                   </div>
 
@@ -167,7 +167,7 @@ export default function LobbyPage({ setActiveTab }: Props) {
                         </span>
                       )}
                       {isMe && (
-                        <span className="bg-[#00E5FF]/20 text-[#00E5FF] text-[10px] font-black px-2 py-0.5 rounded border border-[#00E5FF]/40 flex-shrink-0">
+                        <span className="bg-[#FF1744]/20 text-[#FF1744] text-[10px] font-black px-2 py-0.5 rounded border border-[#FF1744]/40 flex-shrink-0">
                           YOU
                         </span>
                       )}
@@ -193,9 +193,9 @@ export default function LobbyPage({ setActiveTab }: Props) {
 
       {/* Host Controls */}
       {isHost && currentSession.status === 'LOBBY' && (
-        <div className="bg-[#0E1324] border border-[#00E5FF]/30 rounded-3xl p-6 space-y-4 shadow-glow-cyan">
+        <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-3xl p-6 space-y-4 shadow-glow-cyan">
           <div className="flex items-center gap-2">
-            <Radio className="w-5 h-5 text-[#00E5FF]" />
+            <Radio className="w-5 h-5 text-[#FF1744]" />
             <h2 className="font-black text-white text-xs uppercase tracking-wider font-display text-glow-cyan">
               ROOM HOST COMMAND CENTER
             </h2>
@@ -211,7 +211,7 @@ export default function LobbyPage({ setActiveTab }: Props) {
             <button
               onClick={handleStartAuction}
               disabled={starting || loadingSession || memberCount < 1}
-              className="flex-1 py-4 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-2xl transition-all shadow-glow-cyan disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-sm flex items-center justify-center gap-2"
+              className="flex-1 py-4 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-2xl transition-all shadow-glow-cyan disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-sm flex items-center justify-center gap-2"
             >
               <Play className="w-4 h-4 fill-slate-950" />
               <span>{starting ? 'INITIALIZING STAGE...' : `LAUNCH 3D AUCTION (${memberCount} READY)`}</span>
@@ -220,7 +220,7 @@ export default function LobbyPage({ setActiveTab }: Props) {
 
           {memberCount < 2 && (
             <p className="text-xs text-slate-400 text-center font-medium">
-              You can start drafting solo vs intelligent AI bidders or wait for managers with code <span className="text-[#00E5FF] font-mono font-bold">{currentSession.sessionCode}</span>.
+              You can start drafting solo vs intelligent AI bidders or wait for managers with code <span className="text-[#FF1744] font-mono font-bold">{currentSession.sessionCode}</span>.
             </p>
           )}
         </div>
@@ -231,7 +231,7 @@ export default function LobbyPage({ setActiveTab }: Props) {
         <div className="bg-[#0E1324]/80 border border-slate-800 rounded-3xl p-6 text-center space-y-2">
           <div className="text-3xl mb-1">⏳</div>
           <p className="text-white font-bold text-sm">
-            Waiting for Host <span className="text-[#00E5FF] font-black">{allTeams.find(t => t.userId === currentSession.hostUserId)?.teamName || 'Host'}</span> to launch auction...
+            Waiting for Host <span className="text-[#FF1744] font-black">{allTeams.find(t => t.userId === currentSession.hostUserId)?.teamName || 'Host'}</span> to launch auction...
           </p>
           <p className="text-slate-400 text-xs">
             {memberCount} manager{memberCount === 1 ? '' : 's'} connected. You will automatically drop into the 3D Bidding Arena as soon as lot #1 opens!

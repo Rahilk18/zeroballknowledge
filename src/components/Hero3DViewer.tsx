@@ -14,7 +14,7 @@ interface Hero3DViewerProps {
 
 export const Hero3DViewer: React.FC<Hero3DViewerProps> = ({
   player,
-  auraHex = '#00E5FF',
+  auraHex = '#FF1744',
   height = 360,
   showControls = true,
 }) => {
@@ -324,7 +324,7 @@ export const Hero3DViewer: React.FC<Hero3DViewerProps> = ({
   };
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-b from-[#0A0A14] via-[#0E1324] to-[#0A0A14] border border-[#00E5FF]/20 shadow-glow-cyan">
+    <div className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-b from-[#0A0A14] via-[#0E1324] to-[#0A0A14] border border-[#FF1744]/20 shadow-glow-cyan">
       {/* 3D Canvas Mount Point */}
       <div
         ref={containerRef}
@@ -338,8 +338,8 @@ export const Hero3DViewer: React.FC<Hero3DViewerProps> = ({
       {/* Loading Indicator like HeroBid */}
       {loading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A0A14]/80 pointer-events-none">
-          <div className="w-8 h-8 border-2 border-[#00E5FF] border-t-transparent rounded-full animate-spin mb-3 shadow-glow-cyan" />
-          <span className="text-[#00E5FF] font-bold text-xs tracking-widest text-glow-cyan">
+          <div className="w-8 h-8 border-2 border-[#FF1744] border-t-transparent rounded-full animate-spin mb-3 shadow-glow-cyan" />
+          <span className="text-[#FF1744] font-bold text-xs tracking-widest text-glow-cyan">
             PROJECTION SYNCING...
           </span>
         </div>
@@ -348,8 +348,8 @@ export const Hero3DViewer: React.FC<Hero3DViewerProps> = ({
       {/* Header Overlay: Hero Name & Hologram Status */}
       <div className="absolute top-3 left-4 right-4 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-ping" />
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#00E5FF] bg-[#00E5FF]/10 px-2 py-0.5 rounded border border-[#00E5FF]/30 text-glow-cyan">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#FF1744] animate-ping" />
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#FF1744] bg-[#FF1744]/10 px-2 py-0.5 rounded border border-[#FF1744]/30 text-glow-cyan">
             3D HOLO-STAGE
           </span>
         </div>
@@ -361,12 +361,12 @@ export const Hero3DViewer: React.FC<Hero3DViewerProps> = ({
 
       {/* Controls Overlay Bar */}
       {showControls && (
-        <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl bg-[#0E1324]/85 backdrop-blur-md border border-[#00E5FF]/20">
+        <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl bg-[#0E1324]/85 backdrop-blur-md border border-[#FF1744]/20">
           {/* Action triggers */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
             <button
               onClick={() => triggerAction('SIU Strike')}
-              className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#00E5FF]/20 hover:bg-[#00E5FF]/30 text-[#00E5FF] text-xs font-bold transition-all border border-[#00E5FF]/40"
+              className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#FF1744]/20 hover:bg-[#FF1744]/30 text-[#FF1744] text-xs font-bold transition-all border border-[#FF1744]/40"
               title="Explosive Strike Animation"
             >
               <Zap className="w-3 h-3" />
@@ -395,7 +395,7 @@ export const Hero3DViewer: React.FC<Hero3DViewerProps> = ({
             {/* Aura Colors */}
             <div className="flex items-center gap-1">
               {[
-                { hex: '#00E5FF', name: 'Cyan' },
+                { hex: '#FF1744', name: 'Cyan' },
                 { hex: '#F59E0B', name: 'Gold' },
                 { hex: '#A855F7', name: 'Purple' },
                 { hex: '#EF4444', name: 'Red' },
@@ -417,7 +417,7 @@ export const Hero3DViewer: React.FC<Hero3DViewerProps> = ({
               onClick={() => setAutoRotate(!autoRotate)}
               className={`p-1.5 rounded-lg border text-xs font-semibold transition-colors ${
                 autoRotate
-                  ? 'bg-[#00E5FF]/20 border-[#00E5FF]/40 text-[#00E5FF]'
+                  ? 'bg-[#FF1744]/20 border-[#FF1744]/40 text-[#FF1744]'
                   : 'bg-slate-800 border-slate-700 text-slate-400'
               }`}
               title="Toggle Auto Rotation"

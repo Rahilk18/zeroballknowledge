@@ -123,21 +123,21 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
     <div className="space-y-6 animate-fadeIn pb-20 max-w-6xl mx-auto">
       
       {/* SCOREBOARD HERO HEADER */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#0E1324] via-[#0A0A14] to-[#12182D] border-2 border-[#00E5FF]/40 p-6 sm:p-8 shadow-glow-cyan">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#0E1324] via-[#0A0A14] to-[#12182D] border-2 border-[#FF1744]/40 p-6 sm:p-8 shadow-glow-cyan">
         <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
 
         {/* Top Match Status and Clock */}
         <div className="relative z-10 flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
           <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${isFinished ? 'bg-slate-500' : 'bg-[#00E5FF] animate-ping'}`} />
-            <span className="text-xs font-black uppercase tracking-widest text-[#00E5FF] font-display text-glow-cyan">
+            <span className={`w-2.5 h-2.5 rounded-full ${isFinished ? 'bg-slate-500' : 'bg-[#FF1744] animate-ping'}`} />
+            <span className="text-xs font-black uppercase tracking-widest text-[#FF1744] font-display text-glow-cyan">
               {isFinished ? 'FULL TIME BATTLE END' : currentMinute < 45 ? '1ST HALF IN PROGRESS' : '2ND HALF CLASH'}
             </span>
           </div>
 
           {/* Clock Display */}
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#0A0A14] border border-[#00E5FF]/30 font-mono font-black text-sm text-[#00E5FF] shadow-glow-cyan">
-            <Clock className="w-4 h-4 text-[#00E5FF]" />
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#0A0A14] border border-[#FF1744]/30 font-mono font-black text-sm text-[#FF1744] shadow-glow-cyan">
+            <Clock className="w-4 h-4 text-[#FF1744]" />
             <span>{String(currentMinute).padStart(2, '0')}:00</span>
           </div>
 
@@ -151,7 +151,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                   setSpeedMultiplier(s);
                 }}
                 className={`px-3 py-1 rounded-xl text-xs font-black transition ${
-                  speedMultiplier === s ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan' : 'bg-[#0A0A14] text-slate-400 border border-slate-800'
+                  speedMultiplier === s ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan' : 'bg-[#0A0A14] text-slate-400 border border-slate-800'
                 }`}
               >
                 {s}x
@@ -676,7 +676,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           {onReturnToAuction && (
             <button
               onClick={onReturnToAuction}
-              className="px-4 py-2.5 rounded-xl bg-[#0A0D1A] hover:bg-slate-800 border border-[#00E5FF]/40 text-[#00E5FF] text-xs font-bold transition flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl bg-[#0A0D1A] hover:bg-slate-800 border border-[#FF1744]/40 text-[#FF1744] text-xs font-bold transition flex items-center gap-1.5"
             >
               <span>🔙 Return to Auction</span>
             </button>

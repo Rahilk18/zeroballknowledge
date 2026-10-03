@@ -28,7 +28,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
 
   // HeroBid Rarity Tiers
   const rarity = player.overall >= 90 
-    ? { name: 'MYTHIC', badge: 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]/40 text-glow-cyan' }
+    ? { name: 'MYTHIC', badge: 'bg-[#FF1744]/20 text-[#FF1744] border-[#FF1744]/40 text-glow-cyan' }
     : player.overall >= 86
     ? { name: 'LEGENDARY', badge: 'bg-amber-500/20 text-amber-300 border-amber-500/40' }
     : player.overall >= 82
@@ -45,9 +45,9 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
 
   return (
     <div
-      className={`group relative flex flex-col justify-between rounded-3xl bg-[#0E1324] border transition-all duration-300 shadow-lg hover:shadow-glow-cyan hover:border-[#00E5FF]/60 ${
+      className={`group relative flex flex-col justify-between rounded-3xl bg-[#0E1324] border transition-all duration-300 shadow-lg hover:shadow-glow-cyan hover:border-[#FF1744]/60 ${
         isSelected
-          ? 'border-[#00E5FF] ring-2 ring-[#00E5FF]/40 shadow-glow-cyan bg-[#12182D]'
+          ? 'border-[#FF1744] ring-2 ring-[#FF1744]/40 shadow-glow-cyan bg-[#12182D]'
           : 'border-slate-800 hover:-translate-y-1'
       } ${compact ? 'p-3' : 'p-4'}`}
     >
@@ -75,7 +75,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
           </div>
 
           {/* Overall Rating Shield */}
-          <div className="flex flex-col items-center justify-center min-w-10 px-2 py-1 rounded-xl bg-gradient-to-b from-[#00E5FF] to-blue-600 text-slate-950 font-black shadow-glow-cyan border border-[#00E5FF]/50">
+          <div className="flex flex-col items-center justify-center min-w-10 px-2 py-1 rounded-xl bg-gradient-to-b from-[#FF1744] to-rose-700 text-slate-950 font-black shadow-glow-cyan border border-[#FF1744]/50">
             <span className="text-base leading-none font-display">{player.overall}</span>
             <span className="text-[8px] uppercase tracking-wider font-extrabold">OVR</span>
           </div>
@@ -83,7 +83,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
 
         {/* Player Identity: Silhouette / Avatar & Name */}
         <div className="flex items-center gap-3 mb-3.5">
-          <div className="relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-b from-slate-800/90 to-[#0A0A14] border border-[#00E5FF]/30 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-md overflow-hidden group-hover:border-[#00E5FF]/60 transition">
+          <div className="relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-b from-slate-800/90 to-[#0A0A14] border border-[#FF1744]/30 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-md overflow-hidden group-hover:border-[#FF1744]/60 transition">
             {avatarUrl && !imgError ? (
               <img
                 src={avatarUrl}
@@ -104,13 +104,13 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
           </div>
 
           <div className="overflow-hidden">
-            <h3 className="font-black text-white text-base leading-tight truncate group-hover:text-[#00E5FF] transition font-display">
+            <h3 className="font-black text-white text-base leading-tight truncate group-hover:text-[#FF1744] transition font-display">
               {player.name}
             </h3>
             <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
               <span className="truncate">{player.nationality}</span>
               <span>•</span>
-              <span className="text-[#00E5FF] font-mono font-bold">{formatCurrency(player.marketValue)}</span>
+              <span className="text-[#FF1744] font-mono font-bold">{formatCurrency(player.marketValue)}</span>
             </div>
           </div>
         </div>
@@ -180,9 +180,9 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
         {onView && (
           <button
             onClick={() => onView(player)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-[#0A0A14] hover:bg-[#12182D] text-slate-300 hover:text-white text-xs font-bold transition active:scale-95 border border-slate-800 hover:border-[#00E5FF]/40 uppercase"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-[#0A0A14] hover:bg-[#12182D] text-slate-300 hover:text-white text-xs font-bold transition active:scale-95 border border-slate-800 hover:border-[#FF1744]/40 uppercase"
           >
-            <Glasses className="w-3.5 h-3.5 text-[#00E5FF]" />
+            <Glasses className="w-3.5 h-3.5 text-[#FF1744]" />
             <span>3D VIEW 🥽</span>
           </button>
         )}
@@ -192,8 +192,8 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
             onClick={() => onSelect(player)}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition active:scale-95 ${
               isSelected
-                ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan'
-                : 'bg-[#0A0A14] hover:bg-[#12182D] text-[#00E5FF] border border-[#00E5FF]/30'
+                ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan'
+                : 'bg-[#0A0A14] hover:bg-[#12182D] text-[#FF1744] border border-[#FF1744]/30'
             }`}
           >
             <Zap className="w-3.5 h-3.5" />

@@ -142,12 +142,12 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="relative w-full max-w-4xl bg-[#0d151d] border border-cyan-500/40 rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[94vh] flex flex-col">
+      <div className="relative w-full max-w-4xl bg-[#0d151d] border border-rose-500/40 rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[94vh] flex flex-col">
         
         {/* Header */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-[#0e1a24] to-slate-900 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 shadow-glow-cyan">
+            <div className="p-2.5 rounded-2xl bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 shadow-glow-cyan">
               <Shield className="w-5 h-5" />
             </div>
             <div>
@@ -183,7 +183,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold font-mono transition-all whitespace-nowrap ${
                   formation === f.id
-                    ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan font-black scale-105'
+                    ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan font-black scale-105'
                     : 'bg-[#12182D] text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-800'
                 }`}
               >
@@ -211,8 +211,8 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
         </div>
 
         {/* Tactical Explanation */}
-        <div className="px-4 py-1.5 bg-cyan-950/20 border-b border-cyan-500/20 flex items-center justify-between text-[11px] text-slate-300">
-          <span className="text-cyan-400 font-bold">{activeFormationInfo.label}:</span>
+        <div className="px-4 py-1.5 bg-rose-950/20 border-b border-rose-500/20 flex items-center justify-between text-[11px] text-slate-300">
+          <span className="text-rose-400 font-bold">{activeFormationInfo.label}:</span>
           <span className="text-slate-400 truncate ml-2">{activeFormationInfo.description}</span>
         </div>
 
@@ -232,7 +232,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
           </div>
         ) : (
           <div className="bg-slate-900/60 border-b border-slate-800 px-5 py-1.5 text-xs text-slate-400 flex items-center gap-2">
-            <AlertCircle className="w-3.5 h-3.5 text-[#00E5FF]" />
+            <AlertCircle className="w-3.5 h-3.5 text-[#FF1744]" />
             <span>Drag & drop or tap a starter and bench player to swap positions.</span>
           </div>
         )}
@@ -291,7 +291,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                             className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
                               isSelected
                                 ? 'bg-emerald-950/80 border-emerald-400 ring-2 ring-emerald-500/50 shadow-md scale-[1.02]'
-                                : 'bg-[#101826] border-slate-800 hover:border-[#00E5FF]/40'
+                                : 'bg-[#101826] border-slate-800 hover:border-[#FF1744]/40'
                             }`}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
@@ -318,10 +318,10 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                 </div>
 
                 {/* Starting 7 Roster List */}
-                <div className="bg-[#0A0D1A] rounded-2xl border border-[#00E5FF]/30 p-4 shadow-lg">
+                <div className="bg-[#0A0D1A] rounded-2xl border border-[#FF1744]/30 p-4 shadow-lg">
                   <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-[#00E5FF] flex items-center gap-2">
-                      <Shield className="w-3.5 h-3.5 text-[#00E5FF]" />
+                    <h3 className="text-xs font-black uppercase tracking-wider text-[#FF1744] flex items-center gap-2">
+                      <Shield className="w-3.5 h-3.5 text-[#FF1744]" />
                       STARTING 7 ({starting.length}/7)
                     </h3>
                     <span className="text-[10px] text-slate-400 font-mono">{formation}</span>
@@ -352,7 +352,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                             </span>
                             <span className="text-xs font-bold text-white truncate">{p.shortName}</span>
                           </div>
-                          <span className="text-xs font-mono font-bold text-[#00E5FF]">{p.overall} OVR</span>
+                          <span className="text-xs font-mono font-bold text-[#FF1744]">{p.overall} OVR</span>
                         </div>
                       );
                     })}
@@ -364,7 +364,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
             /* Cards View */
             <div className="space-y-6">
               <div>
-                <h3 className="text-xs font-black uppercase tracking-wider text-[#00E5FF] mb-3 flex items-center gap-2">
+                <h3 className="text-xs font-black uppercase tracking-wider text-[#FF1744] mb-3 flex items-center gap-2">
                   <Shield className="w-4 h-4" />
                   STARTING 7 PLAYERS ({starting.length}/7)
                 </h3>
@@ -446,7 +446,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
         {/* Footer */}
         <div className="p-4 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between gap-3">
           <div className="text-xs text-slate-400 font-mono">
-            Lineup: <strong className="text-white">{starting.length}</strong> Starters • <strong className="text-white">{bench.length}</strong> Bench • Formation <strong className="text-[#00E5FF]">{formation}</strong>
+            Lineup: <strong className="text-white">{starting.length}</strong> Starters • <strong className="text-white">{bench.length}</strong> Bench • Formation <strong className="text-[#FF1744]">{formation}</strong>
           </div>
 
           <div className="flex items-center gap-3">
@@ -458,7 +458,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
             </button>
             <button
               onClick={handleSave}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan active:scale-95"
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan active:scale-95"
             >
               CONFIRM LINEUP & TACTICS
             </button>

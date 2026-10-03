@@ -104,33 +104,33 @@ export const PitchView: React.FC<PitchViewProps> = ({
   };
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto rounded-3xl overflow-hidden border border-[#00E5FF]/30 shadow-glow-cyan bg-gradient-to-b from-[#0A0D1A] via-[#0E1324] to-[#0A0D1A] p-3 sm:p-5 select-none">
+    <div className="relative w-full max-w-2xl mx-auto rounded-3xl overflow-hidden border border-[#FF1744]/30 shadow-glow-cyan bg-gradient-to-b from-[#0A0D1A] via-[#0E1324] to-[#0A0D1A] p-3 sm:p-5 select-none">
       
       {/* Holographic Arena Turf Grid & Glow Lines */}
-      <div className="relative w-full aspect-[4/5] rounded-2xl border border-[#00E5FF]/30 overflow-hidden flex flex-col justify-between p-3 cyber-grid-bg">
+      <div className="relative w-full aspect-[4/5] rounded-2xl border border-[#FF1744]/30 overflow-hidden flex flex-col justify-between p-3 cyber-grid-bg">
         
         {/* Subtle Pitch Cyber Stripes */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none bg-[repeating-linear-gradient(0deg,transparent,transparent_40px,#00E5FF_40px,#00E5FF_80px)]" />
+        <div className="absolute inset-0 opacity-10 pointer-events-none bg-[repeating-linear-gradient(0deg,transparent,transparent_40px,#FF1744_40px,#FF1744_80px)]" />
 
         {/* Pitch Boundary Lines */}
-        <div className="absolute inset-2 border-2 border-[#00E5FF]/25 rounded-xl pointer-events-none shadow-glow-cyan" />
+        <div className="absolute inset-2 border-2 border-[#FF1744]/25 rounded-xl pointer-events-none shadow-glow-cyan" />
 
         {/* Center Halfway Line */}
-        <div className="absolute top-1/2 left-2 right-2 h-[2px] bg-[#00E5FF]/30 -translate-y-1/2 pointer-events-none shadow-glow-cyan" />
+        <div className="absolute top-1/2 left-2 right-2 h-[2px] bg-[#FF1744]/30 -translate-y-1/2 pointer-events-none shadow-glow-cyan" />
 
         {/* Center Circle & Spot */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-[#00E5FF]/30 pointer-events-none flex items-center justify-center shadow-glow-cyan">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] shadow-glow-cyan" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-[#FF1744]/30 pointer-events-none flex items-center justify-center shadow-glow-cyan">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#FF1744] shadow-glow-cyan" />
         </div>
 
         {/* Top Penalty Box (Opponent's end) */}
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-48 sm:w-60 h-20 sm:h-24 border-b-2 border-x-2 border-[#00E5FF]/25 rounded-b-2xl pointer-events-none flex justify-center">
-          <div className="w-24 sm:w-32 h-10 border-b-2 border-x-2 border-[#00E5FF]/20 rounded-b-lg" />
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-48 sm:w-60 h-20 sm:h-24 border-b-2 border-x-2 border-[#FF1744]/25 rounded-b-2xl pointer-events-none flex justify-center">
+          <div className="w-24 sm:w-32 h-10 border-b-2 border-x-2 border-[#FF1744]/20 rounded-b-lg" />
         </div>
 
         {/* Bottom Penalty Box (Our Goal Area) */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-48 sm:w-60 h-20 sm:h-24 border-t-2 border-x-2 border-[#00E5FF]/25 rounded-t-2xl pointer-events-none flex items-end justify-center">
-          <div className="w-24 sm:w-32 h-10 border-t-2 border-x-2 border-[#00E5FF]/20 rounded-t-lg" />
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-48 sm:w-60 h-20 sm:h-24 border-t-2 border-x-2 border-[#FF1744]/25 rounded-t-2xl pointer-events-none flex items-end justify-center">
+          <div className="w-24 sm:w-32 h-10 border-t-2 border-x-2 border-[#FF1744]/20 rounded-t-lg" />
         </div>
 
         {/* --- ROW 1: ATTACKERS --- */}
@@ -239,9 +239,9 @@ export const PitchView: React.FC<PitchViewProps> = ({
       {/* Formation label & guide */}
       <div className="flex items-center justify-between mt-3 text-xs text-slate-300 font-semibold px-2">
         <span className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#00E5FF] animate-ping" />
-          <span className="text-[#00E5FF] font-black uppercase tracking-wider font-display">TACTICAL FORMATION:</span>
-          <span className="text-white font-mono font-bold bg-[#0A0A14] px-2 py-0.5 rounded border border-[#00E5FF]/30">
+          <span className="w-2 h-2 rounded-full bg-[#FF1744] animate-ping" />
+          <span className="text-[#FF1744] font-black uppercase tracking-wider font-display">TACTICAL FORMATION:</span>
+          <span className="text-white font-mono font-bold bg-[#0A0A14] px-2 py-0.5 rounded border border-[#FF1744]/30">
             {formation}
           </span>
         </span>
@@ -296,8 +296,8 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
         <div
           className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center font-black transition-all shadow-xl overflow-hidden ${
             isSelected
-              ? 'bg-[#00E5FF] text-slate-950 ring-4 ring-[#00E5FF]/80 shadow-glow-cyan'
-              : 'bg-gradient-to-b from-[#0E1324] to-[#0A0A14] text-white border-2 border-slate-700/80 group-hover:border-[#00E5FF] shadow-glow-cyan'
+              ? 'bg-[#FF1744] text-slate-950 ring-4 ring-[#FF1744]/80 shadow-glow-cyan'
+              : 'bg-gradient-to-b from-[#0E1324] to-[#0A0A14] text-white border-2 border-slate-700/80 group-hover:border-[#FF1744] shadow-glow-cyan'
           }`}
         >
           {avatar ? (
@@ -316,7 +316,7 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
               <span className="text-sm sm:text-base leading-none font-mono">#{player.number ?? 7}</span>
               <span
                 className={`text-[8px] font-black uppercase tracking-wider px-1 py-0.2 rounded mt-0.5 ${
-                  isSelected ? 'bg-slate-950 text-[#00E5FF]' : `${badge.bg} ${badge.text}`
+                  isSelected ? 'bg-slate-950 text-[#FF1744]' : `${badge.bg} ${badge.text}`
                 }`}
               >
                 {player.position}
@@ -326,7 +326,7 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
         </div>
 
         {/* Overall Rating Pill */}
-        <div className="absolute -top-1 -right-2 px-1.5 py-0.5 rounded-full bg-[#00E5FF] text-slate-950 text-[10px] font-black shadow-glow-cyan border border-[#00E5FF]/60 leading-none z-10 font-display">
+        <div className="absolute -top-1 -right-2 px-1.5 py-0.5 rounded-full bg-[#FF1744] text-slate-950 text-[10px] font-black shadow-glow-cyan border border-[#FF1744]/60 leading-none z-10 font-display">
           {player.overall}
         </div>
 
@@ -346,7 +346,7 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
       </div>
 
       {/* Player Name Banner */}
-      <div className="mt-1 px-2 py-0.5 rounded-lg bg-[#0A0A14]/90 backdrop-blur-sm border border-[#00E5FF]/20 text-center shadow-md max-w-[85px] sm:max-w-[105px]">
+      <div className="mt-1 px-2 py-0.5 rounded-lg bg-[#0A0A14]/90 backdrop-blur-sm border border-[#FF1744]/20 text-center shadow-md max-w-[85px] sm:max-w-[105px]">
         <p className="text-[11px] font-bold text-white truncate font-display">
           {player.shortName}
         </p>
@@ -375,8 +375,8 @@ const EmptyPitchSlot: React.FC<EmptyPitchSlotProps> = ({
       onDrop={onDrop}
       className="flex flex-col items-center cursor-pointer group"
     >
-      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border-2 border-dashed border-[#00E5FF]/40 bg-[#0A0D1A]/60 flex flex-col items-center justify-center text-slate-400 group-hover:border-[#00E5FF] group-hover:text-white transition shadow-sm">
-        <Plus className="w-4 h-4 text-[#00E5FF]" />
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border-2 border-dashed border-[#FF1744]/40 bg-[#0A0D1A]/60 flex flex-col items-center justify-center text-slate-400 group-hover:border-[#FF1744] group-hover:text-white transition shadow-sm">
+        <Plus className="w-4 h-4 text-[#FF1744]" />
         <span className="text-[9px] font-mono font-bold">{role}</span>
       </div>
       <span className="text-[9px] text-slate-500 font-mono mt-1">EMPTY</span>

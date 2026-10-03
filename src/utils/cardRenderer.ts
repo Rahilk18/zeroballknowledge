@@ -243,10 +243,10 @@ export function renderEASportsFCCard(
 
   // Subtle Holographic Rainbow Prismatic Sheen
   const holoGrad = ctx.createLinearGradient(0, height * 0.2, width, height * 0.7);
-  holoGrad.addColorStop(0, 'rgba(0, 229, 255, 0.12)');
+  holoGrad.addColorStop(0, 'rgba(255, 23, 68, 0.12)');
   holoGrad.addColorStop(0.3, 'rgba(245, 158, 11, 0.08)');
   holoGrad.addColorStop(0.6, 'rgba(168, 85, 247, 0.12)');
-  holoGrad.addColorStop(1, 'rgba(0, 229, 255, 0.15)');
+  holoGrad.addColorStop(1, 'rgba(255, 23, 68, 0.15)');
   ctx.fillStyle = holoGrad;
   ctx.fillRect(0, 0, width, height);
   ctx.restore();
@@ -296,7 +296,7 @@ export function renderEASportsFCCard(
     ctx.fill();
 
     // Neon Player Number / Initial on chest
-    ctx.fillStyle = '#00E5FF';
+    ctx.fillStyle = '#FF1744';
     ctx.font = '900 48px Orbitron, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(`#${player?.number || '9'}`, photoX + photoW * 0.5, photoY + photoH * 0.85);

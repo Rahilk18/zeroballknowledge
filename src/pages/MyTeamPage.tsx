@@ -95,8 +95,8 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
   if (!displayTeam || !displayTeam.id) {
     return (
       <div className="space-y-6 animate-fadeIn pb-16 max-w-xl mx-auto py-16 text-center">
-        <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/30 p-8 shadow-glow-cyan space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#00E5FF]/15 border border-[#00E5FF]/30 flex items-center justify-center text-3xl mx-auto shadow-glow-cyan">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/30 p-8 shadow-glow-cyan space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-[#FF1744]/15 border border-[#FF1744]/30 flex items-center justify-center text-3xl mx-auto shadow-glow-cyan">
             🛡️
           </div>
           <h2 className="text-2xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
@@ -108,7 +108,7 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
           <div className="pt-2 flex justify-center gap-3">
             <button
               onClick={() => onNavigateTab ? onNavigateTab('dashboard') : null}
-              className="px-6 py-3 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
+              className="px-6 py-3 bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
             >
               Return to Battle Hub →
             </button>
@@ -197,15 +197,15 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
       
       {/* Session Switcher if multiple past games exist */}
       {pastTeams.length > 1 && (
-        <div className="flex items-center justify-between bg-[#0E1324] border border-[#00E5FF]/20 rounded-2xl px-5 py-3 shadow-md">
+        <div className="flex items-center justify-between bg-[#0E1324] border border-[#FF1744]/20 rounded-2xl px-5 py-3 shadow-md">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#00E5FF]" />
+            <Clock className="w-4 h-4 text-[#FF1744]" />
             <span className="text-xs font-bold text-slate-300">SWITCH SQUAD SESSION:</span>
           </div>
           <select
             value={selectedPastTeamId || currentTeam?.id || ''}
             onChange={(e) => setSelectedPastTeamId(e.target.value)}
-            className="bg-[#0A0A14] border border-slate-700 text-xs font-bold text-white py-1.5 px-3 rounded-xl focus:outline-none focus:border-[#00E5FF]"
+            className="bg-[#0A0A14] border border-slate-700 text-xs font-bold text-white py-1.5 px-3 rounded-xl focus:outline-none focus:border-[#FF1744]"
           >
             {currentTeam && (
               <option value={currentTeam.id}>
@@ -222,17 +222,17 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
       )}
 
       {/* HeroBid Cyber Squad Overview Bar */}
-      <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/30 p-6 shadow-glow-cyan relative overflow-hidden">
+      <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/30 p-6 shadow-glow-cyan relative overflow-hidden">
         <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-800">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#00E5FF] to-blue-600 flex items-center justify-center text-3xl sm:text-4xl shadow-glow-cyan border border-[#00E5FF]/60 flex-shrink-0">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#FF1744] to-rose-700 flex items-center justify-center text-3xl sm:text-4xl shadow-glow-cyan border border-[#FF1744]/60 flex-shrink-0">
               {displayTeam.badgeIcon || '⚡'}
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 tracking-wider">
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider">
                   TACTICAL ROSTER
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono font-bold">
@@ -255,11 +255,11 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
 
           {/* Quick Metrics */}
           <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-            <div className="bg-[#0A0A14] px-4 py-2.5 rounded-2xl border border-[#00E5FF]/30 flex items-center gap-3 shadow-glow-cyan">
-              <Shield className="w-5 h-5 text-[#00E5FF]" />
+            <div className="bg-[#0A0A14] px-4 py-2.5 rounded-2xl border border-[#FF1744]/30 flex items-center gap-3 shadow-glow-cyan">
+              <Shield className="w-5 h-5 text-[#FF1744]" />
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase block">TEAM OVR</span>
-                <span className="text-2xl font-black text-[#00E5FF] leading-none font-display text-glow-cyan">{teamOverall || '--'}</span>
+                <span className="text-2xl font-black text-[#FF1744] leading-none font-display text-glow-cyan">{teamOverall || '--'}</span>
               </div>
             </div>
 
@@ -284,10 +284,10 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
         {/* HeroBid Equipped Gear Slot Bar */}
         <div className="relative z-10 pt-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2 p-2 bg-[#0A0A14] border border-[#00E5FF]/25 rounded-2xl">
+            <div className="flex items-center gap-2 p-2 bg-[#0A0A14] border border-[#FF1744]/25 rounded-2xl">
               <span className="text-xl">{equippedGear.icon}</span>
               <div>
-                <span className="text-[9px] text-[#00E5FF] font-black uppercase tracking-wider block">EQUIPPED PERK</span>
+                <span className="text-[9px] text-[#FF1744] font-black uppercase tracking-wider block">EQUIPPED PERK</span>
                 <span className="text-xs font-bold text-white">{equippedGear.name}</span>
               </div>
               <span className="text-[10px] font-mono text-emerald-400 font-bold ml-1">
@@ -303,7 +303,7 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
                 const found = FOOTBALL_GEARS.find(g => g.id === e.target.value);
                 if (found) setEquippedGear(found);
               }}
-              className="bg-[#0A0A14] border border-slate-700 text-xs font-bold text-slate-300 py-2 px-3 rounded-xl focus:outline-none focus:border-[#00E5FF]"
+              className="bg-[#0A0A14] border border-slate-700 text-xs font-bold text-slate-300 py-2 px-3 rounded-xl focus:outline-none focus:border-[#FF1744]"
             >
               {FOOTBALL_GEARS.map(g => (
                 <option key={g.id} value={g.id}>
@@ -317,7 +317,7 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => onNavigateTab ? onNavigateTab('lineup') : setIsLineupEditorOpen(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-glow-cyan active:scale-95"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-glow-cyan active:scale-95"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 <span>CHOOSE PLAYING 7</span>
@@ -328,7 +328,7 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
                 disabled={!selectedPlayer}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0A0A14] hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition border border-slate-700 active:scale-95 disabled:opacity-50"
               >
-                <Glasses className="w-3.5 h-3.5 text-[#00E5FF]" />
+                <Glasses className="w-3.5 h-3.5 text-[#FF1744]" />
                 <span>3D STAGE 🥽</span>
               </button>
 
@@ -347,8 +347,8 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
 
       {/* EMPTY SQUAD STATE */}
       {squadSize === 0 ? (
-        <div className="text-center py-16 px-4 rounded-3xl bg-[#0E1324] border border-[#00E5FF]/20 space-y-4 shadow-glow-cyan">
-          <div className="w-16 h-16 rounded-2xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-3xl mx-auto shadow-glow-cyan">
+        <div className="text-center py-16 px-4 rounded-3xl bg-[#0E1324] border border-[#FF1744]/20 space-y-4 shadow-glow-cyan">
+          <div className="w-16 h-16 rounded-2xl bg-[#FF1744]/10 border border-[#FF1744]/30 flex items-center justify-center text-3xl mx-auto shadow-glow-cyan">
             ⚽
           </div>
           <div>
@@ -363,7 +363,7 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
             <div className="pt-2">
               <button
                 onClick={() => onNavigateTab('auction')}
-                className="px-6 py-3 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan inline-flex items-center gap-2"
+                className="px-6 py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan inline-flex items-center gap-2"
               >
                 <span>ENTER 3D AUCTION ARENA</span>
                 <ArrowRight className="w-4 h-4" />
@@ -376,10 +376,10 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Tactical Pitch View */}
-          <div className="lg:col-span-8 bg-[#0E1324] rounded-3xl border border-[#00E5FF]/20 p-4 sm:p-6 shadow-xl relative">
+          <div className="lg:col-span-8 bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-4 sm:p-6 shadow-xl relative">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-ping" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#FF1744] animate-ping" />
                 <span className="text-xs font-black uppercase tracking-wider text-white font-display text-glow-cyan">
                   STARTING SEVEN TACTICAL RADAR
                 </span>
@@ -401,7 +401,7 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
                     onClick={() => handleChangeFormation(f.id)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all whitespace-nowrap ${
                       (displayTeam.formation || '1-2-2-2') === f.id
-                        ? 'bg-[#00E5FF] text-slate-950 font-black shadow-glow-cyan scale-105'
+                        ? 'bg-[#FF1744] text-slate-950 font-black shadow-glow-cyan scale-105'
                         : 'bg-[#12182D] text-slate-300 hover:text-white border border-slate-800'
                     }`}
                   >
@@ -455,17 +455,17 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
             )}
 
             {/* Bench Substitutes */}
-            <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl p-5 shadow-xl space-y-3">
+            <div className="bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl p-5 shadow-xl space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#00E5FF]" />
+                  <Users className="w-4 h-4 text-[#FF1744]" />
                   <span className="text-xs font-black uppercase tracking-wider text-white font-display">
                     BENCH RESERVES ({benchPlayers.length})
                   </span>
                 </div>
                 <button
                   onClick={() => setShowBenchSection(!showBenchSection)}
-                  className="text-xs text-[#00E5FF] font-bold uppercase tracking-wider hover:underline"
+                  className="text-xs text-[#FF1744] font-bold uppercase tracking-wider hover:underline"
                 >
                   {showBenchSection ? 'Collapse' : 'Expand'}
                 </button>
@@ -490,7 +490,7 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
                           }
                         }}
                         className={`flex items-center justify-between p-2.5 rounded-xl border transition cursor-pointer ${
-                          selectedPlayerId === p.id ? 'bg-[#00E5FF]/10 border-[#00E5FF]/50 shadow-glow-cyan' : 'bg-[#0A0A14] border-slate-800 hover:border-slate-700'
+                          selectedPlayerId === p.id ? 'bg-[#FF1744]/10 border-[#FF1744]/50 shadow-glow-cyan' : 'bg-[#0A0A14] border-slate-800 hover:border-slate-700'
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
@@ -500,7 +500,7 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
                             <span className="text-[10px] text-slate-500">{p.nationality}</span>
                           </div>
                         </div>
-                        <span className="text-xs font-black font-mono text-[#00E5FF]">{p.overall} OVR</span>
+                        <span className="text-xs font-black font-mono text-[#FF1744]">{p.overall} OVR</span>
                       </div>
                     ))}
                   </div>

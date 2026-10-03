@@ -53,14 +53,14 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
   return (
     <div className="space-y-6 animate-fadeIn pb-16 max-w-6xl mx-auto">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-950/40 via-[#0E1324] to-purple-950/40 border border-[#00E5FF]/30 p-6 sm:p-7 shadow-glow-cyan">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border border-[#FF1744]/30 p-6 sm:p-7 shadow-glow-cyan">
         <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <Database className="w-5 h-5 text-[#00E5FF]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF] font-display text-glow-cyan">
+              <Database className="w-5 h-5 text-[#FF1744]" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#FF1744] font-display text-glow-cyan">
                 ZEROBALLKNOWLEDGE FOOTBALL DATABASE
               </span>
             </div>
@@ -73,8 +73,8 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
           </div>
 
           <div className="flex items-center gap-2 text-xs font-mono font-bold">
-            <span className="px-3.5 py-2 rounded-2xl bg-[#0A0A14] border border-[#00E5FF]/30 text-slate-300">
-              TOTAL: <strong className="text-[#00E5FF]">{players.length}</strong>
+            <span className="px-3.5 py-2 rounded-2xl bg-[#0A0A14] border border-[#FF1744]/30 text-slate-300">
+              TOTAL: <strong className="text-[#FF1744]">{players.length}</strong>
             </span>
             <span className="px-3.5 py-2 rounded-2xl bg-[#0A0A14] border border-purple-500/30 text-slate-300">
               FILTERED: <strong className="text-purple-300">{filteredPlayers.length}</strong>
@@ -84,16 +84,16 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
       </div>
 
       {/* Search & Filter Toolbar */}
-      <div className="bg-[#0E1324] p-4 rounded-3xl border border-[#00E5FF]/20 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-xl">
+      <div className="bg-[#0E1324] p-4 rounded-3xl border border-[#FF1744]/20 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-xl">
         {/* Search Bar */}
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00E5FF]" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FF1744]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search players by name, nationality (e.g. Messi, Haaland, Bellingham)..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#0A0A14] border border-slate-700 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] transition font-medium"
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#0A0A14] border border-slate-700 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] transition font-medium"
           />
           {searchQuery && (
             <button
@@ -124,7 +124,7 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
                 }}
                 className={`px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                   isActive
-                    ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan'
+                    ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan'
                     : 'bg-[#0A0A14] hover:bg-[#12182D] text-slate-400 hover:text-white border border-slate-800'
                 }`}
               >
@@ -143,7 +143,7 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
               sound.playClick();
               setSortBy(e.target.value as any);
             }}
-            className="bg-[#0A0A14] border border-slate-700 text-xs font-bold text-slate-200 py-2.5 px-3 rounded-2xl focus:outline-none focus:border-[#00E5FF]"
+            className="bg-[#0A0A14] border border-slate-700 text-xs font-bold text-slate-200 py-2.5 px-3 rounded-2xl focus:outline-none focus:border-[#FF1744]"
           >
             <option value="overall">Highest Overall (OVR)</option>
             <option value="form">Highest Form (HOT)</option>

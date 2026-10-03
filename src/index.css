@@ -14,7 +14,7 @@
   }
 
   .text-glow-cyan {
-    text-shadow: 0 0 10px rgba(0, 229, 255, 0.7), 0 0 20px rgba(46, 230, 255, 0.4);
+    text-shadow: 0 0 10px rgba(255, 23, 68, 0.7), 0 0 20px rgba(255, 77, 109, 0.4);
   }
 
   .text-glow-purple {
@@ -26,8 +26,8 @@
   }
 
   .border-glow-cyan {
-    border-color: rgba(46, 230, 255, 0.4);
-    box-shadow: 0 0 15px rgba(0, 229, 255, 0.2), inset 0 0 15px rgba(0, 229, 255, 0.05);
+    border-color: rgba(255, 77, 109, 0.4);
+    box-shadow: 0 0 15px rgba(255, 23, 68, 0.2), inset 0 0 15px rgba(255, 23, 68, 0.05);
   }
 
   .cyber-clip {
@@ -41,12 +41,12 @@
   .cyber-grid-bg {
     background-size: 32px 32px;
     background-image: 
-      linear-gradient(to right, rgba(46, 230, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(46, 230, 255, 0.05) 1px, transparent 1px);
+      linear-gradient(to right, rgba(255, 77, 109, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 77, 109, 0.05) 1px, transparent 1px);
   }
 
   .holo-ring {
-    background: radial-gradient(circle, rgba(0, 229, 255, 0.15) 0%, rgba(10, 10, 20, 0) 70%);
+    background: radial-gradient(circle, rgba(255, 23, 68, 0.15) 0%, rgba(10, 10, 20, 0) 70%);
   }
 }
 
@@ -78,11 +78,11 @@
 ::-webkit-scrollbar-thumb {
   background: #18223c;
   border-radius: 9999px;
-  border: 1px solid rgba(46, 230, 255, 0.2);
+  border: 1px solid rgba(255, 77, 109, 0.2);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #00E5FF;
-  box-shadow: 0 0 10px #00E5FF;
+  background: #FF1744;
+  box-shadow: 0 0 10px #FF1744;
 }
 

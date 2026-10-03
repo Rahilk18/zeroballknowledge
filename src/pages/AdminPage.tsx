@@ -258,13 +258,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   if (!isAuthorized) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-4">
-        <div className="bg-[#0E1324] border border-[#00E5FF]/40 rounded-3xl p-8 max-w-md w-full shadow-glow-cyan text-center space-y-5 animate-fadeIn">
-          <div className="w-16 h-16 rounded-2xl bg-[#00E5FF]/15 border border-[#00E5FF]/40 flex items-center justify-center text-3xl mx-auto shadow-glow-cyan text-[#00E5FF]">
+        <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-3xl p-8 max-w-md w-full shadow-glow-cyan text-center space-y-5 animate-fadeIn">
+          <div className="w-16 h-16 rounded-2xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-3xl mx-auto shadow-glow-cyan text-[#FF1744]">
             <Lock className="w-8 h-8" />
           </div>
 
           <div>
-            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 text-glow-cyan">
+            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 text-glow-cyan">
               RESTRICTED CONSOLE
             </span>
             <h2 className="text-2xl font-black text-white uppercase tracking-wider font-display text-glow-cyan mt-2">
@@ -289,12 +289,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 value={pinInput}
                 onChange={e => setPinInput(e.target.value)}
                 placeholder="Enter Admin Password..."
-                className="w-full bg-[#0A0A14] border border-slate-700 focus:border-[#00E5FF] rounded-2xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-center font-mono tracking-widest text-sm"
+                className="w-full bg-[#0A0A14] border border-slate-700 focus:border-[#FF1744] rounded-2xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-center font-mono tracking-widest text-sm"
               />
             </div>
             <button
               type="submit"
-              className="w-full py-3.5 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
+              className="w-full py-3.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
             >
               AUTHORIZE ACCESS
             </button>
@@ -312,17 +312,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     <div className="space-y-6 animate-fadeIn pb-16 max-w-6xl mx-auto">
       
       {/* Super Admin Top Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-950/40 via-[#0E1324] to-purple-950/40 border-2 border-[#00E5FF]/50 p-6 sm:p-7 shadow-glow-cyan">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border-2 border-[#FF1744]/50 p-6 sm:p-7 shadow-glow-cyan">
         <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#00E5FF]/20 border border-[#00E5FF]/50 flex items-center justify-center text-3xl shadow-glow-cyan text-[#00E5FF]">
+            <div className="w-14 h-14 rounded-2xl bg-[#FF1744]/20 border border-[#FF1744]/50 flex items-center justify-center text-3xl shadow-glow-cyan text-[#FF1744]">
               <ShieldCheck className="w-8 h-8" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 tracking-wider text-glow-cyan">
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider text-glow-cyan">
                   ROOT SYSTEM ADMIN
                 </span>
                 <span className="text-[10px] text-emerald-400 font-mono font-bold">
@@ -351,7 +351,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       </div>
 
       {statusMessage && (
-        <div className="p-3 bg-[#00E5FF]/10 border border-[#00E5FF]/40 rounded-2xl text-[#00E5FF] text-xs font-bold text-center shadow-glow-cyan animate-fadeIn">
+        <div className="p-3 bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-2xl text-[#FF1744] text-xs font-bold text-center shadow-glow-cyan animate-fadeIn">
           {statusMessage}
         </div>
       )}
@@ -375,7 +375,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition ${
                 isActive
-                  ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan'
+                  ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan'
                   : 'bg-[#0E1324] text-slate-400 hover:text-white border border-slate-800'
               }`}
             >
@@ -388,7 +388,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       {/* TAB 1: ACTIVE ROOMS MANAGEMENT */}
       {activeTab === 'rooms' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/20 p-6 shadow-xl space-y-4">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <div>
               <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
@@ -398,7 +398,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             </div>
             <button
               onClick={fetchLiveSessions}
-              className="p-2 rounded-xl bg-[#0A0A14] border border-slate-700 hover:border-[#00E5FF] text-slate-400 hover:text-[#00E5FF] transition"
+              className="p-2 rounded-xl bg-[#0A0A14] border border-slate-700 hover:border-[#FF1744] text-slate-400 hover:text-[#FF1744] transition"
               title="Refresh Rooms"
             >
               <RefreshCw className={`w-4 h-4 ${loadingSessions ? 'animate-spin' : ''}`} />
@@ -412,7 +412,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               liveSessions.map((session) => (
                 <div key={session.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#0A0A14] border border-[#00E5FF]/30 flex items-center justify-center font-mono font-black text-[#00E5FF] text-sm">
+                    <div className="w-10 h-10 rounded-xl bg-[#0A0A14] border border-[#FF1744]/30 flex items-center justify-center font-mono font-black text-[#FF1744] text-sm">
                       {session.session_code || session.sessionCode}
                     </div>
                     <div>
@@ -420,7 +420,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <span className="text-white font-bold text-sm font-mono tracking-wider">
                           CODE: {session.session_code || session.sessionCode}
                         </span>
-                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40">
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40">
                           {session.status}
                         </span>
                       </div>
@@ -461,7 +461,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       {/* TAB 2: FOOTBALLER INJECTOR */}
       {activeTab === 'players' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/20 p-6 shadow-xl space-y-5">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-5">
           <div className="pb-3 border-b border-slate-800">
             <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
               CREATE CUSTOM SUPERSTAR FOOTBALLER
@@ -479,7 +479,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   value={newPlayerName}
                   onChange={e => setNewPlayerName(e.target.value)}
                   placeholder="e.g. Wayne Rooney"
-                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs font-bold"
+                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-bold"
                 />
               </div>
 
@@ -488,7 +488,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 <select
                   value={newPlayerPos}
                   onChange={e => setNewPlayerPos(e.target.value as any)}
-                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#00E5FF] text-xs font-bold"
+                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#FF1744] text-xs font-bold"
                 >
                   <option value="ATT">ATT (Forward)</option>
                   <option value="MID">MID (Midfield)</option>
@@ -504,7 +504,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   value={newPlayerNat}
                   onChange={e => setNewPlayerNat(e.target.value)}
                   placeholder="e.g. England"
-                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs font-bold"
+                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-bold"
                 />
               </div>
             </div>
@@ -524,7 +524,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 <div key={st.label}>
                   <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-1">
                     <span>{st.label}</span>
-                    <span className="text-[#00E5FF] font-mono font-black">{st.val}</span>
+                    <span className="text-[#FF1744] font-mono font-black">{st.val}</span>
                   </div>
                   <input
                     type="range"
@@ -532,7 +532,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     max={st.max || 99}
                     value={st.val}
                     onChange={e => st.set(Number(e.target.value))}
-                    className="w-full accent-[#00E5FF]"
+                    className="w-full accent-[#FF1744]"
                   />
                 </div>
               ))}
@@ -545,13 +545,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 value={newPlayerAvatar}
                 onChange={e => setNewPlayerAvatar(e.target.value)}
                 placeholder="https://...png"
-                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs font-mono"
+                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono"
               />
             </div>
 
             <button
               type="submit"
-              className="py-3 px-6 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
+              className="py-3 px-6 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
             >
               + INJECT SUPERSTAR INTO DATABASE
             </button>
@@ -561,7 +561,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       {/* TAB 3: BUDGET & CREDITS CHEATS */}
       {activeTab === 'budget' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/20 p-6 shadow-xl space-y-5">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-5">
           <div className="pb-3 border-b border-slate-800">
             <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
               ECONOMY & SQUAD BUDGET CONTROLS
@@ -575,7 +575,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               <select
                 value={selectedTeamId}
                 onChange={e => setSelectedTeamId(e.target.value)}
-                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white text-xs font-bold focus:outline-none focus:border-[#00E5FF]"
+                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white text-xs font-bold focus:outline-none focus:border-[#FF1744]"
               >
                 {allTeams.map(t => (
                   <option key={t.id} value={t.id}>
@@ -591,7 +591,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 <button
                   type="button"
                   onClick={() => handleGrantBudget(150)}
-                  className="py-2.5 px-3 bg-[#0A0A14] hover:bg-[#12182D] border border-slate-700 text-[#00E5FF] text-xs font-black rounded-xl transition"
+                  className="py-2.5 px-3 bg-[#0A0A14] hover:bg-[#12182D] border border-slate-700 text-[#FF1744] text-xs font-black rounded-xl transition"
                 >
                   €150M Default
                 </button>
@@ -617,7 +617,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       {/* TAB 4: LEADERBOARD ELO ADJUSTER */}
       {activeTab === 'leaderboard' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/20 p-6 shadow-xl space-y-5">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-5">
           <div className="pb-3 border-b border-slate-800">
             <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
               LEADERBOARD ELO CHEAT ENGINE
@@ -634,7 +634,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 value={targetUsername}
                 onChange={e => setTargetUsername(e.target.value)}
                 placeholder="e.g. rahil"
-                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs font-mono"
+                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono"
               />
             </div>
 
@@ -644,13 +644,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 type="number"
                 value={eloAmount}
                 onChange={e => setEloAmount(Number(e.target.value))}
-                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-[#00E5FF] text-xs font-mono font-bold"
+                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-[#FF1744] text-xs font-mono font-bold"
               />
             </div>
 
             <button
               type="submit"
-              className="py-3 px-6 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
+              className="py-3 px-6 bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
             >
               APPLY ELO ADJUSTMENT
             </button>

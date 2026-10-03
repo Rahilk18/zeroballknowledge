@@ -21,7 +21,7 @@ const positionColor: Record<string, string> = {
 };
 
 function OverallBadge({ value }: { value: number }) {
-  const color = value >= 90 ? 'from-[#00E5FF] to-blue-500 text-slate-950' : value >= 85 ? 'from-amber-400 to-amber-600 text-slate-950' : 'from-purple-500 to-indigo-600 text-white';
+  const color = value >= 90 ? 'from-[#FF1744] to-blue-500 text-slate-950' : value >= 85 ? 'from-amber-400 to-amber-600 text-slate-950' : 'from-purple-500 to-indigo-600 text-white';
   return (
     <div className={`inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br ${color} rounded-2xl font-black font-display text-xl shadow-glow-cyan`}>
       {value}
@@ -147,7 +147,7 @@ export function AuctionPage({ setActiveTab }: any) {
   // No session at all
   if (!currentSession) {
     return (
-      <div className="p-6 text-center py-20 bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl max-w-xl mx-auto my-12 shadow-glow-cyan">
+      <div className="p-6 text-center py-20 bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl max-w-xl mx-auto my-12 shadow-glow-cyan">
         <span className="text-5xl mb-4 block">🥽</span>
         <h2 className="text-xl font-black text-white uppercase tracking-wider font-display text-glow-cyan mb-2">
           NO ACTIVE BIDDING ARENA
@@ -155,7 +155,7 @@ export function AuctionPage({ setActiveTab }: any) {
         <p className="text-slate-400 text-xs mb-6">Create or join an arena room from the Battle Hub to start the live auction.</p>
         <button
           onClick={() => setActiveTab && setActiveTab('dashboard')}
-          className="px-6 py-3 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition shadow-glow-cyan"
+          className="px-6 py-3 bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition shadow-glow-cyan"
         >
           Return to Battle Hub
         </button>
@@ -182,7 +182,7 @@ export function AuctionPage({ setActiveTab }: any) {
     return (
       <div className="p-4 md:p-6 max-w-2xl mx-auto py-12 space-y-6 animate-fadeIn">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00E5FF] to-blue-600 rounded-2xl text-3xl shadow-glow-cyan mb-2">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#FF1744] to-rose-700 rounded-2xl text-3xl shadow-glow-cyan mb-2">
             🏆
           </div>
           <h1 className="text-3xl font-black text-white tracking-widest uppercase font-display text-glow-cyan">
@@ -194,12 +194,12 @@ export function AuctionPage({ setActiveTab }: any) {
         </div>
 
         {/* Your Team Card */}
-        <div className="bg-[#0E1324] border border-[#00E5FF]/30 rounded-3xl p-6 shadow-glow-cyan space-y-5">
+        <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-3xl p-6 shadow-glow-cyan space-y-5">
           <div className="flex items-center justify-between pb-4 border-b border-slate-800">
             <div className="flex items-center gap-3">
-              <span className="text-3xl p-2.5 bg-[#0A0A14] border border-[#00E5FF]/20 rounded-2xl">{myTeam?.badgeIcon || myTeam?.badge || '⚡'}</span>
+              <span className="text-3xl p-2.5 bg-[#0A0A14] border border-[#FF1744]/20 rounded-2xl">{myTeam?.badgeIcon || myTeam?.badge || '⚡'}</span>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#00E5FF]">YOUR SQUAD</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#FF1744]">YOUR SQUAD</p>
                 <h2 className="text-xl font-bold text-white tracking-wide">{myTeam?.name || myTeam?.teamName || 'Your Club'}</h2>
               </div>
             </div>
@@ -215,7 +215,7 @@ export function AuctionPage({ setActiveTab }: any) {
               <h3 className="font-bold text-xs text-slate-300 uppercase tracking-wider">
                 Acquired Squad ({mySquad.length}/10 Players)
               </h3>
-              <span className="text-[10px] text-[#00E5FF] font-mono">ZEROBALL REGISTERED</span>
+              <span className="text-[10px] text-[#FF1744] font-mono">ZEROBALL REGISTERED</span>
             </div>
 
             <div className="space-y-2">
@@ -234,7 +234,7 @@ export function AuctionPage({ setActiveTab }: any) {
                         {sq.player?.name ?? sq.playerId}
                       </span>
                       {sq.player?.overall && (
-                        <span className="text-xs text-[#00E5FF] font-mono font-bold">({sq.player.overall} OVR)</span>
+                        <span className="text-xs text-[#FF1744] font-mono font-bold">({sq.player.overall} OVR)</span>
                       )}
                     </div>
                     <span className="text-emerald-400 font-mono font-bold text-sm">€{sq.purchasePrice}M</span>
@@ -249,7 +249,7 @@ export function AuctionPage({ setActiveTab }: any) {
         <div className="space-y-3">
           <button
             onClick={handleContinueToMatches}
-            className="w-full py-4 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black text-sm uppercase tracking-wider rounded-2xl transition-all shadow-glow-cyan active:scale-98 flex items-center justify-center gap-2"
+            className="w-full py-4 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black text-sm uppercase tracking-wider rounded-2xl transition-all shadow-glow-cyan active:scale-98 flex items-center justify-center gap-2"
           >
             <span>CHOOSE YOUR PLAYING 7 →</span>
           </button>
@@ -260,7 +260,7 @@ export function AuctionPage({ setActiveTab }: any) {
                 sound.playClick();
                 await reopenAuction();
               }}
-              className="w-full py-3.5 bg-[#0A0D1A] hover:bg-slate-800 border border-[#00E5FF]/40 text-[#00E5FF] font-bold text-xs uppercase tracking-wider rounded-2xl transition flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-[#0A0D1A] hover:bg-slate-800 border border-[#FF1744]/40 text-[#FF1744] font-bold text-xs uppercase tracking-wider rounded-2xl transition flex items-center justify-center gap-2"
             >
               <span>🔙 REOPEN LIVE AUCTION / DRAFT MORE PLAYERS</span>
             </button>
@@ -273,7 +273,7 @@ export function AuctionPage({ setActiveTab }: any) {
   // Waiting for auction to start or load
   if (!currentAuction || currentSession.status !== 'AUCTION') {
     return (
-      <div className="p-6 text-center py-20 space-y-4 max-w-lg mx-auto bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl my-12 shadow-glow-cyan">
+      <div className="p-6 text-center py-20 space-y-4 max-w-lg mx-auto bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl my-12 shadow-glow-cyan">
         {currentSession.status === 'LOBBY' ? (
           <div className="space-y-4">
             <div className="text-5xl mb-2">🏟️</div>
@@ -291,7 +291,7 @@ export function AuctionPage({ setActiveTab }: any) {
                     const { error } = await startAuction();
                     if (error) setBidError(error);
                   }}
-                  className="w-full py-3.5 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-glow-cyan active:scale-98"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-glow-cyan active:scale-98"
                 >
                   🚀 START 3D AUCTION NOW
                 </button>
@@ -302,7 +302,7 @@ export function AuctionPage({ setActiveTab }: any) {
             ) : (
               <div className="space-y-3 pt-2">
                 <p className="text-slate-400 text-xs">Waiting for the host to launch the draft. You will connect automatically as soon as lot #1 opens!</p>
-                <button onClick={() => setActiveTab && setActiveTab('lobby')} className="px-5 py-2.5 bg-[#0A0A14] border border-slate-700 hover:border-[#00E5FF] text-white rounded-xl text-xs uppercase font-bold">
+                <button onClick={() => setActiveTab && setActiveTab('lobby')} className="px-5 py-2.5 bg-[#0A0A14] border border-slate-700 hover:border-[#FF1744] text-white rounded-xl text-xs uppercase font-bold">
                   View Lobby
                 </button>
               </div>
@@ -310,7 +310,7 @@ export function AuctionPage({ setActiveTab }: any) {
           </div>
         ) : (
           <div className="py-12 space-y-3">
-            <div className="w-10 h-10 border-2 border-[#00E5FF] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
+            <div className="w-10 h-10 border-2 border-[#FF1744] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
             <h3 className="text-white font-bold text-base uppercase tracking-wider">PROJECTING NEXT PLAYER...</h3>
             <p className="text-slate-400 text-xs font-mono">Syncing Three.js Holo-Stage</p>
           </div>
@@ -319,21 +319,21 @@ export function AuctionPage({ setActiveTab }: any) {
     );
   }
 
-  const timerColor = timeLeft <= 5 ? 'text-rose-400 text-glow-purple' : timeLeft <= 10 ? 'text-amber-400 text-glow-gold' : 'text-[#00E5FF] text-glow-cyan';
+  const timerColor = timeLeft <= 5 ? 'text-rose-400 text-glow-purple' : timeLeft <= 10 ? 'text-amber-400 text-glow-gold' : 'text-[#FF1744] text-glow-cyan';
   const timerPulse = timeLeft <= 5 ? 'animate-pulse' : '';
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-5 animate-fadeIn">
       
       {/* ARENA HEADER: ROOM CODE & 3D STAGE TOGGLE */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#0E1324] border border-[#00E5FF]/25 shadow-glow-cyan">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#0E1324] border border-[#FF1744]/25 shadow-glow-cyan">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#00E5FF]/15 border border-[#00E5FF]/40 flex items-center justify-center text-lg text-[#00E5FF]">
+          <div className="w-9 h-9 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-lg text-[#FF1744]">
             🥽
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 tracking-wider">
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider">
                 ZEROBALLKNOWLEDGE 3D ARENA
               </span>
               <span className="text-[11px] font-mono text-slate-400">ROOM: {currentSession.sessionCode}</span>
@@ -349,7 +349,7 @@ export function AuctionPage({ setActiveTab }: any) {
             onClick={() => setShow3D(!show3D)}
             className={`px-3 py-1.5 rounded-xl border text-xs font-bold uppercase transition flex items-center gap-1.5 ${
               show3D
-                ? 'bg-[#00E5FF]/20 border-[#00E5FF]/50 text-[#00E5FF] shadow-glow-cyan'
+                ? 'bg-[#FF1744]/20 border-[#FF1744]/50 text-[#FF1744] shadow-glow-cyan'
                 : 'bg-[#0A0A14] border-slate-700 text-slate-400'
             }`}
           >
@@ -359,10 +359,10 @@ export function AuctionPage({ setActiveTab }: any) {
       </div>
 
       {/* ROOM SQUAD READINESS & HOST DRAFT CONCLUDE PANEL */}
-      <div className="bg-[#0E1324] border border-[#00E5FF]/30 rounded-3xl p-4 sm:p-5 shadow-glow-cyan space-y-3.5">
+      <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-3xl p-4 sm:p-5 shadow-glow-cyan space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#00E5FF]" />
+            <Users className="w-4 h-4 text-[#FF1744]" />
             <span className="text-xs font-black uppercase tracking-wider text-white">
               SQUAD READINESS TRACKER (MINIMUM {minSquadRequired} PLAYERS PER TEAM)
             </span>
@@ -445,7 +445,7 @@ export function AuctionPage({ setActiveTab }: any) {
             <div className="transition-all">
               <Hero3DViewer
                 player={currentPlayer}
-                auraHex={currentPlayer?.overall && currentPlayer.overall >= 90 ? '#F59E0B' : '#00E5FF'}
+                auraHex={currentPlayer?.overall && currentPlayer.overall >= 90 ? '#F59E0B' : '#FF1744'}
                 height={380}
                 showControls={true}
               />
@@ -453,17 +453,17 @@ export function AuctionPage({ setActiveTab }: any) {
           )}
 
           {/* Player Scouting Info & Live Countdown */}
-          <div className="bg-[#0E1324] border border-[#00E5FF]/30 rounded-3xl overflow-hidden shadow-glow-cyan">
+          <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-3xl overflow-hidden shadow-glow-cyan">
             {/* Header with live timer */}
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-[#0A0A14]/80">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 bg-[#00E5FF] rounded-full animate-ping" />
-                <span className="text-xs font-black text-[#00E5FF] uppercase tracking-widest text-glow-cyan">
+                <span className="w-2.5 h-2.5 bg-[#FF1744] rounded-full animate-ping" />
+                <span className="text-xs font-black text-[#FF1744] uppercase tracking-widest text-glow-cyan">
                   CURRENT LOT
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-bold text-[#00E5FF] bg-[#00E5FF]/10 border border-[#00E5FF]/30 px-2 py-0.5 rounded-md font-mono">
+                <span className="text-[10px] font-bold text-[#FF1744] bg-[#FF1744]/10 border border-[#FF1744]/30 px-2 py-0.5 rounded-md font-mono">
                   +10s EXTENSION / BID
                 </span>
                 <div className={`text-2xl font-black font-display ${timerColor} ${timerPulse}`}>
@@ -480,7 +480,7 @@ export function AuctionPage({ setActiveTab }: any) {
                   {(() => {
                     const avatar = getPlayerAvatarUrl(currentPlayer);
                     return (
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-b from-slate-800 to-[#0A0A14] rounded-2xl flex flex-col items-center justify-center border border-[#00E5FF]/30 flex-shrink-0 overflow-hidden shadow-glow-cyan">
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-b from-slate-800 to-[#0A0A14] rounded-2xl flex flex-col items-center justify-center border border-[#FF1744]/30 flex-shrink-0 overflow-hidden shadow-glow-cyan">
                         {avatar ? (
                           <img
                             src={avatar}
@@ -538,8 +538,8 @@ export function AuctionPage({ setActiveTab }: any) {
 
                 {/* AI Tactical Advice Chip */}
                 {aiAdvice && (
-                  <div className="mt-4 p-3 bg-gradient-to-r from-cyan-950/30 to-purple-950/30 border border-[#00E5FF]/20 rounded-2xl flex items-start gap-2 text-xs">
-                    <Brain className="w-4 h-4 text-[#00E5FF] flex-shrink-0 mt-0.5" />
+                  <div className="mt-4 p-3 bg-gradient-to-r from-rose-950/30 to-purple-950/30 border border-[#FF1744]/20 rounded-2xl flex items-start gap-2 text-xs">
+                    <Brain className="w-4 h-4 text-[#FF1744] flex-shrink-0 mt-0.5" />
                     <p className="text-slate-300 leading-relaxed font-medium">
                       {aiAdvice}
                     </p>
@@ -548,7 +548,7 @@ export function AuctionPage({ setActiveTab }: any) {
               </div>
             ) : (
               <div className="p-8 text-center space-y-2">
-                <div className="w-8 h-8 border-2 border-[#00E5FF] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
+                <div className="w-8 h-8 border-2 border-[#FF1744] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
                 <p className="text-xs text-slate-400 font-mono">LOADING SCOUTING CARD...</p>
               </div>
             )}
@@ -561,7 +561,7 @@ export function AuctionPage({ setActiveTab }: any) {
               </div>
               <div className="p-3.5 text-center">
                 <p className="text-[10px] text-slate-500 uppercase font-bold mb-0.5">CURRENT BID</p>
-                <p className="text-xl sm:text-2xl font-black text-[#00E5FF] font-mono text-glow-cyan">
+                <p className="text-xl sm:text-2xl font-black text-[#FF1744] font-mono text-glow-cyan">
                   {effectiveCurrentBid > 0 ? `€${effectiveCurrentBid}M` : '€0M'}
                 </p>
               </div>
@@ -569,7 +569,7 @@ export function AuctionPage({ setActiveTab }: any) {
                 <p className="text-[10px] text-slate-500 uppercase font-bold mb-0.5">HIGH BIDDER</p>
                 <p className="text-sm sm:text-base font-black text-white truncate">
                   {highestBidTeam ? (
-                    <span className={myTeamIsHighest ? 'text-[#00E5FF] text-glow-cyan' : 'text-white'}>
+                    <span className={myTeamIsHighest ? 'text-[#FF1744] text-glow-cyan' : 'text-white'}>
                       {myTeamIsHighest ? 'YOU 🎉' : (highestBidTeam.abbreviation || highestBidTeam.name)}
                     </span>
                   ) : 'NO BIDS'}
@@ -579,19 +579,19 @@ export function AuctionPage({ setActiveTab }: any) {
           </div>
 
           {/* Bid Controls */}
-          <div className="bg-[#0E1324] border border-[#00E5FF]/30 rounded-3xl p-5 space-y-3.5 shadow-glow-cyan">
+          <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-3xl p-5 space-y-3.5 shadow-glow-cyan">
             {bidError && <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-bold">{bidError}</div>}
-            {bidSuccess && <div className="p-3 bg-[#00E5FF]/10 border border-[#00E5FF]/40 rounded-xl text-[#00E5FF] text-xs font-bold text-glow-cyan">{bidSuccess}</div>}
+            {bidSuccess && <div className="p-3 bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-xl text-[#FF1744] text-xs font-bold text-glow-cyan">{bidSuccess}</div>}
 
             {myTeamIsHighest && (
-              <div className="p-3 bg-[#00E5FF]/10 border border-[#00E5FF]/40 rounded-2xl text-[#00E5FF] text-xs font-black uppercase tracking-wider text-center shadow-glow-cyan">
+              <div className="p-3 bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-2xl text-[#FF1744] text-xs font-black uppercase tracking-wider text-center shadow-glow-cyan">
                 🏆 YOU ARE CURRENTLY THE HIGHEST BIDDER!
               </div>
             )}
 
             <form onSubmit={handleBid} className="flex gap-2">
               <div className="relative flex-1">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#00E5FF] font-black text-sm">€</span>
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#FF1744] font-black text-sm">€</span>
                 <input
                   type="number"
                   min={minBid}
@@ -599,13 +599,13 @@ export function AuctionPage({ setActiveTab }: any) {
                   value={bidAmount}
                   onChange={e => setBidAmount(e.target.value)}
                   placeholder={`Min bid: €${minBid}M`}
-                  className="w-full bg-[#0A0A14] border border-slate-700 focus:border-[#00E5FF] rounded-2xl pl-8 pr-3 py-3 text-white placeholder-slate-500 focus:outline-none text-sm font-bold font-mono"
+                  className="w-full bg-[#0A0A14] border border-slate-700 focus:border-[#FF1744] rounded-2xl pl-8 pr-3 py-3 text-white placeholder-slate-500 focus:outline-none text-sm font-bold font-mono"
                 />
               </div>
               <button
                 type="submit"
                 disabled={submittingBid || currentAuction.status !== 'LIVE' || mySquad.length >= 10}
-                className="px-6 py-3 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap shadow-glow-cyan active:scale-95 flex items-center gap-1.5"
+                className="px-6 py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap shadow-glow-cyan active:scale-95 flex items-center gap-1.5"
               >
                 <Gavel className="w-4 h-4" />
                 <span>{submittingBid ? 'PLACING...' : 'PLACE BID'}</span>
@@ -623,7 +623,7 @@ export function AuctionPage({ setActiveTab }: any) {
                     setBidAmount(String(amt));
                   }}
                   disabled={!myTeam || amt > myTeam.budget}
-                  className="px-3 py-1.5 bg-[#0A0A14] hover:bg-[#12182D] border border-slate-800 hover:border-[#00E5FF]/40 text-white text-xs font-mono font-bold rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 bg-[#0A0A14] hover:bg-[#12182D] border border-slate-800 hover:border-[#FF1744]/40 text-white text-xs font-mono font-bold rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   +€{amt}M
                 </button>
@@ -643,7 +643,7 @@ export function AuctionPage({ setActiveTab }: any) {
             </div>
 
             <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
-              <span>BUDGET: <span className="text-[#00E5FF] font-black font-mono">€{myTeam?.budget ?? '—'}M</span></span>
+              <span>BUDGET: <span className="text-[#FF1744] font-black font-mono">€{myTeam?.budget ?? '—'}M</span></span>
               <span>SQUAD SLOTS: <span className="text-white font-bold">{mySquad.length}/10</span></span>
             </div>
 
@@ -653,7 +653,7 @@ export function AuctionPage({ setActiveTab }: any) {
                 <div className="flex gap-2">
                   <button
                     onClick={handleNext}
-                    className="flex-1 py-3 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
+                    className="flex-1 py-3 bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
                   >
                     {effectiveCurrentBid > 0 ? '✓ HAMMER DOWN & NEXT LOT' : '→ NEXT FOOTBALLER'}
                   </button>
@@ -695,7 +695,7 @@ export function AuctionPage({ setActiveTab }: any) {
         <div className="space-y-4">
           
           {/* Live Bidding War Log */}
-          <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl overflow-hidden shadow-lg">
+          <div className="bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl overflow-hidden shadow-lg">
             <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
               <h3 className="font-black text-white text-xs uppercase tracking-wider font-display">
                 BID WAR TICKER
@@ -712,11 +712,11 @@ export function AuctionPage({ setActiveTab }: any) {
                   const team = allTeams.find(t => t.id === bid.teamId);
                   const isMyBid = myTeam && bid.teamId === myTeam.id;
                   return (
-                    <div key={bid.id} className={`flex items-center justify-between px-4 py-2.5 ${isMyBid ? 'bg-[#00E5FF]/10' : ''}`}>
+                    <div key={bid.id} className={`flex items-center justify-between px-4 py-2.5 ${isMyBid ? 'bg-[#FF1744]/10' : ''}`}>
                       <div className="flex items-center gap-2">
                         <span className="text-sm">{team?.badgeIcon ?? '⚽'}</span>
                         <span className="text-xs font-bold text-slate-300">{team?.abbreviation ?? '???'}</span>
-                        {isMyBid && <span className="text-[10px] text-[#00E5FF] font-black uppercase">(YOU)</span>}
+                        {isMyBid && <span className="text-[10px] text-[#FF1744] font-black uppercase">(YOU)</span>}
                       </div>
                       <span className="text-emerald-400 font-mono font-black text-sm">€{bid.amount}M</span>
                     </div>
@@ -727,12 +727,12 @@ export function AuctionPage({ setActiveTab }: any) {
           </div>
 
           {/* My Acquired Squad */}
-          <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl overflow-hidden shadow-lg">
+          <div className="bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl overflow-hidden shadow-lg">
             <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
               <h3 className="font-black text-white text-xs uppercase tracking-wider font-display">
                 MY SQUAD
               </h3>
-              <span className="text-xs font-mono font-bold text-[#00E5FF]">{mySquad.length}/10</span>
+              <span className="text-xs font-mono font-bold text-[#FF1744]">{mySquad.length}/10</span>
             </div>
             <div className="divide-y divide-slate-800/80 max-h-60 overflow-y-auto">
               {mySquad.length === 0 ? (
@@ -756,7 +756,7 @@ export function AuctionPage({ setActiveTab }: any) {
           </div>
 
           {/* All Managers & Budgets */}
-          <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl overflow-hidden shadow-lg">
+          <div className="bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl overflow-hidden shadow-lg">
             <div className="px-4 py-3 border-b border-slate-800">
               <h3 className="font-black text-white text-xs uppercase tracking-wider font-display">
                 ROOM MANAGERS
@@ -766,7 +766,7 @@ export function AuctionPage({ setActiveTab }: any) {
               {allTeams.map(t => {
                 const isMe = myTeam && t.id === myTeam.id;
                 return (
-                  <div key={t.id} className={`flex items-center gap-3 px-4 py-2.5 ${isMe ? 'bg-[#00E5FF]/10' : ''}`}>
+                  <div key={t.id} className={`flex items-center gap-3 px-4 py-2.5 ${isMe ? 'bg-[#FF1744]/10' : ''}`}>
                     <span className="text-base">{t.badgeIcon}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-white truncate">{t.teamName}</p>

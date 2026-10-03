@@ -98,8 +98,8 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
     return (
       <div className="min-h-screen bg-[#0A0A14] flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-12 h-12 border-4 border-[#00E5FF] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
-          <p className="text-[#00E5FF] font-bold text-xs tracking-widest uppercase font-display text-glow-cyan">
+          <div className="w-12 h-12 border-4 border-[#FF1744] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
+          <p className="text-[#FF1744] font-bold text-xs tracking-widest uppercase font-display text-glow-cyan">
             ZEROBALLKNOWLEDGE SYNCING...
           </p>
         </div>
@@ -111,12 +111,12 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
     <div className="min-h-screen bg-[#0A0A14] flex flex-col items-center justify-center p-4 relative overflow-hidden select-none">
       {/* Cyber Grid background */}
       <div className="fixed inset-0 cyber-grid-bg opacity-30 pointer-events-none" />
-      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#00E5FF]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#FF1744]/10 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md space-y-6">
         {/* ZeroBallKnowledge Logo mark */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00E5FF] to-blue-600 rounded-3xl mb-4 shadow-glow-cyan border border-[#00E5FF]/60 animate-pulse-glow">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#FF1744] to-rose-700 rounded-3xl mb-4 shadow-glow-cyan border border-[#FF1744]/60 animate-pulse-glow">
             <span className="text-3xl text-slate-950 font-black">⚡</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-wider uppercase font-display text-glow-cyan">
@@ -126,9 +126,9 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
             <span className="text-slate-400 text-xs font-bold tracking-wider uppercase">
               REAL-TIME MULTIPLAYER FOOTBALL AUCTION BATTLE
             </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-950/60 border border-[#00E5FF]/30 text-[10px] font-medium shadow-[0_0_10px_rgba(0,229,255,0.18)]">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-950/60 border border-[#FF1744]/30 text-[10px] font-medium shadow-[0_0_10px_rgba(255,23,68,0.18)]">
               <span className="text-slate-400 lowercase font-normal text-[9px]">by</span>
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] via-cyan-300 to-sky-400">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FF1744] via-rose-400 to-orange-500">
                 Rahil Kirtikar
               </span>
             </span>
@@ -136,13 +136,13 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
         </div>
 
         {/* Card */}
-        <div className="bg-[#0E1324] border border-[#00E5FF]/30 rounded-3xl shadow-glow-cyan overflow-hidden backdrop-blur-xl">
+        <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-3xl shadow-glow-cyan overflow-hidden backdrop-blur-xl">
           {/* Tabs */}
           <div className="flex border-b border-slate-800">
             <button
               onClick={() => { setMode('signin'); setError(''); setSuccess(''); }}
               className={`flex-1 py-4 text-xs font-black uppercase tracking-wider transition-colors font-display ${
-                mode === 'signin' ? 'text-[#00E5FF] border-b-2 border-[#00E5FF] bg-[#00E5FF]/10 text-glow-cyan' : 'text-slate-400 hover:text-white'
+                mode === 'signin' ? 'text-[#FF1744] border-b-2 border-[#FF1744] bg-[#FF1744]/10 text-glow-cyan' : 'text-slate-400 hover:text-white'
               }`}
             >
               MANAGER SIGN IN
@@ -150,7 +150,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
             <button
               onClick={() => { setMode('signup'); setError(''); setSuccess(''); }}
               className={`flex-1 py-4 text-xs font-black uppercase tracking-wider transition-colors font-display ${
-                mode === 'signup' ? 'text-[#00E5FF] border-b-2 border-[#00E5FF] bg-[#00E5FF]/10 text-glow-cyan' : 'text-slate-400 hover:text-white'
+                mode === 'signup' ? 'text-[#FF1744] border-b-2 border-[#FF1744] bg-[#FF1744]/10 text-glow-cyan' : 'text-slate-400 hover:text-white'
               }`}
             >
               CREATE ROSTER
@@ -165,7 +165,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
               </div>
             )}
             {success && (
-              <div className="mb-4 p-3 bg-[#00E5FF]/10 border border-[#00E5FF]/40 rounded-xl text-[#00E5FF] text-xs font-bold text-glow-cyan">
+              <div className="mb-4 p-3 bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-xl text-[#FF1744] text-xs font-bold text-glow-cyan">
                 {success}
               </div>
             )}
@@ -181,7 +181,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                     value={loginEmail}
                     onChange={e => setLoginEmail(e.target.value)}
                     placeholder="you@example.com or username"
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] transition text-sm font-medium"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] transition text-sm font-medium"
                   />
                 </div>
                 <div>
@@ -192,20 +192,20 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                     value={loginPassword}
                     onChange={e => setLoginPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] transition text-sm font-medium"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] transition text-sm font-medium"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3.5 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider text-xs active:scale-95"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider text-xs active:scale-95"
                 >
                   {submitting ? 'CONNECTING...' : 'ENTER ARENA'}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setMode('reset'); setError(''); setSuccess(''); }}
-                  className="w-full text-center text-xs text-slate-500 hover:text-[#00E5FF] transition pt-1"
+                  className="w-full text-center text-xs text-slate-500 hover:text-[#FF1744] transition pt-1"
                 >
                   Forgot your password?
                 </button>
@@ -224,7 +224,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                       value={regName}
                       onChange={e => setRegName(e.target.value)}
                       placeholder="Alex Ferguson"
-                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs font-medium"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-medium"
                     />
                   </div>
                   <div>
@@ -235,7 +235,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                       value={regUsername}
                       onChange={e => setRegUsername(e.target.value)}
                       placeholder="manager99"
-                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs font-mono"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono"
                     />
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                     value={regClub}
                     onChange={e => setRegClub(e.target.value)}
                     placeholder="e.g. Cyber City FC"
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs"
                   />
                 </div>
                 <div>
@@ -257,7 +257,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                     value={regEmail}
                     onChange={e => setRegEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -269,7 +269,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                       value={regPassword}
                       onChange={e => setRegPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs"
                     />
                   </div>
                   <div>
@@ -280,7 +280,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                       value={regConfirm}
                       onChange={e => setRegConfirm(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs"
                     />
                   </div>
                 </div>
@@ -294,7 +294,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                         type="button"
                         onClick={() => setSelectedBadge(b)}
                         className={`aspect-square flex items-center justify-center text-lg rounded-xl border transition ${
-                          selectedBadge === b ? 'border-[#00E5FF] bg-[#00E5FF]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14]'
+                          selectedBadge === b ? 'border-[#FF1744] bg-[#FF1744]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14]'
                         }`}
                       >
                         {b}
@@ -306,7 +306,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3.5 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider text-xs active:scale-95"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider text-xs active:scale-95"
                 >
                   {submitting ? 'INITIALIZING...' : 'CREATE MANAGER ACCOUNT'}
                 </button>
@@ -324,13 +324,13 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                     value={resetEmail}
                     onChange={e => setResetEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3.5 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-black rounded-xl uppercase tracking-wider text-xs shadow-glow-cyan"
+                  className="w-full py-3.5 bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 font-black rounded-xl uppercase tracking-wider text-xs shadow-glow-cyan"
                 >
                   SEND RESET LINK
                 </button>
@@ -352,9 +352,9 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                     sound.playClick();
                     onContinueGuest();
                   }}
-                  className="w-full py-3 bg-[#0A0A14] hover:bg-slate-800 text-[#00E5FF] border border-[#00E5FF]/40 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-glow-cyan flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#0A0A14] hover:bg-slate-800 text-[#FF1744] border border-[#FF1744]/40 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-glow-cyan flex items-center justify-center gap-2"
                 >
-                  <Zap className="w-4 h-4 text-[#00E5FF]" />
+                  <Zap className="w-4 h-4 text-[#FF1744]" />
                   <span>CONTINUE AS GUEST / DEMO PASS</span>
                 </button>
               </div>

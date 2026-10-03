@@ -47,14 +47,14 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
     <div className="space-y-6 animate-fadeIn pb-16 max-w-6xl mx-auto">
       
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-950/40 via-[#0E1324] to-purple-950/40 border border-[#00E5FF]/30 p-6 sm:p-8 shadow-glow-cyan">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border border-[#FF1744]/30 p-6 sm:p-8 shadow-glow-cyan">
         <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <Trophy className="w-5 h-5 text-amber-400" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF] font-display text-glow-cyan">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#FF1744] font-display text-glow-cyan">
                 ZEROBALLKNOWLEDGE RANKINGS & HALL OF FAME
               </span>
             </div>
@@ -72,7 +72,7 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
               onClick={() => setActiveTab('global')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${
                 activeTab === 'global'
-                  ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan'
+                  ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -83,7 +83,7 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
               onClick={() => setActiveTab('session')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${
                 activeTab === 'session'
-                  ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan'
+                  ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -104,19 +104,19 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
               RANK #2
             </span>
             <h3 className="text-lg font-black text-white mt-2 truncate font-display">{globalProfiles[1].displayName}</h3>
-            <p className="text-xs text-[#00E5FF] font-mono mt-0.5">@{globalProfiles[1].username}</p>
+            <p className="text-xs text-[#FF1744] font-mono mt-0.5">@{globalProfiles[1].username}</p>
             <div className="mt-3 text-2xl font-black font-mono text-slate-200">{globalProfiles[1].totalPoints} ELO</div>
           </div>
 
           {/* 1st Place Champion */}
-          <div className="bg-gradient-to-b from-[#12182D] to-[#0E1324] border-2 border-[#00E5FF] rounded-3xl p-6 text-center shadow-glow-cyan order-1 md:order-2 relative overflow-hidden -translate-y-1">
+          <div className="bg-gradient-to-b from-[#12182D] to-[#0E1324] border-2 border-[#FF1744] rounded-3xl p-6 text-center shadow-glow-cyan order-1 md:order-2 relative overflow-hidden -translate-y-1">
             <div className="text-4xl mb-2">👑</div>
-            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 text-glow-cyan">
+            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 text-glow-cyan">
               CHAMPION 🥇
             </span>
             <h3 className="text-xl font-black text-white mt-2 truncate font-display text-glow-cyan">{globalProfiles[0].displayName}</h3>
-            <p className="text-xs text-[#00E5FF] font-mono mt-0.5">@{globalProfiles[0].username}</p>
-            <div className="mt-3 text-3xl font-black font-mono text-[#00E5FF] text-glow-cyan">{globalProfiles[0].totalPoints} ELO</div>
+            <p className="text-xs text-[#FF1744] font-mono mt-0.5">@{globalProfiles[0].username}</p>
+            <div className="mt-3 text-3xl font-black font-mono text-[#FF1744] text-glow-cyan">{globalProfiles[0].totalPoints} ELO</div>
           </div>
 
           {/* 3rd Place */}
@@ -126,7 +126,7 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
               RANK #3
             </span>
             <h3 className="text-lg font-black text-white mt-2 truncate font-display">{globalProfiles[2].displayName}</h3>
-            <p className="text-xs text-[#00E5FF] font-mono mt-0.5">@{globalProfiles[2].username}</p>
+            <p className="text-xs text-[#FF1744] font-mono mt-0.5">@{globalProfiles[2].username}</p>
             <div className="mt-3 text-2xl font-black font-mono text-amber-400">{globalProfiles[2].totalPoints} ELO</div>
           </div>
         </div>
@@ -134,7 +134,7 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
 
       {/* TAB 1: GLOBAL CAREER LEADERBOARD TABLE */}
       {activeTab === 'global' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/20 p-6 shadow-xl space-y-4">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <div>
               <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
@@ -144,7 +144,7 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
                 ELO persists across all multiplayer draft tournaments
               </p>
             </div>
-            <span className="text-xs font-mono font-bold text-[#00E5FF]">
+            <span className="text-xs font-mono font-bold text-[#FF1744]">
               {globalProfiles.length} REGISTERED
             </span>
           </div>
@@ -183,23 +183,23 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
                       <tr
                         key={p.id}
                         className={`transition hover:bg-[#12182D] ${
-                          isCurrentUser ? 'bg-[#00E5FF]/10 font-bold' : ''
+                          isCurrentUser ? 'bg-[#FF1744]/10 font-bold' : ''
                         }`}
                       >
                         <td className="py-3 px-3 font-mono font-black">
-                          {idx === 0 && <span className="text-[#00E5FF] text-base">🥇 #1</span>}
+                          {idx === 0 && <span className="text-[#FF1744] text-base">🥇 #1</span>}
                           {idx === 1 && <span className="text-slate-300 text-base">🥈 #2</span>}
                           {idx === 2 && <span className="text-amber-500 text-base">🥉 #3</span>}
                           {idx > 2 && <span className="text-slate-400">#{idx + 1}</span>}
                         </td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-[#00E5FF]/20 text-[#00E5FF] font-bold flex items-center justify-center text-xs border border-[#00E5FF]/40 shadow-glow-cyan">
+                            <div className="w-7 h-7 rounded-lg bg-[#FF1744]/20 text-[#FF1744] font-bold flex items-center justify-center text-xs border border-[#FF1744]/40 shadow-glow-cyan">
                               {p.displayName.charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <span className="font-bold text-white block">
-                                {p.displayName} {isCurrentUser && <span className="text-[10px] text-[#00E5FF] font-black uppercase">(YOU)</span>}
+                                {p.displayName} {isCurrentUser && <span className="text-[10px] text-[#FF1744] font-black uppercase">(YOU)</span>}
                               </span>
                               <span className="text-[10px] text-slate-500 font-mono">@{p.username}</span>
                             </div>
@@ -211,13 +211,13 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
                         <td className="py-3 px-3 text-center font-mono text-rose-400">{p.losses}</td>
                         <td className="py-3 px-3 text-center font-mono">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            winRate >= 60 ? 'bg-[#00E5FF]/20 text-[#00E5FF]' : 'bg-slate-800 text-slate-300'
+                            winRate >= 60 ? 'bg-[#FF1744]/20 text-[#FF1744]' : 'bg-slate-800 text-slate-300'
                           }`}>
                             {winRate}%
                           </span>
                         </td>
                         <td className="py-3 px-3 text-right">
-                          <span className="font-black text-sm font-mono text-[#00E5FF] text-glow-cyan">
+                          <span className="font-black text-sm font-mono text-[#FF1744] text-glow-cyan">
                             {p.totalPoints} pts
                           </span>
                         </td>
@@ -233,14 +233,14 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
 
       {/* TAB 2: CURRENT GAME SESSION LEADERBOARD */}
       {activeTab === 'session' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/20 p-6 shadow-xl space-y-4">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <div>
               <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
                 ACTIVE TOURNAMENT STANDINGS
               </h2>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                Room Code: <span className="text-[#00E5FF] font-mono font-bold">{currentSession?.sessionCode || 'OFFLINE'}</span>
+                Room Code: <span className="text-[#FF1744] font-mono font-bold">{currentSession?.sessionCode || 'OFFLINE'}</span>
               </p>
             </div>
             <span className="text-[11px] font-mono text-slate-400">
@@ -278,7 +278,7 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
                         className="transition hover:bg-[#12182D]"
                       >
                         <td className="py-3 px-3 font-mono font-black">
-                          {idx === 0 && <span className="text-[#00E5FF]">🥇 #1</span>}
+                          {idx === 0 && <span className="text-[#FF1744]">🥇 #1</span>}
                           {idx === 1 && <span className="text-slate-300">🥈 #2</span>}
                           {idx === 2 && <span className="text-amber-500">🥉 #3</span>}
                           {idx > 2 && <span className="text-slate-400">#{idx + 1}</span>}
@@ -298,7 +298,7 @@ export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps)
                         <td className="py-3 px-3 text-center font-mono font-bold text-slate-200">
                           {s.goalDifference > 0 ? `+${s.goalDifference}` : s.goalDifference}
                         </td>
-                        <td className="py-3 px-3 text-right font-mono font-black text-[#00E5FF] text-sm text-glow-cyan">
+                        <td className="py-3 px-3 text-right font-mono font-black text-[#FF1744] text-sm text-glow-cyan">
                           {s.points}
                         </td>
                       </tr>

@@ -74,7 +74,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
           ⚔️
         </div>
         <div className="space-y-2">
-          <span className="text-[11px] font-black uppercase tracking-widest text-[#00E5FF] font-display">
+          <span className="text-[11px] font-black uppercase tracking-widest text-[#FF1744] font-display">
             BATTLE ARENA • SQUAD REQUIRED
           </span>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-wide uppercase font-display">
@@ -87,7 +87,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
           <button
             onClick={onGoToDashboard || onBack}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#00E5FF] to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-glow-cyan hover:brightness-110 active:scale-95 transition"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#FF1744] to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-glow-cyan hover:brightness-110 active:scale-95 transition"
           >
             Go to Battle Hub
           </button>
@@ -225,8 +225,8 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0A0D1A] border border-[#00E5FF]/30 text-xs font-mono font-bold text-[#00E5FF]">
-            <span className="w-2 h-2 rounded-full bg-[#00E5FF] animate-pulse" />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0A0D1A] border border-[#FF1744]/30 text-xs font-mono font-bold text-[#FF1744]">
+            <span className="w-2 h-2 rounded-full bg-[#FF1744] animate-pulse" />
             <span>OFFICIAL ROOM FIXTURE</span>
           </div>
         )}
@@ -424,7 +424,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
               {currentSession && (
                 <button
                   onClick={handleReturnToAuction}
-                  className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-[#0A0D1A] hover:bg-slate-800 border border-[#00E5FF]/40 text-[#00E5FF] font-bold text-xs uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-[#0A0D1A] hover:bg-slate-800 border border-[#FF1744]/40 text-[#FF1744] font-bold text-xs uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-2"
                 >
                   <span>🔙 RETURN TO LIVE AUCTION</span>
                 </button>
@@ -443,9 +443,9 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
               </button>
             </div>
           ) : (
-            <div className="w-full sm:w-auto min-w-[340px] flex flex-col items-center justify-center gap-2.5 px-8 py-5 rounded-2xl bg-[#0A0E1A] border border-[#00E5FF]/40 text-center shadow-glow-cyan animate-pulse">
-              <div className="flex items-center gap-2 text-[#00E5FF] font-black text-xs uppercase tracking-wider font-display">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-ping" />
+            <div className="w-full sm:w-auto min-w-[340px] flex flex-col items-center justify-center gap-2.5 px-8 py-5 rounded-2xl bg-[#0A0E1A] border border-[#FF1744]/40 text-center shadow-glow-cyan animate-pulse">
+              <div className="flex items-center gap-2 text-[#FF1744] font-black text-xs uppercase tracking-wider font-display">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#FF1744] animate-ping" />
                 <span>LOBBY FIXTURE VIEW ONLY</span>
               </div>
               <p className="text-xs text-slate-300 font-medium">

@@ -125,14 +125,14 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
   const stats = [
     { label: 'GAMES PLAYED', value: gamesPlayed, icon: '🎮', color: 'text-white' },
-    { label: 'VICTORIES', value: wins, icon: '🏆', color: 'text-[#00E5FF]' },
+    { label: 'VICTORIES', value: wins, icon: '🏆', color: 'text-[#FF1744]' },
     { label: 'DRAWS', value: draws, icon: '🤝', color: 'text-amber-400' },
     { label: 'DEFEATS', value: losses, icon: '💔', color: 'text-rose-400' },
-    { label: 'CAREER ELO', value: `${careerPoints} pts`, icon: '⭐', color: 'text-[#2EE6FF]' },
+    { label: 'CAREER ELO', value: `${careerPoints} pts`, icon: '⭐', color: 'text-[#FF4D6D]' },
   ];
 
   const getPositionLabel = (pos: number) => {
-    if (pos === 1) return { label: 'CHAMPION 🏆', badge: 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]/40 shadow-glow-cyan' };
+    if (pos === 1) return { label: 'CHAMPION 🏆', badge: 'bg-[#FF1744]/20 text-[#FF1744] border-[#FF1744]/40 shadow-glow-cyan' };
     if (pos === 2) return { label: 'RUNNER UP 🥈', badge: 'bg-slate-700/40 text-slate-300 border-slate-600' };
     if (pos === 3) return { label: '3RD PLACE 🥉', badge: 'bg-amber-700/20 text-amber-500 border-amber-700/30' };
     return { label: `RANK #${pos}`, badge: 'bg-[#0A0A14] text-slate-400 border-slate-800' };
@@ -181,19 +181,19 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
       )}
 
       {/* 1. HEROBID ARENA HEADER BANNER */}
-      <div className="relative bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border border-[#00E5FF]/30 rounded-3xl p-6 sm:p-8 shadow-glow-cyan overflow-hidden">
+      <div className="relative bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border border-[#FF1744]/30 rounded-3xl p-6 sm:p-8 shadow-glow-cyan overflow-hidden">
         {/* Holographic grid and glow lines */}
         <div className="absolute inset-0 cyber-grid-bg opacity-30 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#00E5FF]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#FF1744]/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#00E5FF] to-blue-600 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl font-black text-slate-950 shadow-glow-cyan border border-[#00E5FF]/60 flex-shrink-0">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#FF1744] to-rose-700 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl font-black text-slate-950 shadow-glow-cyan border border-[#FF1744]/60 flex-shrink-0">
               {profile?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'H'}
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#00E5FF]/15 text-[#00E5FF] border border-[#00E5FF]/30 tracking-widest text-glow-cyan">
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#FF1744]/15 text-[#FF1744] border border-[#FF1744]/30 tracking-widest text-glow-cyan">
                   ZEROBALLKNOWLEDGE // MULTIPLAYER ARENA
                 </span>
                 <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
@@ -205,7 +205,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                 {profile?.displayName || profile?.username || 'CYBER MANAGER'}
               </h1>
               <div className="flex items-center gap-3 mt-1 text-xs">
-                <span className="text-[#00E5FF] font-mono">@{profile?.username || 'manager'}</span>
+                <span className="text-[#FF1744] font-mono">@{profile?.username || 'manager'}</span>
                 <span className="text-slate-500">•</span>
                 <span className="text-slate-400 font-semibold">Division I Rank</span>
                 {myTeam && (
@@ -219,9 +219,9 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
           {/* Quick Stats Pill */}
           <div className="flex items-center gap-3 self-start lg:self-center">
-            <div className="bg-[#0A0A14]/90 border border-[#00E5FF]/25 rounded-2xl px-5 py-3 shadow-lg">
+            <div className="bg-[#0A0A14]/90 border border-[#FF1744]/25 rounded-2xl px-5 py-3 shadow-lg">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">CAREER POINTS</span>
-              <span className="text-2xl font-black font-mono text-[#00E5FF] text-glow-cyan">{careerPoints} ELO</span>
+              <span className="text-2xl font-black font-mono text-[#FF1744] text-glow-cyan">{careerPoints} ELO</span>
             </div>
             <div className="bg-[#0A0A14]/90 border border-amber-500/30 rounded-2xl px-5 py-3 shadow-lg">
               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">WIN RATIO</span>
@@ -236,17 +236,17 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
       {/* 2. PROMINENT 3D BIDDING ARENA ENTRY */}
       <div 
         onClick={() => setActiveTab('auction')}
-        className="group relative cursor-pointer bg-gradient-to-r from-cyan-950/40 via-[#0E1324] to-purple-950/40 border border-[#00E5FF]/40 rounded-3xl p-6 sm:p-7 shadow-glow-cyan hover:shadow-glow-cyan-lg transition-all hover:-translate-y-0.5 overflow-hidden"
+        className="group relative cursor-pointer bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border border-[#FF1744]/40 rounded-3xl p-6 sm:p-7 shadow-glow-cyan hover:shadow-glow-cyan-lg transition-all hover:-translate-y-0.5 overflow-hidden"
       >
-        <div className="absolute top-0 right-0 w-80 h-full bg-[#00E5FF]/10 blur-2xl group-hover:bg-[#00E5FF]/20 transition-all pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-full bg-[#FF1744]/10 blur-2xl group-hover:bg-[#FF1744]/20 transition-all pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#00E5FF]/20 to-purple-600/30 border border-[#00E5FF]/50 flex items-center justify-center text-3xl shadow-glow-cyan group-hover:scale-110 transition-transform">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF1744]/20 to-purple-600/30 border border-[#FF1744]/50 flex items-center justify-center text-3xl shadow-glow-cyan group-hover:scale-110 transition-transform">
               🥽
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 tracking-wider">
+                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider">
                   IMMERSIVE 3D STUDIO
                 </span>
                 <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">
@@ -262,7 +262,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
             </div>
           </div>
           <div className="flex items-center gap-2 self-end md:self-center">
-            <button className="px-5 py-2.5 rounded-xl bg-[#00E5FF] text-slate-950 font-black text-xs uppercase tracking-wider shadow-glow-cyan group-hover:bg-[#2EE6FF] transition flex items-center gap-2">
+            <button className="px-5 py-2.5 rounded-xl bg-[#FF1744] text-slate-950 font-black text-xs uppercase tracking-wider shadow-glow-cyan group-hover:bg-[#FF4D6D] transition flex items-center gap-2">
               <span>LAUNCH ARENA</span>
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -273,20 +273,20 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
       {/* 3. MULTIPLAYER BATTLE ROOM STATUS / ACTIONS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {currentSession ? (
-          <div className="md:col-span-2 bg-[#0E1324] border-2 border-[#00E5FF]/50 rounded-3xl p-6 shadow-glow-cyan relative overflow-hidden">
+          <div className="md:col-span-2 bg-[#0E1324] border-2 border-[#FF1744]/50 rounded-3xl p-6 shadow-glow-cyan relative overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-ping" />
-                  <span className="text-xs font-bold text-[#00E5FF] uppercase tracking-wider text-glow-cyan">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF1744] animate-ping" />
+                  <span className="text-xs font-bold text-[#FF1744] uppercase tracking-wider text-glow-cyan">
                     ACTIVE ROOM CONNECTED
                   </span>
                 </div>
                 <h2 className="text-2xl font-black text-white tracking-tight">
-                  ROOM CODE: <span className="font-mono text-[#00E5FF] tracking-widest text-glow-cyan">{currentSession.sessionCode}</span>
+                  ROOM CODE: <span className="font-mono text-[#FF1744] tracking-widest text-glow-cyan">{currentSession.sessionCode}</span>
                 </h2>
                 <p className="text-slate-400 text-xs mt-1">
-                  Team: <span className="text-white font-bold">{myTeam?.name || 'Your Team'}</span> • Status: <span className="text-[#00E5FF] font-bold uppercase">{currentSession.status}</span>
+                  Team: <span className="text-white font-bold">{myTeam?.name || 'Your Team'}</span> • Status: <span className="text-[#FF1744] font-bold uppercase">{currentSession.status}</span>
                 </p>
               </div>
 
@@ -297,7 +297,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     else if (currentSession.status === 'AUCTION') setActiveTab('auction');
                     else setActiveTab('my-team');
                   }}
-                  className="px-6 py-3 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-sm transition shadow-glow-cyan flex items-center gap-2 active:scale-95 uppercase tracking-wider"
+                  className="px-6 py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-sm transition shadow-glow-cyan flex items-center gap-2 active:scale-95 uppercase tracking-wider"
                 >
                   <span>RETURN TO ROOM</span>
                   <ArrowRight className="w-4 h-4" />
@@ -320,9 +320,9 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
             {/* Create Room Button */}
             <button
               onClick={() => { setModal('create'); setError(''); setCreatedCode(''); setTeamName(''); setAbbreviation(''); }}
-              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-[#00E5FF]/60 rounded-3xl p-6 text-left transition-all shadow-xl hover:-translate-y-0.5 border border-[#00E5FF]/25 hover:shadow-glow-cyan"
+              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-[#FF1744]/60 rounded-3xl p-6 text-left transition-all shadow-xl hover:-translate-y-0.5 border border-[#FF1744]/25 hover:shadow-glow-cyan"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-2xl mb-4 text-[#00E5FF] shadow-glow-cyan">
+              <div className="w-12 h-12 rounded-2xl bg-[#FF1744]/10 border border-[#FF1744]/30 flex items-center justify-center text-2xl mb-4 text-[#FF1744] shadow-glow-cyan">
                 <PlusCircle className="w-6 h-6" />
               </div>
               <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-cyan">
@@ -353,7 +353,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
       </div>
 
       {/* 4. ZEROBALLKNOWLEDGE GEAR & TRAITS SHOWCASE */}
-      <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl p-6 shadow-xl space-y-4">
+      <div className="bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Zap className="w-5 h-5 text-amber-400" />
@@ -361,7 +361,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               ZEROBALLKNOWLEDGE GEAR & SPECIAL TRAITS
             </h2>
           </div>
-          <span className="text-[11px] text-[#00E5FF] font-bold uppercase tracking-wider">
+          <span className="text-[11px] text-[#FF1744] font-bold uppercase tracking-wider">
             {FOOTBALL_GEARS.length} ITEMS CATALOGED
           </span>
         </div>
@@ -370,19 +370,19 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
           {FOOTBALL_GEARS.slice(0, 5).map((gear) => (
             <div
               key={gear.id}
-              className="bg-[#0A0A14] border border-slate-800 hover:border-[#00E5FF]/40 rounded-2xl p-3.5 transition group relative overflow-hidden"
+              className="bg-[#0A0A14] border border-slate-800 hover:border-[#FF1744]/40 rounded-2xl p-3.5 transition group relative overflow-hidden"
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-2xl">{gear.icon}</span>
                 <span className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${
                   gear.rarity === 'MYTHIC'
-                    ? 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]/40'
+                    ? 'bg-[#FF1744]/20 text-[#FF1744] border-[#FF1744]/40'
                     : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
                 }`}>
                   {gear.rarity}
                 </span>
               </div>
-              <h4 className="text-white font-bold text-xs group-hover:text-[#00E5FF] transition truncate">
+              <h4 className="text-white font-bold text-xs group-hover:text-[#FF1744] transition truncate">
                 {gear.name}
               </h4>
               <p className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
@@ -404,7 +404,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {stats.map(s => (
-            <div key={s.label} className="bg-[#0E1324] border border-[#00E5FF]/15 rounded-2xl p-4 text-center shadow-lg hover:border-[#00E5FF]/40 transition">
+            <div key={s.label} className="bg-[#0E1324] border border-[#FF1744]/15 rounded-2xl p-4 text-center shadow-lg hover:border-[#FF1744]/40 transition">
               <div className="text-2xl mb-1">{s.icon}</div>
               <div className={`text-2xl font-black font-mono ${s.color}`}>{s.value}</div>
               <div className="text-[10px] text-slate-400 font-bold tracking-wider mt-1">{s.label}</div>
@@ -414,10 +414,10 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
       </div>
 
       {/* 6. MY GAME HISTORY */}
-      <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl p-6 shadow-xl space-y-4">
+      <div className="bg-[#0E1324] border border-[#FF1744]/20 rounded-3xl p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <History className="w-5 h-5 text-[#00E5FF]" />
+            <History className="w-5 h-5 text-[#FF1744]" />
             <h2 className="text-sm font-black uppercase tracking-widest text-white font-display">
               BATTLE HISTORY
             </h2>
@@ -429,7 +429,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
         {loadingHistory ? (
           <div className="py-12 text-center text-slate-400 space-y-2">
-            <div className="w-8 h-8 border-2 border-[#00E5FF] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
+            <div className="w-8 h-8 border-2 border-[#FF1744] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
             <p className="text-xs font-mono">SYNCING GAME RECORDS...</p>
           </div>
         ) : gameHistory.length === 0 ? (
@@ -447,7 +447,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               <div className="pt-2 flex justify-center gap-3">
                 <button
                   onClick={() => { setModal('create'); setError(''); }}
-                  className="px-4 py-2 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-bold rounded-xl text-xs transition shadow-glow-cyan uppercase"
+                  className="px-4 py-2 bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 font-bold rounded-xl text-xs transition shadow-glow-cyan uppercase"
                 >
                   Host Room
                 </button>
@@ -467,7 +467,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               return (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0A0A14] border border-slate-800 hover:border-[#00E5FF]/40 transition"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0A0A14] border border-slate-800 hover:border-[#FF1744]/40 transition"
                 >
                   <div className="flex items-center gap-3.5">
                     <div className="w-12 h-12 rounded-xl bg-[#0E1324] flex items-center justify-center text-2xl border border-slate-700 flex-shrink-0">
@@ -475,7 +475,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold font-mono text-[#00E5FF]">Game #{item.gameNumber}</span>
+                        <span className="text-xs font-bold font-mono text-[#FF1744]">Game #{item.gameNumber}</span>
                         <span className="text-[10px] text-slate-500 font-mono">Room: {item.sessionCode}</span>
                       </div>
                       <h4 className="text-white font-extrabold text-sm sm:text-base">{item.teamName}</h4>
@@ -504,7 +504,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
       {/* CREATE GAME MODAL */}
       {modal === 'create' && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0E1324] border border-[#00E5FF]/40 rounded-3xl w-full max-w-md shadow-glow-cyan overflow-hidden animate-fadeIn">
+          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-3xl w-full max-w-md shadow-glow-cyan overflow-hidden animate-fadeIn">
             <div className="flex items-center justify-between p-6 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🚀</span>
@@ -526,9 +526,9 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                 <div className="text-center space-y-4">
                   <div className="text-5xl">🎉</div>
                   <h3 className="text-lg font-black text-white font-display text-glow-cyan">ROOM INITIALIZED!</h3>
-                  <div className="bg-[#00E5FF]/10 border border-[#00E5FF]/40 rounded-2xl p-5 shadow-glow-cyan">
+                  <div className="bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-2xl p-5 shadow-glow-cyan">
                     <p className="text-slate-400 text-xs mb-1">YOUR 6-LETTER ARENA CODE:</p>
-                    <p className="text-4xl font-black text-[#00E5FF] tracking-widest font-mono select-all text-glow-cyan">{createdCode}</p>
+                    <p className="text-4xl font-black text-[#FF1744] tracking-widest font-mono select-all text-glow-cyan">{createdCode}</p>
                     <p className="text-slate-400 text-xs mt-2">Share this code with your friends to join the real-time live auction.</p>
                   </div>
                   <div className="flex gap-3">
@@ -540,7 +540,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     </button>
                     <button
                       onClick={() => { setModal('none'); setActiveTab('lobby'); }}
-                      className="flex-1 py-3 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-xs transition shadow-glow-cyan uppercase"
+                      className="flex-1 py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs transition shadow-glow-cyan uppercase"
                     >
                       Go to Lobby →
                     </button>
@@ -550,7 +550,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                 <form onSubmit={handleCreateGame} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
-                      Your Club Name <span className="text-[#00E5FF]">*</span>
+                      Your Club Name <span className="text-[#FF1744]">*</span>
                     </label>
                     <input
                       type="text"
@@ -563,7 +563,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                         }
                       }}
                       placeholder="e.g. Cyber City FC"
-                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm font-semibold"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-semibold"
                     />
                   </div>
 
@@ -577,7 +577,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                       onChange={e => setAbbreviation(e.target.value.toUpperCase().slice(0, 3))}
                       placeholder="e.g. CCF"
                       maxLength={3}
-                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm font-mono uppercase tracking-widest"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-mono uppercase tracking-widest"
                     />
                   </div>
 
@@ -590,7 +590,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                           type="button"
                           onClick={() => setSelectedBadge(b)}
                           className={`aspect-square flex items-center justify-center text-xl rounded-xl border transition ${
-                            selectedBadge === b ? 'border-[#00E5FF] bg-[#00E5FF]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
+                            selectedBadge === b ? 'border-[#FF1744] bg-[#FF1744]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
                           }`}
                         >
                           {b}
@@ -602,7 +602,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                   <button
                     type="submit"
                     disabled={loadingSession}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-sm transition shadow-glow-cyan disabled:opacity-50 mt-2 uppercase tracking-wider"
+                    className="w-full py-3.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-sm transition shadow-glow-cyan disabled:opacity-50 mt-2 uppercase tracking-wider"
                   >
                     {loadingSession ? 'GENERATING ROOM...' : '🚀 CREATE ROOM'}
                   </button>
@@ -637,7 +637,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               <form onSubmit={handleJoinGame} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
-                    Room Code (6 letters) <span className="text-[#00E5FF]">*</span>
+                    Room Code (6 letters) <span className="text-[#FF1744]">*</span>
                   </label>
                   <input
                     type="text"
@@ -646,13 +646,13 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     onChange={e => setJoinCode(e.target.value.toUpperCase())}
                     placeholder="e.g. F7K92A"
                     maxLength={6}
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-lg font-mono tracking-widest uppercase text-center font-bold"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-lg font-mono tracking-widest uppercase text-center font-bold"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
-                    Your Team Name <span className="text-[#00E5FF]">*</span>
+                    Your Team Name <span className="text-[#FF1744]">*</span>
                   </label>
                   <input
                     type="text"
@@ -665,7 +665,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                       }
                     }}
                     placeholder="e.g. Cyber Squad"
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm font-semibold"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-semibold"
                   />
                 </div>
 
@@ -679,7 +679,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     onChange={e => setJoinAbbr(e.target.value.toUpperCase().slice(0, 3))}
                     placeholder="e.g. CSQ"
                     maxLength={3}
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm font-mono uppercase tracking-widest"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-mono uppercase tracking-widest"
                   />
                 </div>
 
@@ -692,7 +692,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                         type="button"
                         onClick={() => setJoinBadge(b)}
                         className={`aspect-square flex items-center justify-center text-xl rounded-xl border transition ${
-                          joinBadge === b ? 'border-[#00E5FF] bg-[#00E5FF]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
+                          joinBadge === b ? 'border-[#FF1744] bg-[#FF1744]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
                         }`}
                       >
                         {b}
@@ -704,7 +704,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                 <button
                   type="submit"
                   disabled={loadingSession}
-                  className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-black rounded-xl text-sm transition shadow-glow-purple disabled:opacity-50 mt-2 uppercase tracking-wider"
+                  className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-rose-700 hover:from-purple-500 hover:to-rose-600 text-white font-black rounded-xl text-sm transition shadow-glow-purple disabled:opacity-50 mt-2 uppercase tracking-wider"
                 >
                   {loadingSession ? 'CONNECTING...' : '🎯 ENTER ROOM'}
                 </button>

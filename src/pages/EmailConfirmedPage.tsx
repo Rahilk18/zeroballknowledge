@@ -157,7 +157,7 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
           particleCount: 80,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#00E5FF', '#2EE6FF', '#3B82F6', '#A855F7']
+          colors: ['#FF1744', '#FF4D6D', '#3B82F6', '#A855F7']
         });
       } catch (e) {
         // Fallback if canvas confetti fails
@@ -198,13 +198,13 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
       
       {/* Background Cyber Elements */}
       <div className="fixed inset-0 cyber-grid-bg opacity-30 pointer-events-none" />
-      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[650px] h-[650px] bg-[#00E5FF]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[650px] h-[650px] bg-[#FF1744]/10 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-lg">
 
         {/* Top Brand Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00E5FF] to-blue-600 rounded-2xl mb-3 shadow-glow-cyan border border-[#00E5FF]/50 animate-pulse-glow">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#FF1744] to-rose-700 rounded-2xl mb-3 shadow-glow-cyan border border-[#FF1744]/50 animate-pulse-glow">
             <span className="text-3xl text-slate-950 font-black">⚡</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
@@ -217,10 +217,10 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
 
         {/* --- STATE 1: VERIFYING --- */}
         {status === 'verifying' && (
-          <div className="bg-[#0E1324]/90 backdrop-blur-xl border border-[#00E5FF]/30 rounded-3xl p-8 shadow-glow-cyan text-center space-y-6">
+          <div className="bg-[#0E1324]/90 backdrop-blur-xl border border-[#FF1744]/30 rounded-3xl p-8 shadow-glow-cyan text-center space-y-6">
             <div className="relative w-20 h-20 mx-auto">
-              <div className="w-20 h-20 border-4 border-[#00E5FF]/20 border-t-[#00E5FF] rounded-full animate-spin" />
-              <div className="absolute inset-0 flex items-center justify-center text-xl text-[#00E5FF]">
+              <div className="w-20 h-20 border-4 border-[#FF1744]/20 border-t-[#FF1744] rounded-full animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center text-xl text-[#FF1744]">
                 <ShieldCheck className="w-8 h-8 animate-pulse" />
               </div>
             </div>
@@ -237,14 +237,14 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
 
         {/* --- STATE 2: SUCCESS --- */}
         {status === 'success' && (
-          <div className="bg-[#0E1324]/95 backdrop-blur-xl border border-[#00E5FF]/40 rounded-3xl p-6 sm:p-8 shadow-glow-cyan text-center space-y-6 animate-scaleIn">
+          <div className="bg-[#0E1324]/95 backdrop-blur-xl border border-[#FF1744]/40 rounded-3xl p-6 sm:p-8 shadow-glow-cyan text-center space-y-6 animate-scaleIn">
             
             {/* Glowing Success Badge */}
             <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 bg-[#00E5FF]/20 rounded-full animate-ping opacity-40" />
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00E5FF] to-emerald-400 p-0.5 shadow-glow-cyan flex items-center justify-center">
+              <div className="absolute inset-0 bg-[#FF1744]/20 rounded-full animate-ping opacity-40" />
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#FF1744] to-emerald-400 p-0.5 shadow-glow-cyan flex items-center justify-center">
                 <div className="w-full h-full bg-[#0A0A14] rounded-full flex items-center justify-center">
-                  <CheckCircle2 className="w-10 h-10 text-[#00E5FF]" />
+                  <CheckCircle2 className="w-10 h-10 text-[#FF1744]" />
                 </div>
               </div>
             </div>
@@ -258,11 +258,11 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
                 EMAIL CONFIRMED!
               </h1>
               <p className="text-slate-300 text-xs sm:text-sm mt-2 max-w-md mx-auto">
-                Welcome aboard, <span className="text-[#00E5FF] font-black">{managerName || 'Manager'}</span>! Your credentials have been officially registered on the ZeroBallKnowledge network.
+                Welcome aboard, <span className="text-[#FF1744] font-black">{managerName || 'Manager'}</span>! Your credentials have been officially registered on the ZeroBallKnowledge network.
               </p>
               {userEmail && (
                 <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-[#0A0A14] rounded-xl border border-slate-800 text-slate-400 text-xs font-mono">
-                  <Mail className="w-3.5 h-3.5 text-[#00E5FF]" />
+                  <Mail className="w-3.5 h-3.5 text-[#FF1744]" />
                   <span>{userEmail}</span>
                 </div>
               )}
@@ -287,7 +287,7 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
                   <span>3D Bidding Arena</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-300">
-                  <ShieldCheck className="w-4 h-4 text-[#00E5FF] flex-shrink-0" />
+                  <ShieldCheck className="w-4 h-4 text-[#FF1744] flex-shrink-0" />
                   <span>ELO Rank Protection</span>
                 </div>
               </div>
@@ -296,7 +296,7 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
             {/* Launch CTA */}
             <button
               onClick={onContinue}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#00E5FF] via-[#2EE6FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-glow-cyan flex items-center justify-center gap-2 group cursor-pointer"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF1744] via-[#FF4D6D] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-glow-cyan flex items-center justify-center gap-2 group cursor-pointer"
             >
               <span>ENTER ZERO BALL KNOWLEDGE ARENA</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -336,19 +336,19 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
                   value={resendEmail}
                   onChange={(e) => setResendEmail(e.target.value)}
                   placeholder="Enter your registered email"
-                  className="flex-1 bg-[#0E1324] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF]"
+                  className="flex-1 bg-[#0E1324] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744]"
                 />
                 <button
                   type="submit"
                   disabled={resending}
-                  className="px-4 py-2 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition disabled:opacity-50 flex items-center gap-1.5"
+                  className="px-4 py-2 bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition disabled:opacity-50 flex items-center gap-1.5"
                 >
                   <RotateCcw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
                   <span>Resend</span>
                 </button>
               </div>
               {resendStatus && (
-                <p className="text-[11px] text-[#00E5FF] mt-1 font-mono">
+                <p className="text-[11px] text-[#FF1744] mt-1 font-mono">
                   {resendStatus}
                 </p>
               )}
@@ -364,7 +364,7 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
               </button>
               <button
                 onClick={onContinue}
-                className="flex-1 py-3 bg-gradient-to-r from-[#00E5FF] to-blue-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
+                className="flex-1 py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
               >
                 Continue Anyway
               </button>
