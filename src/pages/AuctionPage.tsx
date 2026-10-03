@@ -485,7 +485,8 @@ export function AuctionPage({ setActiveTab }: any) {
                           <img
                             src={avatar}
                             alt={currentPlayer.name}
-                            className="w-full h-full object-cover object-top scale-110 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
                             onError={(e) => {
                               (e.target as HTMLElement).style.display = 'none';
                             }}

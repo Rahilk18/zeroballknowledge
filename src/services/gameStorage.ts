@@ -21,9 +21,24 @@ export function loadInitialState(): GameState {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.teams) && Array.isArray(parsed.standings)) {
-        // Merge in all 100 players from INITIAL_PLAYERS so user gets full 100 player roster
-        const existingNames = new Set((parsed.players || []).map((p: any) => p.name?.toLowerCase()));
-        const mergedPlayers = [...(parsed.players || [])];
+        // Refresh avatarUrl and imageUrl on all existing players so cached sessions immediately get the authentic faces
+        const initialMap = new Map<string, Player>();
+        INITIAL_PLAYERS.forEach(ip => initialMap.set(ip.name?.toLowerCase(), ip));
+
+        const updatedExisting = (parsed.players || []).map((p: any) => {
+          const fresh = initialMap.get(p.name?.toLowerCase());
+          if (fresh) {
+            return {
+              ...p,
+              avatarUrl: fresh.avatarUrl,
+              imageUrl: fresh.imageUrl
+            };
+          }
+          return p;
+        });
+
+        const existingNames = new Set(updatedExisting.map((p: any) => p.name?.toLowerCase()));
+        const mergedPlayers = [...updatedExisting];
         INITIAL_PLAYERS.forEach(ip => {
           if (!existingNames.has(ip.name?.toLowerCase())) {
             mergedPlayers.push(ip);

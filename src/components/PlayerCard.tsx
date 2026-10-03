@@ -83,14 +83,15 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
 
         {/* Player Identity: Silhouette / Avatar & Name */}
         <div className="flex items-center gap-3 mb-3.5">
-          <div className="relative flex-shrink-0 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-b from-slate-800 to-[#0A0A14] border border-[#00E5FF]/30 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-md overflow-hidden group-hover:border-[#00E5FF]/60 transition">
+          <div className="relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-b from-slate-800/90 to-[#0A0A14] border border-[#00E5FF]/30 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-md overflow-hidden group-hover:border-[#00E5FF]/60 transition">
             {avatarUrl && !imgError ? (
               <img
                 src={avatarUrl}
                 alt={player.name}
                 loading="lazy"
+                referrerPolicy="no-referrer"
                 onError={() => setImgError(true)}
-                className="w-full h-full object-cover object-top scale-110 drop-shadow-[0_4px_6px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-125"
+                className="w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-110"
               />
             ) : (
               <span className="tracking-wider">{initials}</span>

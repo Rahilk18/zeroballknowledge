@@ -52,12 +52,13 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
             {(() => {
               const avatar = getPlayerAvatarUrl(player);
               return (
-                <div className="relative w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-b from-slate-800 to-[#0A0A14] border-2 border-[#00E5FF]/50 flex items-center justify-center text-white font-black text-xl shadow-glow-cyan overflow-hidden flex-shrink-0">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-slate-800 to-[#0A0A14] border-2 border-[#00E5FF]/50 flex items-center justify-center text-white font-black text-xl shadow-glow-cyan overflow-hidden flex-shrink-0">
                   {avatar ? (
                     <img
                       src={avatar}
                       alt={player.name}
-                      className="w-full h-full object-cover object-top scale-110 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = 'none';
                       }}

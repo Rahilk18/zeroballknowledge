@@ -302,7 +302,8 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
             <img
               src={avatar}
               alt={player.name}
-              className="w-full h-full object-cover object-top scale-110 drop-shadow-md pointer-events-none"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-contain object-center drop-shadow-md pointer-events-none"
               loading="lazy"
               onError={(e) => {
                 (e.target as HTMLElement).style.display = 'none';
