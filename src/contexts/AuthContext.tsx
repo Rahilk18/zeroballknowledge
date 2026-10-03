@@ -44,13 +44,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    if (!error && data) {
-      setProfile(profileFromRow(data as ProfileRow));
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (data) {
+        setProfile(profileFromRow(data as ProfileRow));
+        return;
+      }
+
+      // If profile does not exist yet in profiles table, auto-create it from auth metadata
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser && currentUser.id === userId) {
+        const username =
+          currentUser.user_metadata?.username ||
+          currentUser.email?.split('@')[0] ||
+          `manager_${userId.slice(0, 5)}`;
+        const displayName =
+          currentUser.user_metadata?.display_name ||
+          currentUser.user_metadata?.name ||
+          username;
+
+        const newProfileData = {
+          user_id: currentUser.id,
+          username: username.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
+          display_name: displayName,
+          email: currentUser.email || '',
+          total_points: 0,
+          games_played: 0,
+          wins: 0,
+          draws: 0,
+          losses: 0,
+          goals: 0,
+        };
+
+        const { data: created } = await supabase
+          .from('profiles')
+          .upsert(newProfileData, { onConflict: 'user_id' })
+          .select('*')
+          .maybeSingle();
+
+        if (created) {
+          setProfile(profileFromRow(created as ProfileRow));
+        } else {
+          setProfile({
+            id: currentUser.id,
+            userId: currentUser.id,
+            username: username.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
+            displayName: displayName,
+            email: currentUser.email || '',
+            totalPoints: 0,
+            gamesPlayed: 0,
+            wins: 0,
+            draws: 0,
+            losses: 0,
+            goals: 0,
+            createdAt: new Date().toISOString(),
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('fetchProfile caught error:', err);
     }
   };
 
@@ -164,49 +221,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     emailOrUsername: string,
     password: string
   ): Promise<{ error: string | null }> => {
-    let emailToUse = emailOrUsername.trim();
-    if (!emailToUse) {
-      return { error: 'Please enter your email or username.' };
-    }
-    if (!password) {
-      return { error: 'Please enter your password.' };
-    }
-
-    if (!emailToUse.includes('@')) {
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('email')
-        .ilike('username', emailToUse)
-        .maybeSingle();
-      if (prof?.email) {
-        emailToUse = prof.email;
-      } else {
-        return { error: `No account found with username "${emailOrUsername}". Please enter your registered email address.` };
+    try {
+      let emailToUse = emailOrUsername.trim();
+      if (!emailToUse) {
+        return { error: 'Please enter your email or username.' };
       }
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: emailToUse.trim().toLowerCase(),
-      password,
-    });
-
-    if (error) {
-      if (error.message.includes('Email not confirmed')) {
-        return { error: 'Email not confirmed yet. Check your inbox to verify your email, or turn off "Confirm email" in Supabase Auth settings.' };
+      if (!password) {
+        return { error: 'Please enter your password.' };
       }
-      if (error.message.includes('Invalid login credentials')) {
-        return { error: 'Invalid login credentials. Please check your email/username and password.' };
+
+      if (!emailToUse.includes('@')) {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('email')
+          .ilike('username', emailToUse)
+          .maybeSingle();
+        if (prof?.email) {
+          emailToUse = prof.email;
+        } else {
+          return { error: `No account found with username "${emailOrUsername}". Please enter your registered email address.` };
+        }
       }
-      return { error: error.message };
-    }
 
-    if (data?.user) {
-      setUser(data.user);
-      setSession(data.session);
-      await fetchProfile(data.user.id);
-    }
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: emailToUse.trim().toLowerCase(),
+        password,
+      });
 
-    return { error: null };
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          return { error: 'Email not confirmed yet. Check your inbox to verify your email, or turn off "Confirm email" in Supabase Auth settings.' };
+        }
+        if (error.message.includes('Invalid login credentials')) {
+          return { error: 'Invalid login credentials. Please check your password and email/username (passwords are case-sensitive).' };
+        }
+        if (error.message.toLowerCase().includes('failed to fetch') || error.message.toLowerCase().includes('network')) {
+          return { error: 'Network connection error (Failed to fetch). Please check your internet connection or ad-blocker.' };
+        }
+        return { error: error.message };
+      }
+
+      if (data?.user) {
+        setUser(data.user);
+        setSession(data.session);
+        await fetchProfile(data.user.id);
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      console.error('Sign in exception:', err);
+      return { error: err.message || 'An unexpected error occurred during login. Please try again.' };
+    }
   };
 
   const signOut = async () => {
