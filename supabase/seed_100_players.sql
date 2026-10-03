@@ -126,7 +126,7 @@ SELECT v.* FROM (VALUES
   ('Alexander Isak', 'Isak', 'ATT', 'Sweden', 85, 88, 83, 73, 83, 32, 71, 10, 91, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233731.png?padding=0.7'),
   ('Ollie Watkins', 'Watkins', 'ATT', 'England', 85, 86, 83, 77, 81, 45, 80, 10, 90, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p221697.png?padding=0.7'),
   ('Nico Williams', 'N. Williams', 'ATT', 'Spain', 85, 93, 78, 80, 86, 36, 70, 10, 92, 70, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p256516.png?padding=0.7'),
-  ('Lamine Yamal', 'Yamal', 'ATT', 'Spain', 84, 88, 80, 84, 88, 35, 55, 10, 96, 150, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277636.png?padding=0.7'),
+  ('Lamine Yamal', 'Yamal', 'ATT', 'Spain', 84, 88, 80, 84, 88, 35, 55, 10, 96, 150, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7'),
   ('Julián Álvarez', 'J. Álvarez', 'ATT', 'Argentina', 84, 84, 84, 78, 83, 55, 76, 10, 89, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7'),
   ('Luis Díaz', 'L. Díaz', 'ATT', 'Colombia', 84, 90, 80, 75, 87, 34, 74, 10, 92, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7'),
   ('Xavi', 'Xavi', 'MID', 'Spain', 92, 75, 76, 95, 92, 74, 72, 10, 96, 65, 'https://cdn.futbin.com/content/fifa24/img/players/10535.png'),
@@ -242,7 +242,7 @@ UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233731.png?padding=0.7', overall = 85 WHERE name = 'Alexander Isak' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p221697.png?padding=0.7', overall = 85 WHERE name = 'Ollie Watkins' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p256516.png?padding=0.7', overall = 85 WHERE name = 'Nico Williams' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277636.png?padding=0.7', overall = 84 WHERE name = 'Lamine Yamal' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7' WHERE name = 'Lamine Yamal';
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7', overall = 84 WHERE name = 'Julián Álvarez' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7', overall = 84 WHERE name = 'Luis Díaz' AND (avatar_url IS NULL OR avatar_url = '');
 
