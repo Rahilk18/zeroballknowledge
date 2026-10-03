@@ -29,7 +29,7 @@ interface AdminPageProps {
   onUpdateTeamBudget: (teamId: string, newBudget: number) => void;
 }
 
-const DEFAULT_ADMIN_PIN = 'ZEROBALL2026';
+const ADMIN_MASTER_PASSWORD = 'Rahil@2005';
 
 export const AdminPage: React.FC<AdminPageProps> = ({
   allPlayers,
@@ -82,15 +82,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const handleAuthorize = (e: React.FormEvent) => {
     e.preventDefault();
     sound.playClick();
-    const cleanPin = pinInput.trim().toUpperCase();
-    if (cleanPin === DEFAULT_ADMIN_PIN || cleanPin === 'HEROBID2026' || cleanPin === 'ZEROBALLKNOWLEDGE' || pinInput.trim() === 'admin123') {
+    if (pinInput.trim() === ADMIN_MASTER_PASSWORD) {
       sound.playVictorySound();
       setIsAuthorized(true);
       localStorage.setItem('zeroball_super_admin', 'true');
       setAuthError('');
       fetchLiveSessions();
     } else {
-      setAuthError('INVALID MASTER PIN. Access Denied.');
+      setAuthError('INVALID MASTER PASSWORD. Access Denied.');
     }
   };
 
@@ -272,7 +271,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               SUPER ADMIN PANEL
             </h2>
             <p className="text-slate-400 text-xs mt-1">
-              Enter your Master Admin PIN to unlock full server authority.
+              Enter your Master Admin Password to unlock server authority.
             </p>
           </div>
 
@@ -289,7 +288,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 required
                 value={pinInput}
                 onChange={e => setPinInput(e.target.value)}
-                placeholder="Default PIN: ZEROBALL2026"
+                placeholder="Enter Admin Password..."
                 className="w-full bg-[#0A0A14] border border-slate-700 focus:border-[#00E5FF] rounded-2xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-center font-mono tracking-widest text-sm"
               />
             </div>
@@ -302,7 +301,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           </form>
 
           <p className="text-[11px] text-slate-500 font-mono">
-            Default Master Passcode: <span className="text-[#00E5FF] font-bold">ZEROBALL2026</span> (or <span className="text-slate-400">admin123</span>)
+            Restricted Access • Authorized Administrators Only
           </p>
         </div>
       </div>
