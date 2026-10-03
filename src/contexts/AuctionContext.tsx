@@ -38,6 +38,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   const [auctionComplete, setAuctionComplete] = useState(false);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const autoNextTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setMyTeam(sessionTeam);
@@ -86,6 +87,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     return () => {
       if (channelRef.current) supabase.removeChannel(channelRef.current);
       if (timerRef.current) clearInterval(timerRef.current);
+      if (autoNextTimeoutRef.current) clearTimeout(autoNextTimeoutRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSession?.id, currentSession?.status]);
@@ -176,13 +178,17 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
 
   const startTimer = (endsAt: string) => {
     if (timerRef.current) clearInterval(timerRef.current);
+    if (autoNextTimeoutRef.current) {
+      clearTimeout(autoNextTimeoutRef.current);
+      autoNextTimeoutRef.current = null;
+    }
     const tick = () => {
       const diff = Math.max(0, Math.ceil((new Date(endsAt).getTime() - Date.now()) / 1000));
       setTimeLeft(diff);
       if (diff === 0 && currentSession?.hostUserId === user?.id) {
         clearInterval(timerRef.current!);
         timerRef.current = null;
-        setTimeout(() => {
+        autoNextTimeoutRef.current = setTimeout(() => {
           nextPlayer();
         }, 1500);
       }
@@ -228,6 +234,13 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     if (mySquad.length >= 7) return { error: 'Your squad is full (7 players max).' };
     if (currentAuction.highestTeamId === sessionTeam.id) return { error: 'You are already the highest bidder.' };
 
+    // Calculate new ends_at by adding 3 seconds (+3,000ms) to remaining auction time
+    const currentEndMs = currentAuction.endsAt ? new Date(currentAuction.endsAt).getTime() : Date.now();
+    const remainingMs = Math.max(0, currentEndMs - Date.now());
+    // Ensure at least 3 seconds, capped at max 20 seconds so rapid bidding doesn't grow indefinitely
+    const newRemainingMs = Math.min(20_000, Math.max(3_000, remainingMs + 3_000));
+    const newEndsAt = new Date(Date.now() + newRemainingMs).toISOString();
+
     // Insert bid
     const { error: bidErr } = await supabase.from('bids').insert({
       auction_id: currentAuction.id,
@@ -238,7 +251,6 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     if (bidErr) return { error: bidErr.message };
 
     // Update auction
-    const newEndsAt = new Date(Date.now() + 15_000).toISOString();
     const { error: auctErr } = await supabase
       .from('auctions')
       .update({
@@ -249,6 +261,15 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       })
       .eq('id', currentAuction.id);
     if (auctErr) return { error: auctErr.message };
+
+    // Optimistically update local timer & auction state for instant responsiveness
+    setCurrentAuction(prev => prev ? {
+      ...prev,
+      currentBid: amount,
+      highestTeamId: sessionTeam.id,
+      endsAt: newEndsAt,
+    } : null);
+    startTimer(newEndsAt);
 
     return { error: null };
   };

@@ -254,8 +254,13 @@ export function AuctionPage({ setActiveTab }: any) {
                 <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <span className="text-xs font-semibold text-green-400 uppercase tracking-wider">Live Auction</span>
               </div>
-              <div className={`text-2xl font-bold font-mono ${timerColor} ${timerPulse}`}>
-                {timeLeft}s
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono">
+                  +3s / bid
+                </span>
+                <div className={`text-2xl font-bold font-mono ${timerColor} ${timerPulse}`}>
+                  {timeLeft}s
+                </div>
               </div>
             </div>
 
