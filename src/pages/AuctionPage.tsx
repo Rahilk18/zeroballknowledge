@@ -408,7 +408,7 @@ export function AuctionPage({ setActiveTab }: any) {
           <div className="pt-1 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-[11px] text-slate-400">
               {allTeamsHaveMinSquad 
-                ? 'All managers have acquired at least 8 players! You can conclude the auction whenever you are ready.'
+                ? `All managers have acquired at least ${minSquadRequired} players! You can conclude the auction whenever you are ready.`
                 : `Simulation is locked until every team drafts at least ${minSquadRequired} players.`}
             </p>
             <button
@@ -595,7 +595,7 @@ export function AuctionPage({ setActiveTab }: any) {
                 <input
                   type="number"
                   min={minBid}
-                  max={myTeam?.budget ?? 100}
+                  max={myTeam?.budget ?? 130}
                   value={bidAmount}
                   onChange={e => setBidAmount(e.target.value)}
                   placeholder={`Min bid: €${minBid}M`}

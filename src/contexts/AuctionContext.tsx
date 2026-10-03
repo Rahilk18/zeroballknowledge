@@ -48,7 +48,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   const currentAuctionRef = useRef<Auction | null>(null);
   const isResolvingRef = useRef<boolean>(false);
 
-  const minSquadRequired = 8;
+  const minSquadRequired = 7;
   const allTeamsHaveMinSquad = (allTeams || []).length > 0 &&
     (allTeams || []).every(t => (teamSquadCounts[t.id] || 0) >= minSquadRequired);
 
@@ -73,7 +73,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       .eq('team_id', teamId);
 
     const totalSpent = (squadData || []).reduce((sum, r) => sum + (r.purchase_price || 0), 0);
-    const baseBudget = currentSession.startingBudget || 100;
+    const baseBudget = currentSession.startingBudget || 130;
     const computedBudget = Math.max(0, baseBudget - totalSpent);
 
     const { data: teamData } = await supabase
@@ -130,7 +130,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Load squad counts for all teams in the session to track minimum 8 players readiness
+  // Load squad counts for all teams in the session to track minimum 7 players readiness
   const refreshSquadCounts = async () => {
     if (!currentSession) return;
     const { data: squadRows } = await supabase
@@ -672,7 +672,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       return { error: 'Only the room host can conclude the draft auction.' };
     }
 
-    // Verify all teams have minimum 8 players
+    // Verify all teams have minimum 7 players
     const { data: squadRows } = await supabase
       .from('squads')
       .select('team_id')

@@ -162,7 +162,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
         // Dynamically compute exact budget from starting budget minus actual purchases
         const totalSpent = mySquadRows.reduce((sum: number, sq: any) => sum + (sq.purchase_price || 0), 0);
-        const baseBudget = currentSession?.startingBudget || 100;
+        const baseBudget = currentSession?.startingBudget || 130;
         t.budget = Math.max(0, baseBudget - totalSpent);
         return t;
       });
@@ -418,7 +418,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           host_user_id: user.id,
           status: 'LOBBY',
           max_players: 8,
-          starting_budget: 100,
+          starting_budget: 130,
           squad_size: 10,
           season_length: 38,
         })
@@ -443,7 +443,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           user_id: user.id,
           team_name: teamName,
           abbreviation: abbreviation.toUpperCase().slice(0, 3),
-          budget: 100,
+          budget: 130,
           badge_icon: badgeIcon,
         })
         .select('*')

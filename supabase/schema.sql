@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS public.game_sessions (
   status          TEXT NOT NULL DEFAULT 'LOBBY'
                   CHECK (status IN ('LOBBY','AUCTION','TEAM_SETUP','MATCHES','COMPLETED')),
   max_players     INTEGER NOT NULL DEFAULT 8,
-  starting_budget INTEGER NOT NULL DEFAULT 100,
+  starting_budget INTEGER NOT NULL DEFAULT 130,
   squad_size      INTEGER NOT NULL DEFAULT 7,
   season_length   INTEGER NOT NULL DEFAULT 38,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS public.teams (
   user_id      UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   team_name    TEXT NOT NULL,
   abbreviation TEXT NOT NULL,
-  budget       INTEGER NOT NULL DEFAULT 100,
+  budget       INTEGER NOT NULL DEFAULT 130,
   badge_icon   TEXT NOT NULL DEFAULT '⚡',
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (session_id, user_id)

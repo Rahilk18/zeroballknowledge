@@ -276,7 +276,7 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-2 text-slate-300">
                   <Zap className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span>€100M Starting Budget</span>
+                  <span>€130M Starting Budget</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-300">
                   <Trophy className="w-4 h-4 text-purple-400 flex-shrink-0" />

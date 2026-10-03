@@ -287,7 +287,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     setAdvancingToMatches(true);
     sound.playPowerUp();
 
-    // Check that all teams have minimum 8 players before allowing simulation
+    // Check that all teams have minimum 7 players before allowing simulation
     const { data: squadRows } = await supabase
       .from('squads')
       .select('team_id')
@@ -298,12 +298,12 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
       counts[r.team_id] = (counts[r.team_id] || 0) + 1;
     });
 
-    const incomplete = (allTeams || []).filter(t => (counts[t.id] || 0) < 8);
+    const incomplete = (allTeams || []).filter(t => (counts[t.id] || 0) < 7);
     if (incomplete.length > 0) {
       const summary = incomplete
-        .map(t => `${t.name || t.teamName || 'Team'}: ${counts[t.id] || 0}/8`)
+        .map(t => `${t.name || t.teamName || 'Team'}: ${counts[t.id] || 0}/7`)
         .join(', ');
-      alert(`Simulation Locked: Every team must have at least 8 players before matches can be launched! (Deficit: ${summary}). Returning to auction...`);
+      alert(`Simulation Locked: Every team must have at least 7 players before matches can be launched! (Deficit: ${summary}). Returning to auction...`);
       setAdvancingToMatches(false);
       handleReturnToAuction();
       return;

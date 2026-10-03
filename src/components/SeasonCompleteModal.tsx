@@ -256,7 +256,7 @@ export function SeasonCompleteModal({
         </div>
 
         <p className="text-center text-[11px] text-slate-400">
-          💰 The €100M transfer budget was for this room only and resets to fresh €100.0M for your next game. Your manager career ELO points persist permanently!
+          💰 The €130M transfer budget was for this room only and resets to fresh €130.0M for your next game. Your manager career ELO points persist permanently!
         </p>
       </div>
     </div>

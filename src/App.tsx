@@ -238,7 +238,7 @@ export function App() {
         teamName: 'Apex AI Rivals',
         abbreviation: 'AI',
         manager: 'Sparring Bot',
-        budget: 100,
+        budget: 130,
         badgeIcon: '🤖',
         badge: '🤖',
         startingSeven: [],

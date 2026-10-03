@@ -52,7 +52,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
   }, [currentSession]);
 
   const incompleteTeams = currentSession
-    ? (allTeams || []).filter(t => (squadCounts[t.id] || 0) < 8)
+    ? (allTeams || []).filter(t => (squadCounts[t.id] || 0) < 7)
     : [];
   const canSimulate = !currentSession || incompleteTeams.length === 0;
 
@@ -104,7 +104,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
     teamName: 'Apex AI Rivals',
     abbreviation: 'AI',
     manager: 'Sparring Bot',
-    budget: 100,
+    budget: 130,
     badgeIcon: '🤖',
     badge: '🤖',
     startingSeven: [],
@@ -406,13 +406,13 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
           {!canSimulate && (
             <div className="max-w-md w-full p-4 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-center space-y-1.5 shadow-lg">
               <span className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center justify-center gap-1.5">
-                ⚠️ SIMULATION LOCKED: MINIMUM 8 PLAYERS REQUIRED
+                ⚠️ SIMULATION LOCKED: MINIMUM 7 PLAYERS REQUIRED
               </span>
               <p className="text-[11px] text-slate-300">
-                All teams must have at least 8 players before matches can be simulated.
+                All teams must have at least 7 players before matches can be simulated.
                 {incompleteTeams.length > 0 && (
                   <span className="block mt-1 text-amber-300 font-mono">
-                    Short: {incompleteTeams.map(t => `${t.name || t.teamName || 'Team'}: ${squadCounts[t.id] || 0}/8`).join(', ')}
+                    Short: {incompleteTeams.map(t => `${t.name || t.teamName || 'Team'}: ${squadCounts[t.id] || 0}/7`).join(', ')}
                   </span>
                 )}
               </p>
