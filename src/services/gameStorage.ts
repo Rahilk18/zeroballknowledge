@@ -30,6 +30,17 @@ export function loadInitialState(): GameState {
           if (fresh) {
             return {
               ...p,
+              overall: fresh.overall,
+              pace: fresh.pace,
+              shooting: fresh.shooting,
+              passing: fresh.passing,
+              dribbling: fresh.dribbling,
+              defending: fresh.defending,
+              physical: fresh.physical,
+              form: fresh.form,
+              marketValue: fresh.marketValue,
+              marketValueM: fresh.marketValueM,
+              wage: fresh.wage,
               avatarUrl: fresh.avatarUrl,
               imageUrl: fresh.imageUrl
             };

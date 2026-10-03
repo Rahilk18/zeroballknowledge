@@ -371,7 +371,7 @@ SELECT v.* FROM (VALUES
   ('Marc Cucurella', 'Cucurella', 'DEF', 'Spain', 82, 79, 62, 77, 78, 80, 78, 10, 92, 40, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239231.png?padding=0.7'),
   ('Micky van de Ven', 'Van de Ven', 'DEF', 'Netherlands', 82, 89, 44, 68, 70, 82, 83, 10, 89, 50, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p264453.png?padding=0.7'),
   ('Pau Cubarsí', 'Cubarsí', 'DEF', 'Spain', 81, 72, 35, 78, 75, 82, 75, 10, 92, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p278046.png?padding=0.7'),
-  ('Sergio Ramos', 'S. Ramos', 'DEF', 'Spain', 83, 62, 68, 74, 70, 83, 82, 11, 86, 15, 'https://cdn.futbin.com/content/fifa24/img/players/155862.png'),
+  (, 78, 76, 81, 75, 91, 89, 11, 95, 55, 'https://cdn.futbin.com/content/fifa24/img/players/155862.png'),
   ('Rodri', 'Rodri', 'MID', 'Spain', 91, 66, 80, 86, 80, 87, 85, 10, 95, 130, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p231866.png?padding=0.7'),
   ('Kevin De Bruyne', 'De Bruyne', 'MID', 'Belgium', 90, 67, 87, 94, 87, 65, 75, 10, 91, 80, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p192985.png?padding=0.7'),
   ('Jude Bellingham', 'Bellingham', 'MID', 'England', 90, 80, 87, 83, 88, 78, 83, 10, 94, 180, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p252371.png?padding=0.7'),
@@ -477,7 +477,7 @@ UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239231.png?padding=0.7', overall = 82 WHERE name = 'Marc Cucurella' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p264453.png?padding=0.7', overall = 82 WHERE name = 'Micky van de Ven' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p278046.png?padding=0.7', overall = 81 WHERE name = 'Pau Cubarsí' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa24/img/players/155862.png', overall = 83 WHERE name = 'Sergio Ramos' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa24/img/players/155862.png', overall = 90 WHERE name = 'Sergio Ramos' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p231866.png?padding=0.7', overall = 91 WHERE name = 'Rodri' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p192985.png?padding=0.7', overall = 90 WHERE name = 'Kevin De Bruyne' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p252371.png?padding=0.7', overall = 90 WHERE name = 'Jude Bellingham' AND (avatar_url IS NULL OR avatar_url = '');
