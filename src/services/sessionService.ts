@@ -10,6 +10,7 @@ import type {
   PlayerRow, Player,
   SquadRow, SquadPlayer,
 } from '../types';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 
 export function profileFromRow(row: ProfileRow): UserProfile {
   return {
@@ -93,6 +94,7 @@ export function bidFromRow(row: BidRow): Bid {
 export function playerFromRow(row: any): Player {
   const name = row?.name || 'Player';
   const shortName = row?.short_name || row?.shortName || name.split(' ').slice(-1)[0] || name;
+  const avatarUrl = getPlayerAvatarUrl(row);
   return {
     id: row?.id || '',
     name: name,
@@ -110,6 +112,8 @@ export function playerFromRow(row: any): Player {
     form: Number(row?.form) || 80,
     marketValue: Number(row?.market_value_m ?? row?.marketValueM ?? 10),
     marketValueM: Number(row?.market_value_m ?? row?.marketValueM ?? 10),
+    avatarUrl: avatarUrl,
+    imageUrl: avatarUrl,
     stats: {
       matches: 0,
       goals: 0,

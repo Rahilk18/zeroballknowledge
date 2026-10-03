@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Player, Team } from '../types';
 import { getPositionBadgeColor } from '../utils/formatters';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import { X, ArrowLeftRight, Check, AlertCircle, Shield } from 'lucide-react';
 
 interface LineupEditorModalProps {
@@ -137,6 +138,18 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-3">
+                      {(() => {
+                        const avatar = getPlayerAvatarUrl(p);
+                        return (
+                          <div className="relative w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center flex-shrink-0">
+                            {avatar ? (
+                              <img src={avatar} alt={p.name} className="w-full h-full object-cover object-top scale-110" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                            ) : (
+                              <span className="text-[10px] font-bold text-slate-400">{p.shortName.slice(0, 2)}</span>
+                            )}
+                          </div>
+                        );
+                      })()}
                       <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${posBadge.bg} ${posBadge.text} ${posBadge.border}`}>
                         {p.position}
                       </span>
@@ -187,6 +200,18 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                       }`}
                     >
                       <div className="flex items-center gap-3">
+                        {(() => {
+                          const avatar = getPlayerAvatarUrl(p);
+                          return (
+                            <div className="relative w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center flex-shrink-0">
+                              {avatar ? (
+                                <img src={avatar} alt={p.name} className="w-full h-full object-cover object-top scale-110" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                              ) : (
+                                <span className="text-[10px] font-bold text-slate-400">{p.shortName.slice(0, 2)}</span>
+                              )}
+                            </div>
+                          );
+                        })()}
                         <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${posBadge.bg} ${posBadge.text} ${posBadge.border}`}>
                           {p.position}
                         </span>

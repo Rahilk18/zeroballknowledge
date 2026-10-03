@@ -3,6 +3,8 @@
 // Supports both offline prototype & live Supabase multiplayer
 // ============================================================
 
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
+
 export type PlayerPosition = 'GK' | 'DEF' | 'MID' | 'ATT';
 
 export interface PlayerStats {
@@ -40,6 +42,8 @@ export interface Player {
   wage?: number;
   preferredFoot?: string;
   teamId?: string;
+  avatarUrl?: string;
+  imageUrl?: string;
   stats: PlayerStats;
   // Season stats direct access helpers:
   goals?: number;
@@ -65,11 +69,13 @@ export interface PlayerRow {
   goalkeeping: number;
   form: number;
   market_value_m: number;
+  avatar_url?: string;
 }
 
 export function playerFromRow(row: any): Player {
   const name = row?.name || 'Player';
   const shortName = row?.short_name || row?.shortName || name.split(' ').slice(-1)[0] || name;
+  const avatarUrl = getPlayerAvatarUrl(row);
   return {
     id: row?.id || '',
     name: name,
@@ -87,6 +93,8 @@ export function playerFromRow(row: any): Player {
     form: Number(row?.form) || 80,
     marketValue: Number(row?.market_value_m ?? row?.marketValueM ?? 10),
     marketValueM: Number(row?.market_value_m ?? row?.marketValueM ?? 10),
+    avatarUrl: avatarUrl,
+    imageUrl: avatarUrl,
     stats: {
       matches: 0,
       goals: 0,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Player, PlayerPosition } from '../types';
 import { getPositionBadgeColor } from '../utils/formatters';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import { Flame } from 'lucide-react';
 
 interface PitchViewProps {
@@ -142,6 +143,7 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
   onClick
 }) => {
   const badge = getPositionBadgeColor(player.position);
+  const avatar = getPlayerAvatarUrl(player);
 
   return (
     <button
@@ -150,36 +152,57 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
         isSelected ? 'scale-110' : 'hover:scale-105 active:scale-95'
       }`}
     >
-      {/* Jersey / Kit Token */}
+      {/* Jersey / Kit Token / Player Face */}
       <div className="relative">
         <div
-          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center font-black transition-all shadow-xl ${
+          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center font-black transition-all shadow-xl overflow-hidden ${
             isSelected
               ? 'bg-emerald-400 text-slate-950 ring-4 ring-emerald-300/80 shadow-emerald-500/50'
               : 'bg-gradient-to-b from-slate-900 to-[#0e1720] text-white border-2 border-slate-700/80 group-hover:border-emerald-400'
           }`}
         >
-          {/* Player Number */}
-          <span className="text-sm sm:text-base leading-none">#{player.number}</span>
-          
-          {/* Position Pill */}
-          <span
-            className={`text-[9px] font-black uppercase tracking-wider px-1 py-0.2 rounded mt-0.5 ${
-              isSelected ? 'bg-slate-950 text-emerald-400' : `${badge.bg} ${badge.text}`
-            }`}
-          >
-            {player.position}
-          </span>
+          {avatar ? (
+            <img
+              src={avatar}
+              alt={player.name}
+              className="w-full h-full object-cover object-top scale-110 drop-shadow-md"
+              loading="lazy"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+          ) : (
+            <>
+              {/* Player Number */}
+              <span className="text-sm sm:text-base leading-none">#{player.number}</span>
+              
+              {/* Position Pill */}
+              <span
+                className={`text-[9px] font-black uppercase tracking-wider px-1 py-0.2 rounded mt-0.5 ${
+                  isSelected ? 'bg-slate-950 text-emerald-400' : `${badge.bg} ${badge.text}`
+                }`}
+              >
+                {player.position}
+              </span>
+            </>
+          )}
         </div>
 
         {/* Overall Rating Pill */}
-        <div className="absolute -top-1 -right-2 px-1.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black shadow-md border border-emerald-300/60 leading-none">
+        <div className="absolute -top-1 -right-2 px-1.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black shadow-md border border-emerald-300/60 leading-none z-10">
           {player.overall}
         </div>
 
+        {/* Position badge if avatar is present */}
+        {avatar && (
+          <div className={`absolute -bottom-1 -left-1 px-1.5 py-0.2 rounded text-[9px] font-black uppercase border z-10 shadow-md ${badge.bg} ${badge.text} ${badge.border}`}>
+            {player.position}
+          </div>
+        )}
+
         {/* High Form Indicator */}
         {player.form >= 90 && (
-          <div className="absolute -bottom-1 -left-1 p-0.5 rounded-full bg-amber-500 text-slate-950 shadow-md">
+          <div className="absolute -top-1 -left-1 p-0.5 rounded-full bg-amber-500 text-slate-950 shadow-md z-10">
             <Flame className="w-3 h-3 fill-slate-950 text-slate-950" />
           </div>
         )}

@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
 import { useAuction } from '../contexts/AuctionContext';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import type { ActiveTab } from '../types';
 
 interface Props {
@@ -269,14 +270,30 @@ export function AuctionPage({ setActiveTab }: any) {
               <div className="p-5">
                 <div className="flex items-start gap-5">
                   {/* Player avatar */}
-                  <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl flex flex-col items-center justify-center border border-gray-600 flex-shrink-0">
-                    <span className="text-2xl font-bold text-white">
-                      {(currentPlayer.shortName || currentPlayer.name || 'PL').split(' ').map(w => w[0]).join('').slice(0, 2)}
-                    </span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full border mt-1 ${positionColor[currentPlayer.position ?? 'ATT'] ?? positionColor['ATT']}`}>
-                      {currentPlayer.position ?? 'ATT'}
-                    </span>
-                  </div>
+                  {(() => {
+                    const avatar = getPlayerAvatarUrl(currentPlayer);
+                    return (
+                      <div className="relative w-22 h-22 bg-gradient-to-b from-gray-800 to-gray-950 rounded-2xl flex flex-col items-center justify-center border border-gray-600 flex-shrink-0 overflow-hidden shadow-lg">
+                        {avatar ? (
+                          <img
+                            src={avatar}
+                            alt={currentPlayer.name}
+                            className="w-full h-full object-cover object-top scale-110 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <span className="text-2xl font-bold text-white">
+                            {(currentPlayer.shortName || currentPlayer.name || 'PL').split(' ').map(w => w[0]).join('').slice(0, 2)}
+                          </span>
+                        )}
+                        <span className={`absolute bottom-1 px-2 py-0.5 rounded-full border text-[10px] font-bold z-10 backdrop-blur-sm ${positionColor[currentPlayer.position ?? 'ATT'] ?? positionColor['ATT']}`}>
+                          {currentPlayer.position ?? 'ATT'}
+                        </span>
+                      </div>
+                    );
+                  })()}
 
                   {/* Name & stats */}
                   <div className="flex-1 min-w-0">

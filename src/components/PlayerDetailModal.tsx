@@ -2,6 +2,7 @@ import React from 'react';
 import { Player } from '../types';
 import { StatBar } from './StatBar';
 import { getPositionBadgeColor, formatCurrency, formatThousands } from '../utils/formatters';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import { X, Flame, Heart, Shield, Award, DollarSign, Calendar } from 'lucide-react';
 
 interface PlayerDetailModalProps {
@@ -46,12 +47,29 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
 
           <div className="flex items-center gap-4">
             {/* Player Avatar */}
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 border-2 border-emerald-500/50 flex items-center justify-center text-white font-black text-xl sm:text-2xl shadow-xl">
-              {initials}
-              <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-slate-950 border border-slate-700 text-xs font-bold text-slate-300">
-                #{player.number}
-              </div>
-            </div>
+            {(() => {
+              const avatar = getPlayerAvatarUrl(player);
+              return (
+                <div className="relative w-18 h-18 sm:w-22 sm:h-22 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-emerald-500/50 flex items-center justify-center text-white font-black text-xl sm:text-2xl shadow-xl overflow-hidden flex-shrink-0">
+                  {avatar ? (
+                    <img
+                      src={avatar}
+                      alt={player.name}
+                      className="w-full h-full object-cover object-top scale-110 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : null}
+                  <span className={`tracking-wider ${avatar ? 'hidden' : ''}`}>{initials}</span>
+                  {player.number && (
+                    <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-slate-950/90 border border-slate-700 text-xs font-bold text-slate-300 z-10 shadow">
+                      #{player.number}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Name & Basic Info */}
             <div className="flex-1">

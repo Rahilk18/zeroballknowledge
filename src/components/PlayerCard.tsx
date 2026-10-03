@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Player } from '../types';
 import { getPositionBadgeColor, formatCurrency } from '../utils/formatters';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import { Flame, Eye, Activity, Zap } from 'lucide-react';
 
 interface PlayerCardProps {
@@ -22,6 +23,8 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
   compact = false
 }) => {
   const posBadge = getPositionBadgeColor(player.position);
+  const avatarUrl = getPlayerAvatarUrl(player);
+  const [imgError, setImgError] = useState(false);
 
   // Initials for player silhouette/badge
   const initials = player.name
@@ -64,14 +67,26 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
           </div>
         </div>
 
-        {/* Player Identity: Silhouette Avatar & Name */}
+        {/* Player Identity: Silhouette / EA Face Avatar & Name */}
         <div className="flex items-center gap-3 mb-3.5">
-          {/* Generic Player Silhouette / Badge */}
-          <div className="relative flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-inner group-hover:border-emerald-500/40 transition">
-            <span className="tracking-wider">{initials}</span>
-            <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-slate-950 border border-slate-700 text-[10px] text-slate-300">
-              #{player.number}
-            </div>
+          {/* Player Portrait / Badge */}
+          <div className="relative flex-shrink-0 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-b from-slate-800/90 to-slate-950 border border-slate-700/80 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-md overflow-hidden group-hover:border-emerald-500/50 transition">
+            {avatarUrl && !imgError ? (
+              <img
+                src={avatarUrl}
+                alt={player.name}
+                loading="lazy"
+                onError={() => setImgError(true)}
+                className="w-full h-full object-cover object-top scale-110 drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-125"
+              />
+            ) : (
+              <span className="tracking-wider">{initials}</span>
+            )}
+            {player.number && (
+              <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-slate-950/90 border border-slate-700 text-[10px] font-bold text-slate-300 z-10 shadow">
+                #{player.number}
+              </div>
+            )}
           </div>
 
           <div className="overflow-hidden">
