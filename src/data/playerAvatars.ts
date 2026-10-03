@@ -208,28 +208,51 @@ export const PLAYER_AVATARS: Record<string, string> = {
   'N. Williams': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p256516.png?padding=0.7',
   'Lamine Yamal': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7',
   'Yamal': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7',
-  'Julián Álvarez': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7',
-  'J. Álvarez': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7',
+  'Julián Álvarez': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7',
+  'Julian Alvarez': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7',
+  'J. Álvarez': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7',
+  'J. Alvarez': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7',
   'Luis Díaz': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7',
+  'Luis Diaz': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7',
   'L. Díaz': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7',
+  'L. Diaz': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7',
   'Ronaldo': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p20801.png?padding=0.7',
 };
+
+// Normalized lookup map for 100% reliable matching regardless of accents or casing
+const NORMALIZED_AVATARS: Record<string, string> = {};
+Object.entries(PLAYER_AVATARS).forEach(([k, v]) => {
+  const normKey = k.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  NORMALIZED_AVATARS[normKey] = v;
+});
 
 export function getPlayerAvatarUrl(player: any): string | undefined {
   if (!player) return undefined;
   if (typeof player === 'string') {
-    return PLAYER_AVATARS[player] || undefined;
+    const norm = player.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    return PLAYER_AVATARS[player] || NORMALIZED_AVATARS[norm] || undefined;
   }
-  if (player.name && PLAYER_AVATARS[player.name]) return PLAYER_AVATARS[player.name];
-  if (player.shortName && PLAYER_AVATARS[player.shortName]) return PLAYER_AVATARS[player.shortName];
-  if (player.short_name && PLAYER_AVATARS[player.short_name]) return PLAYER_AVATARS[player.short_name];
-  if (player.avatarUrl) return player.avatarUrl;
-  if (player.avatar_url) return player.avatar_url;
-  if (player.imageUrl) return player.imageUrl;
-  if (player.image_url) return player.image_url;
-  if (player.name && PLAYER_AVATARS[player.name]) return PLAYER_AVATARS[player.name];
-  if (player.shortName && PLAYER_AVATARS[player.shortName]) return PLAYER_AVATARS[player.shortName];
-  if (player.short_name && PLAYER_AVATARS[player.short_name]) return PLAYER_AVATARS[player.short_name];
+  
+  // 1. Direct name lookup in verified avatars
+  const rawName = player.name || player.shortName || player.short_name || '';
+  if (rawName) {
+    if (PLAYER_AVATARS[rawName]) return PLAYER_AVATARS[rawName];
+    const norm = rawName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    if (NORMALIZED_AVATARS[norm]) return NORMALIZED_AVATARS[norm];
+  }
+
+  // 2. Object property fallbacks (avoiding Bryan Zaragoza 277636 or Sorloth 239981 if present in old cached state)
+  const candidateUrl = player.avatarUrl || player.avatar_url || player.imageUrl || player.image_url;
+  if (candidateUrl) {
+    if (candidateUrl.includes('p277636.png') && (rawName.toLowerCase().includes('yamal'))) {
+      return PLAYER_AVATARS['Lamine Yamal'];
+    }
+    if (candidateUrl.includes('p239981.png') && (rawName.toLowerCase().includes('lvarez'))) {
+      return PLAYER_AVATARS['Julián Álvarez'];
+    }
+    return candidateUrl;
+  }
+
   return undefined;
 }
 

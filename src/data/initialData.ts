@@ -2670,8 +2670,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 75,
     wage: 270,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {

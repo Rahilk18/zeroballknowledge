@@ -23,10 +23,16 @@ export function loadInitialState(): GameState {
       if (parsed && Array.isArray(parsed.teams) && Array.isArray(parsed.standings)) {
         // Refresh avatarUrl and imageUrl on all existing players so cached sessions immediately get the authentic faces
         const initialMap = new Map<string, Player>();
-        INITIAL_PLAYERS.forEach(ip => initialMap.set(ip.name?.toLowerCase(), ip));
+        const normKey = (s: string) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        INITIAL_PLAYERS.forEach(ip => {
+          if (ip.name) initialMap.set(ip.name.toLowerCase(), ip);
+          if (ip.name) initialMap.set(normKey(ip.name), ip);
+          if (ip.shortName) initialMap.set(normKey(ip.shortName), ip);
+        });
 
         const updatedExisting = (parsed.players || []).map((p: any) => {
-          const fresh = initialMap.get(p.name?.toLowerCase());
+          const raw = p.name || p.shortName || '';
+          const fresh = initialMap.get(raw.toLowerCase()) || initialMap.get(normKey(raw));
           if (fresh) {
             return {
               ...p,
