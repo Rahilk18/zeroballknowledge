@@ -586,7 +586,7 @@ export function App() {
 
         {activeTab === 'players' && (
           <PlayersPage
-            players={gameState.players}
+            players={combinedPlayers}
             userTeamId={userTeam?.id || ''}
           />
         )}

@@ -21,7 +21,18 @@ export function loadInitialState(): GameState {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.teams) && Array.isArray(parsed.standings)) {
-        return parsed;
+        // Merge in all 100 players from INITIAL_PLAYERS so user gets full 100 player roster
+        const existingNames = new Set((parsed.players || []).map((p: any) => p.name?.toLowerCase()));
+        const mergedPlayers = [...(parsed.players || [])];
+        INITIAL_PLAYERS.forEach(ip => {
+          if (!existingNames.has(ip.name?.toLowerCase())) {
+            mergedPlayers.push(ip);
+          }
+        });
+        return {
+          ...parsed,
+          players: mergedPlayers
+        };
       }
     }
   } catch (e) {
