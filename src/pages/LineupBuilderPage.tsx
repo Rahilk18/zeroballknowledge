@@ -43,7 +43,8 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     currentSession,
     lobbyMembers,
     broadcastNavigation,
-    sessionPlayers
+    sessionPlayers,
+    allTeams,
   } = useSession();
 
   const [formation, setFormation] = useState<string>(currentTeam?.formation || '1-2-2-2');
@@ -267,11 +268,46 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     setTimeout(() => setSaveSuccessNotice(''), 4000);
   };
 
+  // Return to auction if clicked by mistake or more players are needed
+  const handleReturnToAuction = async () => {
+    sound.playClick();
+    if (currentSession && isHost) {
+      await supabase
+        .from('game_sessions')
+        .update({ status: 'AUCTION' })
+        .eq('id', currentSession.id);
+      await broadcastNavigation('auction');
+    }
+    setActiveTab('auction');
+  };
+
   // Host launches the match arena
   const handleHostLaunchMatches = async () => {
     if (!currentSession || !isHost) return;
     setAdvancingToMatches(true);
     sound.playPowerUp();
+
+    // Check that all teams have minimum 8 players before allowing simulation
+    const { data: squadRows } = await supabase
+      .from('squads')
+      .select('team_id')
+      .eq('session_id', currentSession.id);
+
+    const counts: Record<string, number> = {};
+    (squadRows || []).forEach((r: any) => {
+      counts[r.team_id] = (counts[r.team_id] || 0) + 1;
+    });
+
+    const incomplete = (allTeams || []).filter(t => (counts[t.id] || 0) < 8);
+    if (incomplete.length > 0) {
+      const summary = incomplete
+        .map(t => `${t.name || t.teamName || 'Team'}: ${counts[t.id] || 0}/8`)
+        .join(', ');
+      alert(`Simulation Locked: Every team must have at least 8 players before matches can be launched! (Deficit: ${summary}). Returning to auction...`);
+      setAdvancingToMatches(false);
+      handleReturnToAuction();
+      return;
+    }
 
     // Ensure host lineup is saved
     onUpdateLineup(starting, bench, formation);
@@ -711,14 +747,22 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
 
           {/* Host Launch Match Arena Button */}
           {isHost ? (
-            <button
-              onClick={handleHostLaunchMatches}
-              disabled={advancingToMatches}
-              className="px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-2xl transition shadow-lg flex items-center gap-2 active:scale-95 disabled:opacity-50"
-            >
-              <Swords className="w-4 h-4" />
-              <span>{advancingToMatches ? 'LAUNCHING ARENA...' : '⚔️ LAUNCH MATCH ARENA →'}</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                onClick={handleReturnToAuction}
+                className="px-5 py-3.5 bg-[#0A0D1A] hover:bg-slate-800 border border-[#00E5FF]/40 text-[#00E5FF] text-xs font-bold uppercase tracking-wider rounded-2xl transition flex items-center gap-2 active:scale-95"
+              >
+                <span>🔙 RETURN TO LIVE AUCTION</span>
+              </button>
+              <button
+                onClick={handleHostLaunchMatches}
+                disabled={advancingToMatches}
+                className="px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-2xl transition shadow-lg flex items-center gap-2 active:scale-95 disabled:opacity-50"
+              >
+                <Swords className="w-4 h-4" />
+                <span>{advancingToMatches ? 'LAUNCHING ARENA...' : '⚔️ LAUNCH MATCH ARENA →'}</span>
+              </button>
+            </div>
           ) : (
             currentSession && (
               <div className="px-4 py-3 bg-[#0A0D1A] border border-slate-800 rounded-2xl text-xs text-slate-400 flex items-center gap-2">

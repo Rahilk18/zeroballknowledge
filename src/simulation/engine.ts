@@ -5,47 +5,119 @@ export interface SimulationTeam {
   players: Player[];
 }
 
-function ensureStartingSeven(team: Team, availablePlayers: Player[]): Player[] {
-  const teamPlayerIds = team.startingSeven || [];
-  let starters = (availablePlayers || []).filter(p => p && teamPlayerIds.includes(p.id));
+interface StarterSelection {
+  starters: Player[];
+  realCount: number;
+  hasRealGK: boolean;
+  missingCount: number;
+}
 
-  // If not enough matched by startingSeven, pick any available players for this team
+function ensureStartingSeven(team: Team, availablePlayers: Player[]): StarterSelection {
+  const teamPlayerIds = team.startingSeven || [];
+  
+  // Real players drafted by this team (excluding fillers)
+  const realPlayers = (availablePlayers || []).filter(
+    p => p && !p.id.includes('empty-') && !p.id.includes('trialist') && !p.id.includes('filler') && !p.id.includes('reserve-')
+  );
+  const realCount = realPlayers.length;
+
+  // Check if team owns at least one genuine Goalkeeper
+  const realGks = realPlayers.filter(p => p.position === 'GK');
+  const hasRealGK = realGks.length > 0;
+
+  let starters: Player[] = [];
+
+  // 1. If startingSeven is configured, match from real available players first
+  if (teamPlayerIds.length > 0) {
+    starters = realPlayers.filter(p => teamPlayerIds.includes(p.id));
+  }
+
+  // 2. If fewer than 7, pull remaining from this team's bench/pool
   if (starters.length < 7) {
-    const remaining = (availablePlayers || []).filter(p => p && !starters.some(s => s.id === p.id));
+    const remaining = realPlayers.filter(p => !starters.some(s => s.id === p.id));
     starters = [...starters, ...remaining.slice(0, 7 - starters.length)];
   }
 
-  // If still fewer than 7 (e.g. fresh draft or empty squad), generate balanced 7-a-side roster:
-  // 1 GK, 2 DEF, 2 MID, 2 ATT
+  // Check if starters currently contains a real GK
+  const hasGkInStarters = starters.some(p => p.position === 'GK');
+
+  // If team has a real GK in their pool but not in starters, prioritize putting them in
+  if (!hasGkInStarters && hasRealGK) {
+    const gk = realGks[0];
+    if (!starters.some(s => s.id === gk.id)) {
+      if (starters.length >= 7) {
+        starters[0] = gk;
+      } else {
+        starters.unshift(gk);
+      }
+    }
+  }
+
+  const missingCount = Math.max(0, 7 - starters.length);
+
+  // 3. If team has NO GOALKEEPER at all:
+  // Must insert an emergency makeshift outfield player in goal with severe attribute handicap
+  if (!starters.some(p => p.position === 'GK')) {
+    const makeshiftGk: Player = {
+      id: `${team.id || 'team'}-makeshift-nogk`,
+      name: `${team.name || 'Club'} (No GK - Outfield Fill)`,
+      shortName: 'No GK Fill',
+      position: 'GK',
+      nationality: 'Club',
+      overall: 32,
+      pace: 35,
+      shooting: 25,
+      passing: 25,
+      dribbling: 25,
+      defending: 25,
+      physical: 35,
+      goalkeeping: 18, // Catastrophic goalkeeping rating (vs 75-92 for real GKs)
+      form: 40,
+      stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 4.0 }
+    };
+    if (starters.length >= 7) {
+      starters[0] = makeshiftGk;
+    } else {
+      starters.unshift(makeshiftGk);
+    }
+  }
+
+  // 4. If team still has fewer than 7 players (e.g. only 3 or 4 players drafted):
+  // Generate amateur trialists with SEVERELY LOW ratings (30-36 OVR) so understaffed teams lose badly
   if (starters.length < 7) {
-    const roles: Array<'GK' | 'DEF' | 'DEF' | 'MID' | 'MID' | 'ATT' | 'ATT'> = [
-      'GK', 'DEF', 'DEF', 'MID', 'MID', 'ATT', 'ATT'
+    const roles: Array<'DEF' | 'DEF' | 'MID' | 'MID' | 'ATT' | 'ATT'> = [
+      'DEF', 'DEF', 'MID', 'MID', 'ATT', 'ATT'
     ];
     while (starters.length < 7) {
       const idx = starters.length;
-      const pos = roles[idx] || 'MID';
-      const label = pos === 'GK' ? 'Goalkeeper' : pos === 'DEF' ? 'Defender' : pos === 'MID' ? 'Midfielder' : 'Striker';
+      const pos = roles[idx % roles.length] || 'MID';
+      const label = pos === 'DEF' ? 'Amateur Def' : pos === 'MID' ? 'Amateur Mid' : 'Amateur Att';
       starters.push({
-        id: `${team.id || 'team'}-squad-${idx + 1}`,
-        name: `${team.name || 'Club'} ${label} #${idx + 1}`,
+        id: `${team.id || 'team'}-trialist-${idx + 1}`,
+        name: `${team.name || 'Club'} Amateur Trialist #${idx + 1}`,
         shortName: `${label} #${idx + 1}`,
         position: pos,
         nationality: 'Club',
-        overall: 76,
-        pace: 75,
-        shooting: pos === 'ATT' ? 80 : 70,
-        passing: pos === 'MID' ? 80 : 72,
-        dribbling: 74,
-        defending: pos === 'DEF' ? 80 : (pos === 'GK' ? 30 : 65),
-        physical: 75,
-        goalkeeping: pos === 'GK' ? 80 : 15,
-        form: 80,
-        stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.0 }
+        overall: 34,
+        pace: 35,
+        shooting: pos === 'ATT' ? 36 : 28,
+        passing: pos === 'MID' ? 36 : 28,
+        dribbling: 30,
+        defending: pos === 'DEF' ? 36 : 28,
+        physical: 32,
+        goalkeeping: 10,
+        form: 40,
+        stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 4.2 }
       });
     }
   }
 
-  return starters.slice(0, 7);
+  return {
+    starters: starters.slice(0, 7),
+    realCount,
+    hasRealGK,
+    missingCount
+  };
 }
 
 export function simulateMatch(
@@ -55,14 +127,17 @@ export function simulateMatch(
   const { team: homeTeam, players: homePlayers } = homeSimTeam;
   const { team: awayTeam, players: awayPlayers } = awaySimTeam;
 
-  // Filter down to the starting 7 players (guaranteed 7 players via fallback generator)
-  const homeStarting = ensureStartingSeven(homeTeam, homePlayers);
-  const awayStarting = ensureStartingSeven(awayTeam, awayPlayers);
+  // Filter down to the starting 7 players with squad deficit metadata
+  const homeSelection = ensureStartingSeven(homeTeam, homePlayers);
+  const awaySelection = ensureStartingSeven(awayTeam, awayPlayers);
+
+  const homeStarting = homeSelection.starters;
+  const awayStarting = awaySelection.starters;
 
   // Compute unit ratings
   const getUnitRating = (players: Player[], pos: string, defaultAttr: keyof Player) => {
     const unit = players.filter(p => p.position === pos);
-    if (unit.length === 0) return 75;
+    if (unit.length === 0) return 40;
     const total = unit.reduce((acc, p) => {
       const formBonus = ((p.form - 80) * 0.15);
       return acc + (Number(p[defaultAttr]) || p.overall) + formBonus;
@@ -84,32 +159,79 @@ export function simulateMatch(
   const homeFmtMod = getFormationMod(homeTeam.formation);
   const awayFmtMod = getFormationMod(awayTeam.formation);
 
-  const homeGkRating = getUnitRating(homeStarting, 'GK', 'goalkeeping');
-  const awayGkRating = getUnitRating(awayStarting, 'GK', 'goalkeeping');
+  // Goalkeeper ratings: If no real GK, rating is decimated (18-22)
+  let homeGkRating = homeSelection.hasRealGK
+    ? getUnitRating(homeStarting, 'GK', 'goalkeeping')
+    : 18;
+  let awayGkRating = awaySelection.hasRealGK
+    ? getUnitRating(awayStarting, 'GK', 'goalkeeping')
+    : 18;
 
-  const homeDefRating = getUnitRating(homeStarting, 'DEF', 'defending') + homeFmtMod.def;
-  const awayDefRating = getUnitRating(awayStarting, 'DEF', 'defending') + awayFmtMod.def;
+  let homeDefRating = getUnitRating(homeStarting, 'DEF', 'defending') + homeFmtMod.def;
+  let awayDefRating = getUnitRating(awayStarting, 'DEF', 'defending') + awayFmtMod.def;
 
-  const homeMidRating = getUnitRating(homeStarting, 'MID', 'passing') + homeFmtMod.mid;
-  const awayMidRating = getUnitRating(awayStarting, 'MID', 'passing') + awayFmtMod.mid;
+  let homeMidRating = getUnitRating(homeStarting, 'MID', 'passing') + homeFmtMod.mid;
+  let awayMidRating = getUnitRating(awayStarting, 'MID', 'passing') + awayFmtMod.mid;
 
-  const homeAttRating = getUnitRating(homeStarting, 'ATT', 'shooting') + homeFmtMod.att;
-  const awayAttRating = getUnitRating(awayStarting, 'ATT', 'shooting') + awayFmtMod.att;
+  let homeAttRating = getUnitRating(homeStarting, 'ATT', 'shooting') + homeFmtMod.att;
+  let awayAttRating = getUnitRating(awayStarting, 'ATT', 'shooting') + awayFmtMod.att;
+
+  // Severe penalty if a team has only 3 or 4 players:
+  // Heavily penalize all outfield ratings so they get completely crushed
+  if (homeSelection.realCount <= 4) {
+    homeDefRating = Math.min(38, homeDefRating * 0.55);
+    homeMidRating = Math.min(38, homeMidRating * 0.55);
+    homeAttRating = Math.min(38, homeAttRating * 0.55);
+  } else if (homeSelection.realCount < 7) {
+    const factor = homeSelection.realCount / 7;
+    homeDefRating *= factor;
+    homeMidRating *= factor;
+    homeAttRating *= factor;
+  }
+
+  if (awaySelection.realCount <= 4) {
+    awayDefRating = Math.min(38, awayDefRating * 0.55);
+    awayMidRating = Math.min(38, awayMidRating * 0.55);
+    awayAttRating = Math.min(38, awayAttRating * 0.55);
+  } else if (awaySelection.realCount < 7) {
+    const factor = awaySelection.realCount / 7;
+    awayDefRating *= factor;
+    awayMidRating *= factor;
+    awayAttRating *= factor;
+  }
 
   // Home advantage
-  const homeAdvantage = 2.5;
+  const homeAdvantage = 2.0;
 
-  // Calculate possession based on midfield battle
+  // Calculate possession based on midfield battle and squad size
   const midDiff = (homeMidRating + homeAdvantage) - awayMidRating;
-  const basePossession = 50 + midDiff * 0.7 + (Math.random() * 8 - 4);
-  const homePossession = Math.round(Math.min(68, Math.max(32, basePossession)));
+  let basePossession = 50 + midDiff * 0.75 + (Math.random() * 6 - 3);
+
+  // If a team has <= 4 players, hard cap their possession to maximum 22-26%
+  if (homeSelection.realCount <= 4 && awaySelection.realCount > 4) {
+    basePossession = Math.min(24, basePossession);
+  } else if (awaySelection.realCount <= 4 && homeSelection.realCount > 4) {
+    basePossession = Math.max(76, basePossession);
+  }
+
+  const homePossession = Math.round(Math.min(82, Math.max(18, basePossession)));
   const awayPossession = 100 - homePossession;
 
-  // Expected chances
-  const homeChancesCount = Math.round(5 + (homePossession / 100) * 6 + (homeAttRating - awayDefRating) * 0.15 + (Math.random() * 3 - 1.5));
-  const awayChancesCount = Math.round(5 + (awayPossession / 100) * 6 + (awayAttRating - homeDefRating) * 0.15 + (Math.random() * 3 - 1.5));
+  // Expected chances: Teams with great squads generate many chances, depleted teams generate 1-3
+  let homeChancesCount = Math.round(5 + (homePossession / 100) * 7 + (homeAttRating - awayDefRating) * 0.16 + (Math.random() * 3 - 1.5));
+  let awayChancesCount = Math.round(5 + (awayPossession / 100) * 7 + (awayAttRating - homeDefRating) * 0.16 + (Math.random() * 3 - 1.5));
 
-  const totalChances = Math.max(4, homeChancesCount) + Math.max(4, awayChancesCount);
+  // If team has no GK or <= 4 players, opponent gets extra scoring opportunities
+  if (!homeSelection.hasRealGK || homeSelection.realCount <= 4) {
+    awayChancesCount = Math.max(9, awayChancesCount + 4);
+    homeChancesCount = Math.min(3, Math.max(1, homeChancesCount - 3));
+  }
+  if (!awaySelection.hasRealGK || awaySelection.realCount <= 4) {
+    homeChancesCount = Math.max(9, homeChancesCount + 4);
+    awayChancesCount = Math.min(3, Math.max(1, awayChancesCount - 3));
+  }
+
+  const totalChances = Math.max(3, homeChancesCount) + Math.max(3, awayChancesCount);
   
   // Pick random distinct minutes across 90 minutes
   const availableMinutes: number[] = [];
@@ -120,7 +242,7 @@ export function simulateMatch(
     [availableMinutes[i], availableMinutes[j]] = [availableMinutes[j], availableMinutes[i]];
   }
 
-  const matchMinutes = availableMinutes.slice(0, Math.min(totalChances, 14)).sort((a, b) => a - b);
+  const matchMinutes = availableMinutes.slice(0, Math.min(totalChances, 16)).sort((a, b) => a - b);
 
   const events: MatchEvent[] = [];
   let homeScore = 0;
@@ -201,12 +323,25 @@ export function simulateMatch(
     const defendingTeam = isHomeAttack ? awayTeam : homeTeam;
     const attackingPlayers = isHomeAttack ? homeStarting : awayStarting;
     const opposingGk = isHomeAttack ? awayGk : homeGk;
+    const defendingHasRealGk = isHomeAttack ? awaySelection.hasRealGK : homeSelection.hasRealGK;
+    const attackingRealCount = isHomeAttack ? homeSelection.realCount : awaySelection.realCount;
+
     const attackPower = isHomeAttack ? (homeAttRating * 0.6 + homeMidRating * 0.4) : (awayAttRating * 0.6 + awayMidRating * 0.4);
     const defensePower = isHomeAttack ? (awayDefRating * 0.6 + awayGkRating * 0.4) : (homeDefRating * 0.6 + homeGkRating * 0.4);
 
-    // Goal probability per chance
-    const goalOdds = Math.min(0.38, Math.max(0.12, 0.22 + (attackPower - defensePower) * 0.012));
-    const saveOdds = 0.32;
+    // Goal probability per chance:
+    // If the defending team has NO REAL GOALKEEPER, odds of scoring shoot up to 72%!
+    let goalOdds = !defendingHasRealGk
+      ? 0.72
+      : Math.min(0.55, Math.max(0.12, 0.22 + (attackPower - defensePower) * 0.014));
+
+    // If attacking team is severely understaffed (<= 4 players), their finishing odds plummet
+    if (attackingRealCount <= 4) {
+      goalOdds = 0.08;
+    }
+
+    // Save odds: If no real GK, save odds drop to 5%!
+    const saveOdds = !defendingHasRealGk ? 0.05 : 0.30;
     const cardOdds = 0.08;
 
     const roll = Math.random();
@@ -234,9 +369,17 @@ export function simulateMatch(
         playerStatsTracker[assister.id].assists++;
       }
 
-      const desc = assister 
+      let desc = assister 
         ? `${scorer.name} finishes clinical strike into the corner, assisted by a sublime pass from ${assister.shortName}!`
         : `${scorer.name} bursts through the defense with incredible skill and slots it past the keeper!`;
+
+      if (!defendingHasRealGk) {
+        desc = `⚽ GOAL! ${scorer.name} fires directly into the unguarded net — disastrous penalty for ${defendingTeam.name} having no registered goalkeeper!`;
+      } else if (isHomeAttack && awaySelection.realCount <= 4) {
+        desc = `⚽ GOAL! ${scorer.name} completely overwhelms the severely depleted defense of ${defendingTeam.name}!`;
+      } else if (!isHomeAttack && homeSelection.realCount <= 4) {
+        desc = `⚽ GOAL! ${scorer.name} punishes the depleted defense of ${defendingTeam.name} with effortless precision!`;
+      }
 
       events.push({
         id: `evt-${minute}-${scorer.id}`,

@@ -24,13 +24,15 @@ interface MatchSimulationPageProps {
   allPlayers: Player[];
   onFinishMatch: () => void;
   onGoToLeague: () => void;
+  onReturnToAuction?: () => void;
 }
 
 export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   matchResult,
   allPlayers: _allPlayers,
   onFinishMatch,
-  onGoToLeague
+  onGoToLeague,
+  onReturnToAuction
 }) => {
   const [currentMinute, setCurrentMinute] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -663,13 +665,23 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
       )}
 
       {/* Bottom Sticky Action Bar */}
-      <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-800">
-        <button
-          onClick={onFinishMatch}
-          className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
-        >
-          Return to Dashboard
-        </button>
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onFinishMatch}
+            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
+          >
+            Return to Dashboard
+          </button>
+          {onReturnToAuction && (
+            <button
+              onClick={onReturnToAuction}
+              className="px-4 py-2.5 rounded-xl bg-[#0A0D1A] hover:bg-slate-800 border border-[#00E5FF]/40 text-[#00E5FF] text-xs font-bold transition flex items-center gap-1.5"
+            >
+              <span>🔙 Return to Auction</span>
+            </button>
+          )}
+        </div>
         <button
           onClick={onGoToLeague}
           className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-md shadow-emerald-500/20"

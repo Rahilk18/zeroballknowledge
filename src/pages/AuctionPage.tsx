@@ -41,9 +41,14 @@ export function AuctionPage({ setActiveTab }: any) {
     allTeams,
     timeLeft,
     auctionComplete,
+    teamSquadCounts,
+    allTeamsHaveMinSquad,
+    minSquadRequired,
     placeBid,
     nextPlayer,
     skipPlayer,
+    endAuctionManually,
+    reopenAuction,
   } = useAuction();
 
   const [bidAmount, setBidAmount] = useState('');
@@ -241,12 +246,26 @@ export function AuctionPage({ setActiveTab }: any) {
         </div>
 
         {/* Action Button */}
-        <button
-          onClick={handleContinueToMatches}
-          className="w-full py-4 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black text-sm uppercase tracking-wider rounded-2xl transition-all shadow-glow-cyan active:scale-98 flex items-center justify-center gap-2"
-        >
-          <span>CHOOSE YOUR PLAYING 7 →</span>
-        </button>
+        <div className="space-y-3">
+          <button
+            onClick={handleContinueToMatches}
+            className="w-full py-4 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black text-sm uppercase tracking-wider rounded-2xl transition-all shadow-glow-cyan active:scale-98 flex items-center justify-center gap-2"
+          >
+            <span>CHOOSE YOUR PLAYING 7 →</span>
+          </button>
+
+          {isHost && (
+            <button
+              onClick={async () => {
+                sound.playClick();
+                await reopenAuction();
+              }}
+              className="w-full py-3.5 bg-[#0A0D1A] hover:bg-slate-800 border border-[#00E5FF]/40 text-[#00E5FF] font-bold text-xs uppercase tracking-wider rounded-2xl transition flex items-center justify-center gap-2"
+            >
+              <span>🔙 REOPEN LIVE AUCTION / DRAFT MORE PLAYERS</span>
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -339,6 +358,83 @@ export function AuctionPage({ setActiveTab }: any) {
         </div>
       </div>
 
+      {/* ROOM SQUAD READINESS & HOST DRAFT CONCLUDE PANEL */}
+      <div className="bg-[#0E1324] border border-[#00E5FF]/30 rounded-3xl p-4 sm:p-5 shadow-glow-cyan space-y-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-[#00E5FF]" />
+            <span className="text-xs font-black uppercase tracking-wider text-white">
+              SQUAD READINESS TRACKER (MINIMUM {minSquadRequired} PLAYERS PER TEAM)
+            </span>
+          </div>
+          <span className={`text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full ${
+            allTeamsHaveMinSquad ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+          }`}>
+            {allTeamsHaveMinSquad ? `✓ ALL TEAMS READY (${minSquadRequired}+ PLAYERS)` : `⚠️ DRAFT IN PROGRESS (NEEDS ${minSquadRequired}+ PLAYERS)`}
+          </span>
+        </div>
+
+        {/* Teams Status Pill List */}
+        <div className="flex flex-wrap gap-2">
+          {(allTeams || []).map(t => {
+            const count = teamSquadCounts[t.id] || 0;
+            const hasMin = count >= minSquadRequired;
+            return (
+              <div
+                key={t.id}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs ${
+                  hasMin 
+                    ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200' 
+                    : 'bg-amber-950/40 border-amber-500/40 text-amber-200'
+                }`}
+              >
+                <span>{t.badgeIcon || t.badge || '⚡'}</span>
+                <span className="font-bold">{t.name || t.teamName || 'Team'}</span>
+                <span className={`font-mono font-black px-1.5 py-0.2 rounded ${hasMin ? 'bg-emerald-500/30 text-emerald-300' : 'bg-amber-500/30 text-amber-300'}`}>
+                  {count}/{minSquadRequired}
+                </span>
+                {hasMin ? (
+                  <span className="text-[10px] text-emerald-400 font-bold">✓ Ready</span>
+                ) : (
+                  <span className="text-[10px] text-amber-400 animate-pulse font-bold">Needs {minSquadRequired - count}</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Host Conclude Button */}
+        {isHost && (
+          <div className="pt-1 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-[11px] text-slate-400">
+              {allTeamsHaveMinSquad 
+                ? 'All managers have acquired at least 8 players! You can conclude the auction whenever you are ready.'
+                : `Simulation is locked until every team drafts at least ${minSquadRequired} players.`}
+            </p>
+            <button
+              onClick={async () => {
+                sound.playClick();
+                const { error } = await endAuctionManually();
+                if (error) {
+                  setBidError(error);
+                } else {
+                  sound.playVictorySound();
+                  if (typeof setActiveTab === 'function') setActiveTab('lineup');
+                }
+              }}
+              disabled={!allTeamsHaveMinSquad}
+              className={`w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                allTeamsHaveMinSquad
+                  ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-slate-950 shadow-lg shadow-emerald-500/30 cursor-pointer active:scale-95'
+                  : 'bg-slate-800/80 text-slate-500 border border-slate-700/60 cursor-not-allowed opacity-60'
+              }`}
+            >
+              <span>🏁 CONCLUDE AUCTION & START SQUAD SELECTION</span>
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {/* ===== MAIN AUCTION LOT / 3D VIEWER PANEL ===== */}
@@ -368,7 +464,7 @@ export function AuctionPage({ setActiveTab }: any) {
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-[10px] font-bold text-[#00E5FF] bg-[#00E5FF]/10 border border-[#00E5FF]/30 px-2 py-0.5 rounded-md font-mono">
-                  +5s EXTENSION / BID
+                  +10s EXTENSION / BID
                 </span>
                 <div className={`text-2xl font-black font-display ${timerColor} ${timerPulse}`}>
                   {timeLeft === 0 ? 'SOLD!' : `${timeLeft}s`}

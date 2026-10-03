@@ -19,9 +19,14 @@ interface AuctionContextType {
   allTeams: Team[];
   timeLeft: number;
   auctionComplete: boolean;
+  teamSquadCounts: Record<string, number>;
+  allTeamsHaveMinSquad: boolean;
+  minSquadRequired: number;
   placeBid: (amount: number) => Promise<{ error: string | null }>;
   nextPlayer: () => Promise<{ error: string | null }>;
   skipPlayer: () => Promise<{ error: string | null }>;
+  endAuctionManually: () => Promise<{ error: string | null }>;
+  reopenAuction: () => Promise<{ error: string | null }>;
 }
 
 const AuctionContext = createContext<AuctionContextType | undefined>(undefined);
@@ -36,11 +41,16 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   const [myTeam, setMyTeam] = useState<Team | null>(sessionTeam);
   const [timeLeft, setTimeLeft] = useState(0);
   const [auctionComplete, setAuctionComplete] = useState(false);
+  const [teamSquadCounts, setTeamSquadCounts] = useState<Record<string, number>>({});
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoNextTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentAuctionRef = useRef<Auction | null>(null);
   const isResolvingRef = useRef<boolean>(false);
+
+  const minSquadRequired = 8;
+  const allTeamsHaveMinSquad = (allTeams || []).length > 0 &&
+    (allTeams || []).every(t => (teamSquadCounts[t.id] || 0) >= minSquadRequired);
 
   useEffect(() => {
     currentAuctionRef.current = currentAuction;
@@ -120,12 +130,28 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Load squad counts for all teams in the session to track minimum 8 players readiness
+  const refreshSquadCounts = async () => {
+    if (!currentSession) return;
+    const { data: squadRows } = await supabase
+      .from('squads')
+      .select('team_id')
+      .eq('session_id', currentSession.id);
+
+    const counts: Record<string, number> = {};
+    (squadRows || []).forEach((r: any) => {
+      counts[r.team_id] = (counts[r.team_id] || 0) + 1;
+    });
+    setTeamSquadCounts(counts);
+  };
+
   // Subscribe to auction updates when session is in AUCTION state
   useEffect(() => {
     if (!currentSession || currentSession.status !== 'AUCTION') return;
     loadCurrentAuction();
     loadMySquad();
     refreshMyTeam();
+    refreshSquadCounts();
     subscribeToAuction();
 
     return () => {
@@ -139,6 +165,8 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   const loadCurrentAuction = async () => {
     if (!currentSession) return;
     try {
+      await refreshSquadCounts();
+
       const { data: rows } = await supabase
         .from('auctions')
         .select('*, players(*)')
@@ -150,32 +178,19 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       const data = rows && rows.length > 0 ? rows[0] : null;
 
       if (!data) {
-        // Check session_player_pool status to see if draft has truly completed
-        const { count: remainingCount } = await supabase
-          .from('session_player_pool')
-          .select('id', { count: 'exact' })
-          .eq('session_id', currentSession.id)
-          .in('status', ['AVAILABLE', 'IN_AUCTION']);
-
-        const { count: totalPoolCount } = await supabase
-          .from('session_player_pool')
-          .select('id', { count: 'exact' })
-          .eq('session_id', currentSession.id);
-
         if (
           currentSession.status === 'MATCHES' ||
           currentSession.status === 'TEAM_SETUP' ||
-          currentSession.status === 'COMPLETED' ||
-          (totalPoolCount && totalPoolCount > 0 && (remainingCount === 0 || remainingCount === null))
+          currentSession.status === 'COMPLETED'
         ) {
           setAuctionComplete(true);
           setCurrentAuction(null);
           setCurrentPlayer(null);
         } else {
-          // Pool is not completed! Auction is still in progress or advancing
+          // In AUCTION status: Auction must NOT complete abruptly!
           setAuctionComplete(false);
-          // If host and no live auction row exists, auto-advance
-          if (currentSession.hostUserId === user?.id && remainingCount && remainingCount > 0) {
+          // If host and no live auction row exists, auto-advance or recycle
+          if (currentSession.hostUserId === user?.id) {
             advanceToNextPlayer();
           }
         }
@@ -305,11 +320,13 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       }, () => {
         loadMySquad();
         refreshMyTeam();
+        refreshSquadCounts();
         if (typeof refreshSessionData === 'function') refreshSessionData();
       })
       .on('broadcast', { event: 'squad_updated' }, () => {
         loadMySquad();
         refreshMyTeam();
+        refreshSquadCounts();
         if (typeof refreshSessionData === 'function') refreshSessionData();
       })
       .subscribe();
@@ -338,10 +355,10 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       return { error: 'Your squad is full (10 players max).' };
     }
 
-    // Increase remaining auction time by 5 seconds (+5,000ms), ensuring at least 5 seconds remaining
+    // Increase remaining auction time by 10 seconds (+10,000ms), ensuring at least 10 seconds remaining
     const currentEndMs = currentAuction.endsAt ? new Date(currentAuction.endsAt).getTime() : Date.now();
     const remainingMs = Math.max(0, currentEndMs - Date.now());
-    const newRemainingMs = Math.min(30_000, Math.max(5_000, remainingMs + 5_000));
+    const newRemainingMs = Math.min(45_000, Math.max(10_000, remainingMs + 10_000));
     const newEndsAt = new Date(Date.now() + newRemainingMs).toISOString();
 
     // Insert bid
@@ -543,8 +560,8 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   const advanceToNextPlayer = async (): Promise<{ error: string | null }> => {
     if (!currentSession) return { error: 'No session.' };
 
-    // Find next AVAILABLE player in pool by auction_order
-    const { data: nextPoolEntry } = await supabase
+    // 1. Find next AVAILABLE player in pool by auction_order
+    let { data: nextPoolEntry } = await supabase
       .from('session_player_pool')
       .select('player_id, auction_order')
       .eq('session_id', currentSession.id)
@@ -553,13 +570,76 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       .limit(1)
       .maybeSingle();
 
+    // 2. If no available players left, recycle SKIPPED players so the auction never terminates abruptly
     if (!nextPoolEntry) {
-      // No more players — auction complete
-      await supabase
-        .from('game_sessions')
-        .update({ status: 'TEAM_SETUP' })
-        .eq('id', currentSession.id);
-      setAuctionComplete(true);
+      const { data: skippedRows } = await supabase
+        .from('session_player_pool')
+        .select('id')
+        .eq('session_id', currentSession.id)
+        .eq('status', 'SKIPPED');
+
+      if (skippedRows && skippedRows.length > 0) {
+        await supabase
+          .from('session_player_pool')
+          .update({ status: 'AVAILABLE' })
+          .eq('session_id', currentSession.id)
+          .eq('status', 'SKIPPED');
+
+        const { data: recycled } = await supabase
+          .from('session_player_pool')
+          .select('player_id, auction_order')
+          .eq('session_id', currentSession.id)
+          .eq('status', 'AVAILABLE')
+          .order('auction_order', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        nextPoolEntry = recycled;
+      }
+    }
+
+    // 3. If STILL no available players, query main players table for any players not yet in squads
+    if (!nextPoolEntry) {
+      const { data: squadData } = await supabase
+        .from('squads')
+        .select('player_id')
+        .eq('session_id', currentSession.id);
+      
+      const takenIds = new Set((squadData || []).map((s: any) => s.player_id));
+      const { data: allPlayersDb } = await supabase
+        .from('players')
+        .select('id');
+
+      const untaken = (allPlayersDb || []).filter(p => !takenIds.has(p.id));
+      if (untaken.length > 0) {
+        const shuffledNew = [...untaken].sort(() => Math.random() - 0.5);
+        const { data: currentPoolMax } = await supabase
+          .from('session_player_pool')
+          .select('auction_order')
+          .eq('session_id', currentSession.id)
+          .order('auction_order', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const baseOrder = (currentPoolMax?.auction_order || 0) + 1;
+        const newEntries = shuffledNew.map((p, idx) => ({
+          session_id: currentSession.id,
+          player_id: p.id,
+          status: 'AVAILABLE',
+          auction_order: baseOrder + idx
+        }));
+
+        await supabase.from('session_player_pool').insert(newEntries);
+
+        nextPoolEntry = {
+          player_id: newEntries[0].player_id,
+          auction_order: newEntries[0].auction_order
+        };
+      }
+    }
+
+    // 4. If literally all players in the database are drafted, wait for host to conclude manually
+    if (!nextPoolEntry) {
       return { error: null };
     }
 
@@ -586,6 +666,107 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
+  const endAuctionManually = async (): Promise<{ error: string | null }> => {
+    if (!currentSession) return { error: 'No active session.' };
+    if (currentSession.hostUserId !== user?.id) {
+      return { error: 'Only the room host can conclude the draft auction.' };
+    }
+
+    // Verify all teams have minimum 8 players
+    const { data: squadRows } = await supabase
+      .from('squads')
+      .select('team_id')
+      .eq('session_id', currentSession.id);
+
+    const counts: Record<string, number> = {};
+    (squadRows || []).forEach((r: any) => {
+      counts[r.team_id] = (counts[r.team_id] || 0) + 1;
+    });
+
+    const incomplete = (allTeams || []).filter(t => (counts[t.id] || 0) < minSquadRequired);
+    if (incomplete.length > 0) {
+      const summary = incomplete
+        .map(t => `${t.name || t.teamName || 'Team'}: ${counts[t.id] || 0}/${minSquadRequired} players`)
+        .join(', ');
+      return {
+        error: `Cannot end auction: Every team must draft at least ${minSquadRequired} players before simulation! Deficit: ${summary}`,
+      };
+    }
+
+    // Mark current active auction row as concluded
+    if (currentAuctionRef.current?.id) {
+      await supabase
+        .from('auctions')
+        .update({ status: 'CONCLUDED' })
+        .eq('id', currentAuctionRef.current.id);
+    }
+
+    // Transition session status to TEAM_SETUP
+    const { error: sessErr } = await supabase
+      .from('game_sessions')
+      .update({ status: 'TEAM_SETUP' })
+      .eq('id', currentSession.id);
+
+    if (sessErr) return { error: sessErr.message };
+
+    setAuctionComplete(true);
+    setCurrentAuction(null);
+    setCurrentPlayer(null);
+
+    // Broadcast navigation to lineup for all participants
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'navigation',
+        payload: { tab: 'lineup' }
+      });
+    }
+
+    return { error: null };
+  };
+
+  const reopenAuction = async (): Promise<{ error: string | null }> => {
+    if (!currentSession) return { error: 'No active session.' };
+    if (currentSession.hostUserId !== user?.id) {
+      return { error: 'Only the room host can reopen the auction.' };
+    }
+
+    // Update game_sessions status back to AUCTION
+    const { error: sessErr } = await supabase
+      .from('game_sessions')
+      .update({ status: 'AUCTION' })
+      .eq('id', currentSession.id);
+
+    if (sessErr) return { error: sessErr.message };
+
+    setAuctionComplete(false);
+
+    // Broadcast navigation to all participants so everyone returns to auction
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'navigation',
+        payload: { tab: 'auction' }
+      });
+    }
+
+    // Check if an auction is currently LIVE; if not, advance to next player
+    const { data: liveRows } = await supabase
+      .from('auctions')
+      .select('id')
+      .eq('session_id', currentSession.id)
+      .eq('status', 'LIVE')
+      .limit(1);
+
+    if (!liveRows || liveRows.length === 0) {
+      await advanceToNextPlayer();
+    } else {
+      await loadCurrentAuction();
+    }
+
+    return { error: null };
+  };
+
   return (
     <AuctionContext.Provider
       value={{
@@ -597,9 +778,14 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
         allTeams,
         timeLeft,
         auctionComplete,
+        teamSquadCounts,
+        allTeamsHaveMinSquad,
+        minSquadRequired,
         placeBid,
         nextPlayer,
         skipPlayer,
+        endAuctionManually,
+        reopenAuction,
       }}
     >
       {children}

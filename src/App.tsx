@@ -3,6 +3,7 @@ import { ActiveTab, MatchResult, Player, Team, UserAccount } from './types';
 import { loadInitialState, saveState, resetToDefaults, applyMatchToStandings } from './services/gameStorage';
 import { simulateMatch } from './simulation/engine';
 import { calculateTeamOverall } from './utils/formatters';
+import { supabase } from './lib/supabase';
 
 import { Header } from './components/Header';
 import { Navigation } from './components/Navigation';
@@ -181,6 +182,15 @@ export function App() {
     }
   }, [currentSession?.status, activeTab]);
 
+  // When room status transitions back to AUCTION, move room participants back to auction view
+  useEffect(() => {
+    if (currentSession?.status === 'AUCTION') {
+      if (activeTab === 'matches' || activeTab === 'lineup' || activeTab === 'simulation') {
+        setActiveTab('auction');
+      }
+    }
+  }, [currentSession?.status, activeTab]);
+
   // Keep activeMatchResult in sync with real-time simulations and navigate joined players to watch
   useEffect(() => {
     if (latestMatchResult) {
@@ -240,9 +250,24 @@ export function App() {
     if (!homeTeam) return;
 
     try {
+      // Extract ONLY the players that genuinely belong to homeTeam and awayTeam
+      const getTeamRoster = (team: Team): Player[] => {
+        const teamPlayerIds = new Set([
+          ...(team.startingSeven || []),
+          ...(team.bench || [])
+        ].filter(Boolean));
+
+        const matched = combinedPlayers.filter(p => teamPlayerIds.has(p.id));
+        if (matched.length > 0) return matched;
+        return combinedPlayers.filter(p => (p as any).teamId === team.id || (p as any).currentClub === team.name);
+      };
+
+      const homeRoster = getTeamRoster(homeTeam);
+      const awayRoster = getTeamRoster(awayTeam);
+
       const result = simulateMatch(
-        { team: homeTeam, players: combinedPlayers },
-        { team: awayTeam, players: combinedPlayers }
+        { team: homeTeam, players: homeRoster },
+        { team: awayTeam, players: awayRoster }
       );
 
       result.matchweek = effectiveMatches.length + 1;
@@ -595,6 +620,16 @@ export function App() {
             <MatchSimulationPage
               matchResult={activeMatchResult}
               allPlayers={combinedPlayers}
+              onReturnToAuction={async () => {
+                if (currentSession && isHost) {
+                  await supabase
+                    .from('game_sessions')
+                    .update({ status: 'AUCTION' })
+                    .eq('id', currentSession.id);
+                  await broadcastNavigation('auction');
+                }
+                setActiveTab('auction');
+              }}
               onFinishMatch={() => {
                 setActiveTab('league');
                 if (currentSession && isHost) broadcastNavigation('league');

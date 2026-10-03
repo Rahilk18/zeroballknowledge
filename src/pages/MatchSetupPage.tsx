@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Team, Player } from '../types';
 import { calculateTeamOverall } from '../utils/formatters';
+import { useSession } from '../contexts/SessionContext';
+import { supabase } from '../lib/supabase';
 import { 
   Shield, 
   Play, 
@@ -31,6 +33,39 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
   onGoToDashboard,
   isHost = true,
 }) => {
+  const { currentSession, broadcastNavigation } = useSession();
+  const [squadCounts, setSquadCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!currentSession) return;
+    supabase
+      .from('squads')
+      .select('team_id')
+      .eq('session_id', currentSession.id)
+      .then(({ data }) => {
+        const counts: Record<string, number> = {};
+        (data || []).forEach((r: any) => {
+          counts[r.team_id] = (counts[r.team_id] || 0) + 1;
+        });
+        setSquadCounts(counts);
+      });
+  }, [currentSession]);
+
+  const incompleteTeams = currentSession
+    ? (allTeams || []).filter(t => (squadCounts[t.id] || 0) < 8)
+    : [];
+  const canSimulate = !currentSession || incompleteTeams.length === 0;
+
+  const handleReturnToAuction = async () => {
+    if (currentSession && isHost) {
+      await supabase
+        .from('game_sessions')
+        .update({ status: 'AUCTION' })
+        .eq('id', currentSession.id);
+      await broadcastNavigation('auction');
+    }
+    if (onBack) onBack();
+  };
   // If user hasn't created a squad or room yet, render an informative prompt instead of crashing
   if (!currentTeam) {
     return (
@@ -367,20 +402,46 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
         </div>
 
         {/* Primary Call to Action */}
-        <div className="mt-10 flex flex-col items-center justify-center">
-          {isHost ? (
-            <>
-              <button
-                onClick={() => onSimulate(opponentTeam.id)}
-                className="w-full sm:w-auto min-w-[280px] flex items-center justify-center gap-3 px-10 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-green-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-base uppercase tracking-wider transition-all duration-300 shadow-2xl shadow-emerald-500/30 active:scale-95 group"
-              >
-                <Play className="w-5 h-5 fill-slate-950 transition-transform group-hover:scale-125" />
-                <span>SIMULATE MATCH</span>
-              </button>
-              <p className="text-xs text-slate-400 mt-2.5">
-                Real simulation engine evaluates tactical attributes, form, and match momentum.
+        <div className="mt-8 flex flex-col items-center justify-center space-y-4">
+          {!canSimulate && (
+            <div className="max-w-md w-full p-4 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-center space-y-1.5 shadow-lg">
+              <span className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center justify-center gap-1.5">
+                ⚠️ SIMULATION LOCKED: MINIMUM 8 PLAYERS REQUIRED
+              </span>
+              <p className="text-[11px] text-slate-300">
+                All teams must have at least 8 players before matches can be simulated.
+                {incompleteTeams.length > 0 && (
+                  <span className="block mt-1 text-amber-300 font-mono">
+                    Short: {incompleteTeams.map(t => `${t.name || t.teamName || 'Team'}: ${squadCounts[t.id] || 0}/8`).join(', ')}
+                  </span>
+                )}
               </p>
-            </>
+            </div>
+          )}
+
+          {isHost ? (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
+              {currentSession && (
+                <button
+                  onClick={handleReturnToAuction}
+                  className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-[#0A0D1A] hover:bg-slate-800 border border-[#00E5FF]/40 text-[#00E5FF] font-bold text-xs uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <span>🔙 RETURN TO LIVE AUCTION</span>
+                </button>
+              )}
+              <button
+                onClick={() => canSimulate && onSimulate(opponentTeam.id)}
+                disabled={!canSimulate}
+                className={`w-full sm:w-auto min-w-[260px] flex items-center justify-center gap-3 px-10 py-4 rounded-2xl font-black text-base uppercase tracking-wider transition-all duration-300 shadow-2xl active:scale-95 group ${
+                  canSimulate
+                    ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-green-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 shadow-emerald-500/30 cursor-pointer'
+                    : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed opacity-60'
+                }`}
+              >
+                <Play className="w-5 h-5 fill-current transition-transform group-hover:scale-125" />
+                <span>{canSimulate ? 'SIMULATE MATCH' : 'ROSTERS INCOMPLETE'}</span>
+              </button>
+            </div>
           ) : (
             <div className="w-full sm:w-auto min-w-[340px] flex flex-col items-center justify-center gap-2.5 px-8 py-5 rounded-2xl bg-[#0A0E1A] border border-[#00E5FF]/40 text-center shadow-glow-cyan animate-pulse">
               <div className="flex items-center gap-2 text-[#00E5FF] font-black text-xs uppercase tracking-wider font-display">
@@ -394,6 +455,11 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
                 Only the host can launch and simulate arena matches
               </span>
             </div>
+          )}
+          {isHost && canSimulate && (
+            <p className="text-xs text-slate-400">
+              Real simulation engine evaluates tactical attributes, form, and match momentum.
+            </p>
           )}
         </div>
 
