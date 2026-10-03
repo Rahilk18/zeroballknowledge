@@ -134,29 +134,31 @@ export const PitchView: React.FC<PitchViewProps> = ({
         </div>
 
         {/* --- ROW 1: ATTACKERS --- */}
-        <div className="relative z-10 w-full flex justify-around items-center pt-2 sm:pt-4">
-          {atts.map((player, idx) => player ? (
-            <PitchPlayerToken
-              key={player.id}
-              player={player}
-              isSelected={player.id === selectedPlayerId}
-              isDragOver={player.id === dragOverPlayerId}
-              onClick={() => interactive && onPlayerClick && onPlayerClick(player)}
-              onDragOver={(e) => handleDragOver(e, player.id)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDropOnPlayer(e, player.id)}
-              interactive={interactive}
-            />
-          ) : (
-            <EmptyPitchSlot
-              key={`empty-att-${idx}`}
-              role="ATT"
-              onClick={() => onEmptySlotClick && onEmptySlotClick('ATT')}
-              onDragOver={(e) => handleDragOver(e, `empty-att-${idx}`)}
-              onDrop={handleDropOnEmpty}
-            />
-          ))}
-        </div>
+        {atts.length > 0 && (
+          <div className="relative z-10 w-full flex justify-around items-center pt-2 sm:pt-4">
+            {atts.map((player, idx) => player ? (
+              <PitchPlayerToken
+                key={player.id}
+                player={player}
+                isSelected={player.id === selectedPlayerId}
+                isDragOver={player.id === dragOverPlayerId}
+                onClick={() => interactive && onPlayerClick && onPlayerClick(player)}
+                onDragOver={(e) => handleDragOver(e, player.id)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDropOnPlayer(e, player.id)}
+                interactive={interactive}
+              />
+            ) : (
+              <EmptyPitchSlot
+                key={`empty-att-${idx}`}
+                role="ATT"
+                onClick={() => onEmptySlotClick && onEmptySlotClick('ATT')}
+                onDragOver={(e) => handleDragOver(e, `empty-att-${idx}`)}
+                onDrop={handleDropOnEmpty}
+              />
+            ))}
+          </div>
+        )}
 
         {/* --- ROW 2: MIDFIELDERS --- */}
         <div className="relative z-10 w-full flex justify-around items-center my-auto px-2">

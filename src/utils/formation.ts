@@ -12,6 +12,15 @@ export interface FormationInfo {
 
 export const FORMATIONS: FormationInfo[] = [
   {
+    id: '1-2-2-2',
+    name: '1-2-2-2',
+    label: '1-2-2-2 Twin Strike',
+    defCount: 2,
+    midCount: 2,
+    attCount: 2,
+    description: 'Balanced 2 defenders, 2 midfielders, and 2 forwards. Versatile tactical shape.',
+  },
+  {
     id: '1-3-2-1',
     name: '1-3-2-1',
     label: '1-3-2-1 Solid Wall',
@@ -22,7 +31,7 @@ export const FORMATIONS: FormationInfo[] = [
   },
   {
     id: '1-2-3-1',
-    name: '1-2-3-1 Maestro',
+    name: '1-2-3-1',
     label: '1-2-3-1 Maestro',
     defCount: 2,
     midCount: 3,
@@ -30,17 +39,8 @@ export const FORMATIONS: FormationInfo[] = [
     description: '2 defenders, 3 midfielders controlling possession, 1 clinical striker.',
   },
   {
-    id: '1-2-2-2',
-    name: '1-2-2-2 Twin Strike',
-    label: '1-2-2-2 Twin Strike',
-    defCount: 2,
-    midCount: 2,
-    attCount: 2,
-    description: 'Balanced 2 defenders, 2 midfielders, and 2 lethal forwards.',
-  },
-  {
     id: '1-3-1-2',
-    name: '1-3-1-2 Counter Blitz',
+    name: '1-3-1-2',
     label: '1-3-1-2 Counter Blitz',
     defCount: 3,
     midCount: 1,
@@ -49,17 +49,62 @@ export const FORMATIONS: FormationInfo[] = [
   },
   {
     id: '1-1-3-2',
-    name: '1-1-3-2 Total Attack',
+    name: '1-1-3-2',
     label: '1-1-3-2 Total Attack',
     defCount: 1,
     midCount: 3,
     attCount: 2,
     description: 'Single defender, high-press midfield and dual attack overload.',
   },
+  {
+    id: '1-1-2-3',
+    name: '1-1-2-3',
+    label: '1-1-2-3 Trident Assault',
+    defCount: 1,
+    midCount: 2,
+    attCount: 3,
+    description: 'Ultra-aggressive 3-man forward trident (wingers & striker). Constant goal threat.',
+  },
+  {
+    id: '1-2-1-3',
+    name: '1-2-1-3',
+    label: '1-2-1-3 The Arrowhead',
+    defCount: 2,
+    midCount: 1,
+    attCount: 3,
+    description: 'Solid twin center-backs, solitary midfield destroyer, and 3 lethal forwards.',
+  },
+  {
+    id: '1-1-4-1',
+    name: '1-1-4-1',
+    label: '1-1-4-1 Tiki-Taka Diamond',
+    defCount: 1,
+    midCount: 4,
+    attCount: 1,
+    description: '4-man midfield swarm controlling pitch possession and threading killer passes.',
+  },
+  {
+    id: '1-4-1-1',
+    name: '1-4-1-1',
+    label: '1-4-1-1 The Catenaccio',
+    defCount: 4,
+    midCount: 1,
+    attCount: 1,
+    description: '4-man backline iron curtain. Shuts down opposition attacking channels.',
+  },
+  {
+    id: '1-2-4-0',
+    name: '1-2-4-0',
+    label: '1-2-4-0 False Nine',
+    defCount: 2,
+    midCount: 4,
+    attCount: 0,
+    description: 'Zero traditional strikers. 4 roaming attacking midfielders overwhelming the box.',
+  },
 ];
 
 export function getFormationInfo(id?: string): FormationInfo {
-  return FORMATIONS.find(f => f.id === id) || FORMATIONS[2]; // Default to 1-2-2-2
+  return FORMATIONS.find(f => f.id === id) || FORMATIONS[0]; // Default to 1-2-2-2
 }
 
 /**

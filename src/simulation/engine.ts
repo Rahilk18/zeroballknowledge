@@ -151,6 +151,11 @@ export function simulateMatch(
       case '1-2-3-1': return { def: 0, mid: 3, att: 0 };
       case '1-3-1-2': return { def: 2, mid: -2, att: 2 };
       case '1-1-3-2': return { def: -3, mid: 2, att: 3 };
+      case '1-1-2-3': return { def: -3, mid: 0, att: 5 };
+      case '1-2-1-3': return { def: 0, mid: -2, att: 4 };
+      case '1-1-4-1': return { def: -2, mid: 5, att: 0 };
+      case '1-4-1-1': return { def: 5, mid: -1, att: -2 };
+      case '1-2-4-0': return { def: 1, mid: 4, att: -1 };
       case '1-2-2-2':
       default: return { def: 0, mid: 0, att: 0 };
     }
