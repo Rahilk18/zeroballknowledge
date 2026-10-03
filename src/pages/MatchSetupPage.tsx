@@ -28,21 +28,21 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
   onSimulate,
   onBack
 }) => {
-  const opponentOptions = allTeams.filter((t) => t.id !== currentTeam.id);
+  const opponentOptions = allTeams.filter((t) => t.id !== currentTeam?.id);
   const [selectedOpponentId, setSelectedOpponentId] = useState<string>(
-    preselectedOpponentId && preselectedOpponentId !== currentTeam.id
+    preselectedOpponentId && preselectedOpponentId !== currentTeam?.id
       ? preselectedOpponentId
-      : opponentOptions[0]?.id || 'team-aashish'
+      : opponentOptions[0]?.id || ''
   );
 
   const opponentTeam = allTeams.find((t) => t.id === selectedOpponentId) || opponentOptions[0];
 
   // Starting players
-  const homeStarters = currentTeam.startingSeven
+  const homeStarters = (currentTeam?.startingSeven || [])
     .map((id) => allPlayers.find((p) => p.id === id))
     .filter((p): p is Player => p !== undefined);
 
-  const awayStarters = opponentTeam.startingSeven
+  const awayStarters = (opponentTeam?.startingSeven || [])
     .map((id) => allPlayers.find((p) => p.id === id))
     .filter((p): p is Player => p !== undefined);
 
@@ -112,7 +112,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
         {/* Head-to-Head Clash Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-11 gap-6 items-center">
           
-          {/* Home Team: RAHIL FC */}
+          {/* Home Team */}
           <div className="lg:col-span-5 bg-[#090f14]/90 p-5 sm:p-6 rounded-3xl border border-emerald-500/30 shadow-xl relative overflow-hidden">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
               <div className="flex items-center gap-3">
@@ -194,7 +194,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
             </div>
           </div>
 
-          {/* Away Team: AASHISH FC */}
+          {/* Away Team */}
           <div className="lg:col-span-5 bg-[#090f14]/90 p-5 sm:p-6 rounded-3xl border border-blue-500/30 shadow-xl relative overflow-hidden">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
               <div className="flex items-center gap-3">

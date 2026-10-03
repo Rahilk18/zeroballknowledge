@@ -4,7 +4,7 @@ import { Trophy, Swords, Shield, Award, Calendar, ArrowRight, Play } from 'lucid
 
 interface LeaguePageProps {
   standings: LeagueStanding[];
-  currentTeam: Team;
+  currentTeam?: Team | null;
   allTeams: Team[];
   recentMatches: MatchResult[];
   onPlayNextMatch: () => void;
@@ -19,7 +19,7 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
   onPlayNextMatch,
   onViewSeasonComplete
 }) => {
-  const userStanding = standings.find((s) => s.teamId === currentTeam.id);
+  const userStanding = currentTeam ? standings.find((s) => s.teamId === currentTeam.id) : null;
   const currentLeader = standings[0];
 
   return (
@@ -80,9 +80,9 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
           <div>
             <span className="text-[10px] uppercase font-bold text-slate-400 block">Your Position</span>
             <span className="text-sm font-black text-white">
-              #{standings.findIndex(s => s.teamId === currentTeam.id) + 1} ({currentTeam.name})
+              {currentTeam ? `#${Math.max(1, standings.findIndex(s => s.teamId === currentTeam.id) + 1)} (${currentTeam.name})` : '--'}
             </span>
-            <span className="text-[11px] text-emerald-400 font-semibold block">{userStanding?.points} Points</span>
+            <span className="text-[11px] text-emerald-400 font-semibold block">{userStanding?.points ?? 0} Points</span>
           </div>
         </div>
 
@@ -133,7 +133,7 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
             </thead>
             <tbody className="divide-y divide-slate-800/60">
               {standings.map((team, idx) => {
-                const isUser = team.teamId === currentTeam.id;
+                const isUser = Boolean(currentTeam && team.teamId === currentTeam.id);
                 const teamObj = allTeams.find(t => t.id === team.teamId);
 
                 return (

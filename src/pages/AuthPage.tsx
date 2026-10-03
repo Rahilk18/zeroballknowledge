@@ -112,7 +112,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mb-4 shadow-lg shadow-green-500/20">
             <span className="text-3xl">⚽</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Rahil's Football Draft FC</h1>
+          <h1 className="text-2xl font-bold text-white">Football Draft FC</h1>
           <p className="text-gray-400 mt-1 text-sm">The ultimate multiplayer football manager</p>
         </div>
 
@@ -204,7 +204,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                       required
                       value={regName}
                       onChange={e => setRegName(e.target.value)}
-                      placeholder="Rahil Khan"
+                      placeholder="Alex Ferguson"
                       className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
                     />
                   </div>
@@ -215,7 +215,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                       required
                       value={regUsername}
                       onChange={e => setRegUsername(e.target.value)}
-                      placeholder="rahil99"
+                      placeholder="manager99"
                       className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
                     />
                   </div>
@@ -226,7 +226,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                     type="text"
                     value={regClub}
                     onChange={e => setRegClub(e.target.value)}
-                    placeholder="e.g. Rahil FC"
+                    placeholder="e.g. Barcelona Legends"
                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
                   />
                 </div>
@@ -343,7 +343,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
         </div>
 
         <p className="text-center text-xs text-gray-600 mt-6">
-          Rahil's Football Draft FC © 2025
+          Football Draft FC © 2025
         </p>
       </div>
     </div>

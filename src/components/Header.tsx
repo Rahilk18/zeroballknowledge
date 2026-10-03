@@ -1,9 +1,10 @@
+import React from 'react';
 import { Shield, Coins, Award, Menu, X, Trophy, LogOut, User } from 'lucide-react';
 import { Team, ActiveTab, UserAccount } from '../types';
 import { formatCurrency } from '../utils/formatters';
 
 interface HeaderProps {
-  currentTeam: Team;
+  currentTeam?: Team | null;
   teamOverall: number;
   currentUser: UserAccount | null;
   onLogOut: () => void;
@@ -41,39 +42,48 @@ export const Header: React.FC<HeaderProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="text-base sm:text-lg font-black tracking-wider uppercase text-white">
-                  Rahil's Football Draft
+                  Football Draft
                 </span>
                 <span className="text-xs font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   FC
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 hidden sm:block font-medium">
-                Tactical Squad Simulation & Auction League
+                Multiplayer Draft Auction & Tactical League
               </p>
             </div>
           </div>
 
           {/* Quick Team Status Chips */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Team Name Chip */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs font-medium text-slate-300">
-              <Shield className="w-4 h-4 text-emerald-400" />
-              <span>{currentTeam.name}</span>
-            </div>
+            {currentTeam ? (
+              <>
+                {/* Team Name Chip */}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs font-medium text-slate-300">
+                  <Shield className="w-4 h-4 text-emerald-400" />
+                  <span className="font-semibold text-white">{currentTeam.name}</span>
+                </div>
 
-            {/* Overall Rating Chip */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-xs font-semibold text-emerald-300">
-              <Award className="w-4 h-4 text-emerald-400" />
-              <span>OVR:</span>
-              <span className="text-sm font-black text-white">{teamOverall}</span>
-            </div>
+                {/* Overall Rating Chip */}
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-xs font-semibold text-emerald-300">
+                  <Award className="w-4 h-4 text-emerald-400" />
+                  <span>OVR:</span>
+                  <span className="text-sm font-black text-white">{teamOverall || '--'}</span>
+                </div>
 
-            {/* Budget Chip */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-950/30 border border-amber-500/30 text-xs font-semibold text-amber-300">
-              <Coins className="w-4 h-4 text-amber-400" />
-              <span>Budget:</span>
-              <span className="text-sm font-black text-white">{formatCurrency(currentTeam.budget)}</span>
-            </div>
+                {/* Budget Chip */}
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-950/30 border border-amber-500/30 text-xs font-semibold text-amber-300">
+                  <Coins className="w-4 h-4 text-amber-400" />
+                  <span>Budget:</span>
+                  <span className="text-sm font-black text-white">{formatCurrency(currentTeam.budget)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs text-slate-400">
+                <span className="w-2 h-2 rounded-full bg-slate-600" />
+                <span>No active game session</span>
+              </div>
+            )}
 
             {/* User Account / Profile */}
             {currentUser ? (
@@ -81,8 +91,8 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">
                   <span className="text-base leading-none">{currentUser.badgeIcon || '⚡'}</span>
                   <div className="text-left">
-                    <span className="font-extrabold text-white block leading-tight">{currentUser.managerName}</span>
-                    <span className="text-[10px] text-emerald-400 font-semibold block leading-none">{currentUser.clubName}</span>
+                    <span className="font-extrabold text-white block leading-tight">{currentUser.managerName || currentUser.name}</span>
+                    <span className="text-[10px] text-emerald-400 font-semibold block leading-none">{currentUser.clubName || currentTeam?.name || 'Manager'}</span>
                   </div>
                 </div>
                 <button
@@ -104,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* Quick Match Action */}
-            {onQuickSimulate && (
+            {onQuickSimulate && currentTeam && (
               <button
                 onClick={onQuickSimulate}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-md shadow-emerald-500/25 active:scale-95"
@@ -124,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="flex items-center gap-1 px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-[11px] font-bold text-slate-300"
               >
                 <span>{currentUser.badgeIcon || '⚡'}</span>
-                <span className="max-w-[65px] truncate">{currentUser.managerName}</span>
+                <span className="max-w-[65px] truncate">{currentUser.managerName || currentUser.name}</span>
               </button>
             ) : (
               <button
@@ -135,10 +145,12 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-950/40 border border-amber-500/30 text-xs font-bold text-amber-300">
-              <Coins className="w-3.5 h-3.5 text-amber-400" />
-              <span>{formatCurrency(currentTeam.budget)}</span>
-            </div>
+            {currentTeam && (
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-950/40 border border-amber-500/30 text-xs font-bold text-amber-300">
+                <Coins className="w-3.5 h-3.5 text-amber-400" />
+                <span>{formatCurrency(currentTeam.budget)}</span>
+              </div>
+            )}
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

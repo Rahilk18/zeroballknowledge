@@ -34,57 +34,10 @@ export function LeaderboardPage({ sessionStandings = [], onBackToDashboard }: Le
       if (!error && data) {
         setGlobalProfiles(data.map((r: any) => profileFromRow(r as ProfileRow)));
       } else {
-        // Fallback demo data if offline
-        setGlobalProfiles([
-          {
-            id: '1',
-            userId: user?.id || 'u-1',
-            username: profile?.username || 'rahil99',
-            displayName: profile?.displayName || 'Rahil Khan',
-            email: 'rahil@example.com',
-            totalPoints: profile?.totalPoints || 125,
-            gamesPlayed: profile?.gamesPlayed || 20,
-            wins: profile?.wins || 13,
-            draws: profile?.draws || 3,
-            losses: profile?.losses || 4,
-            goals: profile?.goals || 42,
-            trophies: profile?.trophies || 3,
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: '2',
-            userId: 'u-2',
-            username: 'aashish_pro',
-            displayName: 'Aashish',
-            email: 'aashish@example.com',
-            totalPoints: 110,
-            gamesPlayed: 18,
-            wins: 11,
-            draws: 4,
-            losses: 3,
-            goals: 38,
-            trophies: 2,
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: '3',
-            userId: 'u-3',
-            username: 'shubh_striker',
-            displayName: 'Shubh',
-            email: 'shubh@example.com',
-            totalPoints: 95,
-            gamesPlayed: 16,
-            wins: 9,
-            draws: 2,
-            losses: 5,
-            goals: 31,
-            trophies: 1,
-            createdAt: new Date().toISOString()
-          }
-        ]);
+        setGlobalProfiles(profile ? [profile] : []);
       }
     } catch {
-      // offline fallback
+      setGlobalProfiles(profile ? [profile] : []);
     } finally {
       setLoadingGlobal(false);
     }
@@ -153,11 +106,20 @@ export function LeaderboardPage({ sessionStandings = [], onBackToDashboard }: Le
             </span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800/80 pb-2">
-                  <th className="py-3 px-3">Rank</th>
+          {globalProfiles.length === 0 ? (
+            <div className="text-center py-16 text-slate-400">
+              <Trophy className="w-12 h-12 mx-auto text-slate-600 mb-3 opacity-50" />
+              <p className="text-base font-bold text-white mb-1">No ranked managers yet</p>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                Play and complete match sessions to earn career points and claim your spot on the leaderboard!
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800/80 pb-2">
+                    <th className="py-3 px-3">Rank</th>
                   <th className="py-3 px-3">Manager</th>
                   <th className="py-3 px-3 text-center">Games</th>
                   <th className="py-3 px-3 text-center">W</th>
@@ -222,6 +184,7 @@ export function LeaderboardPage({ sessionStandings = [], onBackToDashboard }: Le
               </tbody>
             </table>
           </div>
+        )}
         </div>
       )}
 

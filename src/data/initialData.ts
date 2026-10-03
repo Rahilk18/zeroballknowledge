@@ -1,7 +1,7 @@
 import { Player, Team, LeagueStanding, AuctionPlayer } from '../types';
 
 export const INITIAL_PLAYERS: Player[] = [
-  // --- RAHIL FC PLAYERS ---
+  // --- GLOBAL PLAYERS POOL ---
   {
     id: 'p-courtois',
     name: 'Thibaut Courtois',
@@ -20,7 +20,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 100,
     nationality: 'Belgium',
     nationalityCode: 'BE',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 45,
     wage: 240,
     preferredFoot: 'Left',
@@ -44,7 +44,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 98,
     nationality: 'France',
     nationalityCode: 'FR',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 80,
     wage: 210,
     preferredFoot: 'Right',
@@ -68,7 +68,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 100,
     nationality: 'Italy',
     nationalityCode: 'IT',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 70,
     wage: 190,
     preferredFoot: 'Left',
@@ -92,7 +92,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 99,
     nationality: 'Uruguay',
     nationalityCode: 'UY',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 120,
     wage: 280,
     preferredFoot: 'Right',
@@ -116,7 +116,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 96,
     nationality: 'Spain',
     nationalityCode: 'ES',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 150,
     wage: 160,
     preferredFoot: 'Left',
@@ -140,7 +140,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 95,
     nationality: 'Argentina',
     nationalityCode: 'AR',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 35,
     wage: 350,
     preferredFoot: 'Left',
@@ -164,14 +164,14 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 99,
     nationality: 'France',
     nationalityCode: 'FR',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 180,
     wage: 420,
     preferredFoot: 'Right',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 8.4 }
   },
 
-  // --- RAHIL FC BENCH SQUAD ---
+  
   {
     id: 'p-kobel',
     name: 'Gregor Kobel',
@@ -190,7 +190,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 100,
     nationality: 'Switzerland',
     nationalityCode: 'CH',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 40,
     wage: 130,
     preferredFoot: 'Right',
@@ -214,7 +214,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 97,
     nationality: 'Croatia',
     nationalityCode: 'HR',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 75,
     wage: 180,
     preferredFoot: 'Left',
@@ -238,14 +238,14 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 99,
     nationality: 'Germany',
     nationalityCode: 'DE',
-    teamId: 'team-rahil',
+    teamId: 'free-agent',
     marketValue: 130,
     wage: 220,
     preferredFoot: 'Right',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.6 }
   },
 
-  // --- AASHISH FC PLAYERS ---
+  
   {
     id: 'p-martinez',
     name: 'Emiliano Martínez',
@@ -264,7 +264,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 98,
     nationality: 'Argentina',
     nationalityCode: 'AR',
-    teamId: 'team-aashish',
+    teamId: 'free-agent',
     marketValue: 35,
     wage: 190,
     preferredFoot: 'Right',
@@ -288,7 +288,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 96,
     nationality: 'Portugal',
     nationalityCode: 'PT',
-    teamId: 'team-aashish',
+    teamId: 'free-agent',
     marketValue: 65,
     wage: 150,
     preferredFoot: 'Left',
@@ -312,7 +312,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 97,
     nationality: 'Netherlands',
     nationalityCode: 'NL',
-    teamId: 'team-aashish',
+    teamId: 'free-agent',
     marketValue: 50,
     wage: 250,
     preferredFoot: 'Right',
@@ -336,7 +336,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 95,
     nationality: 'Spain',
     nationalityCode: 'ES',
-    teamId: 'team-aashish',
+    teamId: 'free-agent',
     marketValue: 110,
     wage: 220,
     preferredFoot: 'Right',
@@ -360,7 +360,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 99,
     nationality: 'England',
     nationalityCode: 'GB-ENG',
-    teamId: 'team-aashish',
+    teamId: 'free-agent',
     marketValue: 180,
     wage: 340,
     preferredFoot: 'Right',
@@ -384,7 +384,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 98,
     nationality: 'Brazil',
     nationalityCode: 'BR',
-    teamId: 'team-aashish',
+    teamId: 'free-agent',
     marketValue: 100,
     wage: 230,
     preferredFoot: 'Right',
@@ -408,14 +408,14 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 94,
     nationality: 'France',
     nationalityCode: 'FR',
-    teamId: 'team-aashish',
+    teamId: 'free-agent',
     marketValue: 60,
     wage: 200,
     preferredFoot: 'Both',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.3 }
   },
 
-  // --- SHUBH FC PLAYERS ---
+  
   {
     id: 'p-donnarumma',
     name: 'Gianluigi Donnarumma',
@@ -434,7 +434,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 100,
     nationality: 'Italy',
     nationalityCode: 'IT',
-    teamId: 'team-shubh',
+    teamId: 'free-agent',
     marketValue: 50,
     wage: 230,
     preferredFoot: 'Right',
@@ -458,7 +458,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 98,
     nationality: 'Brazil',
     nationalityCode: 'BR',
-    teamId: 'team-shubh',
+    teamId: 'free-agent',
     marketValue: 70,
     wage: 175,
     preferredFoot: 'Left',
@@ -482,7 +482,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 92,
     nationality: 'Spain',
     nationalityCode: 'ES',
-    teamId: 'team-shubh',
+    teamId: 'free-agent',
     marketValue: 8,
     wage: 140,
     preferredFoot: 'Right',
@@ -506,7 +506,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 91,
     nationality: 'Croatia',
     nationalityCode: 'HR',
-    teamId: 'team-shubh',
+    teamId: 'free-agent',
     marketValue: 12,
     wage: 200,
     preferredFoot: 'Right',
@@ -530,7 +530,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 96,
     nationality: 'Spain',
     nationalityCode: 'ES',
-    teamId: 'team-shubh',
+    teamId: 'free-agent',
     marketValue: 130,
     wage: 310,
     preferredFoot: 'Right',
@@ -554,7 +554,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 95,
     nationality: 'Portugal',
     nationalityCode: 'PT',
-    teamId: 'team-shubh',
+    teamId: 'free-agent',
     marketValue: 20,
     wage: 380,
     preferredFoot: 'Right',
@@ -578,7 +578,7 @@ export const INITIAL_PLAYERS: Player[] = [
     fitness: 98,
     nationality: 'Brazil',
     nationalityCode: 'BR',
-    teamId: 'team-shubh',
+    teamId: 'free-agent',
     marketValue: 75,
     wage: 210,
     preferredFoot: 'Left',
@@ -756,153 +756,8 @@ export const INITIAL_PLAYERS: Player[] = [
   }
 ];
 
-export const INITIAL_TEAMS: Team[] = [
-  {
-    id: 'team-rahil',
-    name: 'Rahil FC',
-    shortCode: 'RFC',
-    manager: 'Rahil',
-    budget: 100, // €100M
-    primaryColor: '#10b981', // emerald
-    accentColor: '#00e676',
-    formation: '1-2-2-2',
-    startingSeven: [
-      'p-courtois', // GK
-      'p-saliba',   // DEF
-      'p-bastoni',  // DEF
-      'p-valverde', // MID
-      'p-yamal',    // MID
-      'p-messi',    // ATT
-      'p-mbappe'    // ATT
-    ],
-    bench: ['p-kobel', 'p-gvardiol', 'p-musiala'],
-    badgeIcon: '⚡'
-  },
-  {
-    id: 'team-aashish',
-    name: 'Aashish FC',
-    shortCode: 'AFC',
-    manager: 'Aashish',
-    budget: 95,
-    primaryColor: '#3b82f6', // blue
-    accentColor: '#60a5fa',
-    formation: '1-2-2-2',
-    startingSeven: [
-      'p-martinez',   // GK
-      'p-mendes',     // DEF
-      'p-vandijk',    // DEF
-      'p-pedri',      // MID
-      'p-bellingham', // MID
-      'p-rodrygo',    // ATT
-      'p-dembele'     // ATT
-    ],
-    bench: [],
-    badgeIcon: '🦅'
-  },
-  {
-    id: 'team-shubh',
-    name: 'Shubh FC',
-    shortCode: 'SFC',
-    manager: 'Shubh',
-    budget: 90,
-    primaryColor: '#ef4444', // red
-    accentColor: '#f87171',
-    formation: '1-2-2-2',
-    startingSeven: [
-      'p-donnarumma', // GK
-      'p-gabriel',    // DEF
-      'p-ramos',      // DEF
-      'p-modric',     // MID
-      'p-rodri',      // MID
-      'p-ronaldo',    // ATT
-      'p-raphinha'    // ATT
-    ],
-    bench: [],
-    badgeIcon: '🦁'
-  }
-];
+export const INITIAL_TEAMS: Team[] = [];
 
-export const INITIAL_STANDINGS: LeagueStanding[] = [
-  {
-    teamId: 'team-rahil',
-    teamName: 'Rahil FC',
-    played: 0,
-    won: 0,
-    drawn: 0,
-    lost: 0,
-    goalsFor: 0,
-    goalsAgainst: 0,
-    goalDifference: 0,
-    points: 0,
-    recentForm: []
-  },
-  {
-    teamId: 'team-aashish',
-    teamName: 'Aashish FC',
-    played: 0,
-    won: 0,
-    drawn: 0,
-    lost: 0,
-    goalsFor: 0,
-    goalsAgainst: 0,
-    goalDifference: 0,
-    points: 0,
-    recentForm: []
-  },
-  {
-    teamId: 'team-shubh',
-    teamName: 'Shubh FC',
-    played: 0,
-    won: 0,
-    drawn: 0,
-    lost: 0,
-    goalsFor: 0,
-    goalsAgainst: 0,
-    goalDifference: 0,
-    points: 0,
-    recentForm: []
-  }
-];
+export const INITIAL_STANDINGS: LeagueStanding[] = [];
 
-export const UPCOMING_AUCTIONS: AuctionPlayer[] = [
-  {
-    id: 'auc-1',
-    player: INITIAL_PLAYERS.find(p => p.id === 'p-haaland')!,
-    currentBid: 145,
-    highestBidderTeamId: 'team-aashish',
-    highestBidderName: 'Aashish FC',
-    minNextBid: 150,
-    timeLeftSeconds: 340,
-    status: 'active'
-  },
-  {
-    id: 'auc-2',
-    player: INITIAL_PLAYERS.find(p => p.id === 'p-vinicius')!,
-    currentBid: 135,
-    highestBidderTeamId: 'team-shubh',
-    highestBidderName: 'Shubh FC',
-    minNextBid: 140,
-    timeLeftSeconds: 780,
-    status: 'active'
-  },
-  {
-    id: 'auc-3',
-    player: INITIAL_PLAYERS.find(p => p.id === 'p-debruyne')!,
-    currentBid: 55,
-    highestBidderTeamId: 'none',
-    highestBidderName: 'No Bids Yet',
-    minNextBid: 55,
-    timeLeftSeconds: 1540,
-    status: 'upcoming'
-  },
-  {
-    id: 'auc-4',
-    player: INITIAL_PLAYERS.find(p => p.id === 'p-wirtz')!,
-    currentBid: 110,
-    highestBidderTeamId: 'none',
-    highestBidderName: 'No Bids Yet',
-    minNextBid: 110,
-    timeLeftSeconds: 2800,
-    status: 'upcoming'
-  }
-];
+export const UPCOMING_AUCTIONS: AuctionPlayer[] = [];

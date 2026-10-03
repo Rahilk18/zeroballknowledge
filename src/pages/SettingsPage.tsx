@@ -4,7 +4,7 @@ import { Team, UserAccount } from '../types';
 import { Settings, RotateCcw, Save, Shield, Check, Info, User, LogOut, ArrowRight } from 'lucide-react';
 
 interface SettingsPageProps {
-  currentTeam: Team;
+  currentTeam?: Team | null;
   currentUser: UserAccount | null;
   onUpdateTeam: (teamName: string, managerName: string) => void;
   onResetSeason: () => void;
@@ -20,8 +20,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   onLogOut,
   onOpenAuth
 }) => {
-  const [teamName, setTeamName] = useState(currentTeam.name);
-  const [managerName, setManagerName] = useState(currentTeam.manager || 'Manager');
+  const [teamName, setTeamName] = useState(currentTeam?.name || '');
+  const [managerName, setManagerName] = useState(currentTeam?.manager || 'Manager');
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -97,15 +97,15 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#090f14] p-5 rounded-2xl border border-slate-800">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-3xl shadow-lg border border-emerald-300">
-              {currentUser?.badgeIcon || currentTeam.badgeIcon || '⚡'}
+              {currentUser?.badgeIcon || currentTeam?.badgeIcon || '⚡'}
             </div>
             <div>
               <span className="text-xs font-black uppercase text-emerald-400">Official Manager</span>
               <h3 className="text-xl font-black text-white leading-tight">
-                {profile?.displayName || currentUser?.managerName || currentUser?.name || 'Rahil Khan'}
+                {profile?.displayName || currentUser?.managerName || currentUser?.name || 'Manager'}
               </h3>
               <span className="text-xs text-slate-400 font-mono">
-                @{profile?.username || currentUser?.username || 'rahil99'} • {currentTeam.name}
+                @{profile?.username || currentUser?.username || 'manager'} • {currentTeam?.name || 'Club'}
               </span>
             </div>
           </div>
@@ -208,7 +208,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl bg-[#090f14] border border-slate-800 text-sm font-bold text-white focus:outline-none focus:border-emerald-500"
-                placeholder="e.g. Rahil FC"
+                placeholder="e.g. Barcelona Legends"
               />
             </div>
 
@@ -221,7 +221,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 value={managerName}
                 onChange={(e) => setManagerName(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl bg-[#090f14] border border-slate-800 text-sm font-bold text-white focus:outline-none focus:border-emerald-500"
-                placeholder="e.g. Rahil"
+                placeholder="e.g. Alex Ferguson"
               />
             </div>
           </div>
@@ -242,10 +242,10 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
       <div className="bg-[#0e1720] rounded-3xl border border-rose-950/60 p-6 shadow-xl">
         <h2 className="text-sm font-black uppercase tracking-wider text-rose-400 mb-2 flex items-center gap-2">
           <RotateCcw className="w-4 h-4 text-rose-400" />
-          Reset Season Data
+          Reset Local Cache
         </h2>
         <p className="text-xs text-slate-400 mb-4">
-          Reset all matchday results, player statistics, and league standings back to 0 played.
+          Clear local session storage and cached offline state.
         </p>
 
         <button
@@ -253,7 +253,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/40 font-bold text-xs uppercase tracking-wider transition active:scale-95"
         >
           <RotateCcw className="w-4 h-4" />
-          <span>Reset All League Progress</span>
+          <span>Clear Local Cache</span>
         </button>
       </div>
 
@@ -261,10 +261,10 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
       <div className="bg-[#090f14] rounded-3xl border border-slate-800/80 p-5 text-xs text-slate-400 space-y-2">
         <div className="flex items-center gap-2 text-white font-bold">
           <Info className="w-4 h-4 text-emerald-400" />
-          <span>Rahil's Football Draft FC — Version 1.0.0 Prototype</span>
+          <span>Football Draft FC</span>
         </div>
         <p>
-          Runs 100% locally with zero database dependencies. Tactical simulation engine calculates midfield possession, unit ratings, goalkeeper quality, dynamic form, and generates chronological match events and official player ratings.
+          Multiplayer real-time draft auctions and tactical league simulation powered by Supabase.
         </p>
       </div>
 

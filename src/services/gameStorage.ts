@@ -1,18 +1,7 @@
 import { Player, Team, LeagueStanding, MatchResult, AuctionPlayer, UserAccount } from '../types';
 import { INITIAL_PLAYERS, INITIAL_TEAMS, INITIAL_STANDINGS, UPCOMING_AUCTIONS } from '../data/initialData';
 
-const STORAGE_KEY = 'football_draft_manager_save_v1';
-
-export const DEFAULT_USER: UserAccount = {
-  id: 'user-rahil',
-  name: 'Rahil',
-  username: 'rahil',
-  managerName: 'Rahil',
-  clubName: 'Rahil FC',
-  email: 'rahil@footballdraft.fc',
-  badgeIcon: '⚡',
-  createdAt: new Date().toISOString()
-};
+const STORAGE_KEY = 'football_draft_manager_v2';
 
 export interface GameState {
   players: Player[];
@@ -27,30 +16,27 @@ export interface GameState {
 
 export function loadInitialState(): GameState {
   try {
+    localStorage.removeItem('football_draft_manager_save_v1');
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.players && parsed.teams && parsed.standings) {
-        return {
-          ...parsed,
-          currentUser: parsed.currentUser !== undefined ? parsed.currentUser : DEFAULT_USER,
-          savedAccounts: parsed.savedAccounts || [DEFAULT_USER]
-        };
+      if (parsed && Array.isArray(parsed.teams) && Array.isArray(parsed.standings)) {
+        return parsed;
       }
     }
   } catch (e) {
-    console.error('Failed to load saved state, using default', e);
+    console.error('Failed to load saved state, using clean default', e);
   }
 
   return {
     players: INITIAL_PLAYERS,
-    teams: INITIAL_TEAMS,
-    standings: INITIAL_STANDINGS,
+    teams: [],
+    standings: [],
     recentMatches: [],
-    auctions: UPCOMING_AUCTIONS,
-    userTeamId: 'team-rahil',
-    currentUser: DEFAULT_USER,
-    savedAccounts: [DEFAULT_USER]
+    auctions: [],
+    userTeamId: '',
+    currentUser: null,
+    savedAccounts: []
   };
 }
 
@@ -64,15 +50,16 @@ export function saveState(state: GameState): void {
 
 export function resetToDefaults(): GameState {
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem('football_draft_manager_save_v1');
   return {
     players: INITIAL_PLAYERS,
-    teams: INITIAL_TEAMS,
-    standings: INITIAL_STANDINGS,
+    teams: [],
+    standings: [],
     recentMatches: [],
-    auctions: UPCOMING_AUCTIONS,
-    userTeamId: 'team-rahil',
-    currentUser: DEFAULT_USER,
-    savedAccounts: [DEFAULT_USER]
+    auctions: [],
+    userTeamId: '',
+    currentUser: null,
+    savedAccounts: []
   };
 }
 
@@ -122,12 +109,5 @@ export function applyMatchToStandings(
     }
 
     return s;
-  }).sort((a, b) => {
-    // Points DESC
-    if (b.points !== a.points) return b.points - a.points;
-    // Goal difference DESC
-    if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
-    // Goals For DESC
-    return b.goalsFor - a.goalsFor;
   });
 }

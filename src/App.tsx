@@ -25,7 +25,7 @@ import { useSession } from './contexts/SessionContext';
 import { useAuth } from './contexts/AuthContext';
 
 export function App() {
-  const { currentSession, clearSession } = useSession();
+  const { currentSession, myTeam: sessionTeam, allTeams: sessionAllTeams, clearSession } = useSession();
   const { user, profile, loading: authLoading, signOut } = useAuth();
   const [guestMode, setGuestMode] = useState(false);
   const [gameState, setGameState] = useState(loadInitialState);
@@ -35,7 +35,7 @@ export function App() {
   const [showSeasonComplete, setShowSeasonComplete] = useState(false);
 
   // Match setup & simulation state
-  const [targetOpponentId, setTargetOpponentId] = useState<string>('team-aashish');
+  const [targetOpponentId, setTargetOpponentId] = useState<string>('');
   const [activeMatchResult, setActiveMatchResult] = useState<MatchResult | null>(null);
 
   // Auto-save whenever game state changes
@@ -48,42 +48,31 @@ export function App() {
     if (user) {
       const displayName = profile?.displayName || user.email?.split('@')[0] || 'Manager';
       const email = user.email || '';
-      setGameState((prev) => {
-        const updatedTeams = prev.teams.map((t) => {
-          if (t.id === prev.userTeamId) {
-            return {
-              ...t,
-              name: `${displayName} FC`,
-              manager: displayName,
-              badgeIcon: '⚡'
-            };
-          }
-          return t;
-        });
-
-        return {
-          ...prev,
-          currentUser: {
-            id: user.id,
-            name: displayName,
-            email: email,
-            managerName: displayName,
-            clubName: `${displayName} FC`,
-            badgeIcon: '⚡',
-          },
-          teams: updatedTeams
-        };
-      });
+      setGameState((prev) => ({
+        ...prev,
+        currentUser: {
+          id: user.id,
+          name: displayName,
+          email: email,
+          managerName: displayName,
+          clubName: sessionTeam?.name || 'My Club',
+          badgeIcon: sessionTeam?.badgeIcon || '⚡',
+        }
+      }));
     }
-  }, [user, profile]);
+  }, [user, profile, sessionTeam]);
 
-  const userTeam = gameState.teams.find((t) => t.id === gameState.userTeamId) || gameState.teams[0];
+  // Dynamic user team — strictly derived from active session team (or null if no team yet)
+  const userTeam = sessionTeam || (gameState.teams.find((t) => t.id === gameState.userTeamId) || null);
 
-  const userStartingPlayers = userTeam.startingSeven
+  const userStartingPlayers = (userTeam?.startingSeven || [])
     .map((id) => gameState.players.find((p) => p.id === id))
     .filter((p): p is Player => p !== undefined);
 
-  const teamOverall = calculateTeamOverall(userStartingPlayers);
+  const teamOverall = userStartingPlayers.length > 0 ? calculateTeamOverall(userStartingPlayers) : 0;
+
+  const activeAllTeams = sessionAllTeams.length > 0 ? sessionAllTeams : gameState.teams;
+  const opponentOptions = activeAllTeams.filter(t => t.id !== userTeam?.id);
 
   // Launch Match Setup
   const handleStartMatchSetup = (opponentTeamId: string) => {
@@ -93,7 +82,9 @@ export function App() {
 
   // Run the Simulation Engine
   const handleExecuteSimulation = (opponentTeamId: string) => {
-    const opponent = gameState.teams.find((t) => t.id === opponentTeamId) || gameState.teams[1];
+    if (!userTeam) return;
+    const opponent = activeAllTeams.find((t) => t.id === opponentTeamId) || opponentOptions[0];
+    if (!opponent) return;
 
     const result = simulateMatch(
       { team: userTeam, players: gameState.players },
@@ -146,6 +137,7 @@ export function App() {
 
   // Lineup update handler
   const handleUpdateLineup = (newStartingSeven: string[], newBench: string[]) => {
+    if (!userTeam) return;
     setGameState((prev) => {
       const updatedTeams = prev.teams.map((t) => {
         if (t.id === userTeam.id) {
@@ -166,6 +158,7 @@ export function App() {
 
   // Auction bid handler
   const handlePlaceBid = (auctionId: string, amount: number) => {
+    if (!userTeam) return;
     setGameState((prev) => {
       const updatedAuctions = prev.auctions.map((auc) => {
         if (auc.id === auctionId) {
@@ -201,6 +194,7 @@ export function App() {
 
   // Team profile update handler
   const handleUpdateTeamProfile = (newName: string, newManager: string) => {
+    if (!userTeam) return;
     setGameState((prev) => {
       const updatedTeams = prev.teams.map((t) => {
         if (t.id === userTeam.id) {
@@ -241,60 +235,19 @@ export function App() {
 
   // Auth Handlers
   const handleLogin = (user: UserAccount) => {
-    setGameState((prev) => {
-      const updatedTeams = prev.teams.map((t) => {
-        if (t.id === prev.userTeamId) {
-          return {
-            ...t,
-            manager: user.managerName || user.name || t.manager || 'Manager',
-            badgeIcon: user.badgeIcon || t.badgeIcon || '⚡'
-          };
-        }
-        return t;
-      });
-      return {
-        ...prev,
-        currentUser: user,
-        teams: updatedTeams
-      };
-    });
+    setGameState((prev) => ({
+      ...prev,
+      currentUser: user,
+    }));
     setIsAuthOpen(false);
   };
 
   const handleSignUp = (user: UserAccount) => {
-    setGameState((prev) => {
-      const updatedTeams = prev.teams.map((t) => {
-        if (t.id === prev.userTeamId) {
-          return {
-            ...t,
-            name: user.clubName,
-            manager: user.managerName || user.name || 'Manager',
-            badgeIcon: user.badgeIcon || '⚡'
-          };
-        }
-        return t;
-      });
-
-      const updatedStandings = prev.standings.map((s) => {
-        if (s.teamId === prev.userTeamId) {
-          return {
-            ...s,
-            teamName: user.clubName
-          };
-        }
-        return s;
-      });
-
-      const updatedSaved = [...(prev.savedAccounts || []).filter((a) => a.email !== user.email), user];
-
-      return {
-        ...prev,
-        currentUser: user,
-        savedAccounts: updatedSaved,
-        teams: updatedTeams,
-        standings: updatedStandings
-      };
-    });
+    setGameState((prev) => ({
+      ...prev,
+      currentUser: user,
+      savedAccounts: [...(prev.savedAccounts || []).filter((a) => a.email !== user.email), user],
+    }));
     setIsAuthOpen(false);
   };
 
@@ -358,7 +311,7 @@ export function App() {
         setActiveTab={setActiveTab}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
-        onQuickSimulate={() => handleStartMatchSetup('team-aashish')}
+        onQuickSimulate={userTeam && opponentOptions.length > 0 ? () => handleStartMatchSetup(opponentOptions[0]?.id) : undefined}
       />
 
       {/* Navigation Bar (Desktop top nav + Mobile drawer & bottom bar) */}
@@ -373,13 +326,6 @@ export function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-16">
         {activeTab === 'dashboard' && (
           <Dashboard
-            currentTeam={userTeam}
-            allTeams={gameState.teams}
-            allPlayers={gameState.players}
-            teamOverall={teamOverall}
-            standings={gameState.standings}
-            recentMatches={gameState.recentMatches}
-            auctions={gameState.auctions}
             setActiveTab={setActiveTab}
             onStartMatch={handleStartMatchSetup}
           />
@@ -390,22 +336,23 @@ export function App() {
             currentTeam={userTeam}
             allPlayers={gameState.players}
             onUpdateLineup={handleUpdateLineup}
+            onNavigateTab={setActiveTab}
           />
         )}
 
         {activeTab === 'players' && (
           <PlayersPage
             players={gameState.players}
-            userTeamId={userTeam.id}
+            userTeamId={userTeam?.id || ''}
           />
         )}
 
         {activeTab === 'matches' && (
           <MatchSetupPage
-            currentTeam={userTeam}
-            allTeams={gameState.teams}
+            currentTeam={userTeam!}
+            allTeams={activeAllTeams}
             allPlayers={gameState.players}
-            preselectedOpponentId={targetOpponentId}
+            preselectedOpponentId={targetOpponentId || opponentOptions[0]?.id}
             onSimulate={handleExecuteSimulation}
             onBack={() => setActiveTab('dashboard')}
           />
@@ -424,9 +371,9 @@ export function App() {
           <LeaguePage
             standings={gameState.standings}
             currentTeam={userTeam}
-            allTeams={gameState.teams}
+            allTeams={activeAllTeams}
             recentMatches={gameState.recentMatches}
-            onPlayNextMatch={() => handleStartMatchSetup(targetOpponentId)}
+            onPlayNextMatch={() => handleStartMatchSetup(targetOpponentId || opponentOptions[0]?.id)}
             onViewSeasonComplete={() => setShowSeasonComplete(true)}
           />
         )}
@@ -435,7 +382,7 @@ export function App() {
           <AuctionPage
             setActiveTab={setActiveTab}
             auctions={gameState.auctions}
-            currentTeam={userTeam}
+            currentTeam={userTeam || undefined}
             onPlaceBid={handlePlaceBid}
           />
         )}
