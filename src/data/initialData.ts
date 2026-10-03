@@ -321,8 +321,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 40,
     wage: 245,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220814.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220814.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220901.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220901.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -456,8 +456,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 80,
     wage: 284,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243715.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243715.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233049.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233049.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -699,8 +699,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 50,
     wage: 255,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p205988.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p205988.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p210035.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p210035.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -915,8 +915,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 50,
     wage: 250,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p228618.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p228618.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p226268.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p226268.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -969,8 +969,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 45,
     wage: 246,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p226853.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p226853.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p229237.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p229237.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -1023,8 +1023,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 50,
     wage: 250,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p237678.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p237678.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239301.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239301.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -1050,8 +1050,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 35,
     wage: 238,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p213345.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p213345.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p213331.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p213331.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -1698,8 +1698,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 45,
     wage: 251,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p208574.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p208574.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p208128.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p208128.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -1725,8 +1725,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 75,
     wage: 275,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243627.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243627.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239837.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239837.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -1752,8 +1752,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 35,
     wage: 243,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p200145.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p200145.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p199503.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p199503.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -1806,8 +1806,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 55,
     wage: 257,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p253002.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p253002.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p255253.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p255253.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -1860,8 +1860,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 85,
     wage: 281,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p240130.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p240130.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p247851.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p247851.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -1941,8 +1941,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 75,
     wage: 268,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246404.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246404.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p236772.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p236772.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -2022,8 +2022,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 60,
     wage: 248,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p272445.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p272445.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p270673.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p270673.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -2589,8 +2589,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 65,
     wage: 265,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p225213.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p225213.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p221697.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p221697.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -2643,8 +2643,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 150,
     wage: 330,
     preferredFoot: 'Left',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277636.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277636.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {
@@ -2670,8 +2670,8 @@ export const INITIAL_PLAYERS: Player[] = [
     marketValueM: 75,
     wage: 270,
     preferredFoot: 'Right',
-    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7',
-    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7',
+    avatarUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7',
+    imageUrl: 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7',
     stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.2 }
   },
   {

@@ -35,12 +35,12 @@ SELECT v.* FROM (VALUES
   ('Emiliano Martínez', 'E. Martínez', 'GK', 'Argentina', 87, 53, 24, 81, 48, 35, 84, 88, 93, 42, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p202811.png?padding=0.7'),
   ('Yann Sommer', 'Sommer', 'GK', 'Switzerland', 87, 50, 20, 80, 46, 30, 77, 87, 89, 25, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p177683.png?padding=0.7'),
   ('Manuel Neuer', 'Neuer', 'GK', 'Germany', 86, 54, 28, 89, 52, 38, 80, 86, 85, 20, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p167495.png?padding=0.7'),
-  ('David Raya', 'Raya', 'GK', 'Spain', 85, 55, 22, 86, 50, 32, 76, 85, 91, 40, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220814.png?padding=0.7'),
+  ('David Raya', 'Raya', 'GK', 'Spain', 85, 55, 22, 86, 50, 32, 76, 85, 91, 40, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220901.png?padding=0.7'),
   ('Unai Simón', 'U. Simón', 'GK', 'Spain', 84, 50, 20, 75, 44, 30, 79, 84, 88, 35, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p230869.png?padding=0.7'),
   ('Guglielmo Vicario', 'Vicario', 'GK', 'Italy', 84, 52, 20, 72, 46, 30, 78, 85, 87, 35, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p240091.png?padding=0.7'),
   ('Diogo Costa', 'D. Costa', 'GK', 'Portugal', 84, 52, 22, 78, 46, 32, 79, 84, 87, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p234577.png?padding=0.7'),
   ('Virgil van Dijk', 'Van Dijk', 'DEF', 'Netherlands', 89, 78, 60, 72, 72, 89, 86, 13, 92, 55, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p203376.png?padding=0.7'),
-  ('William Saliba', 'Saliba', 'DEF', 'France', 88, 83, 40, 75, 74, 89, 86, 12, 91, 80, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243715.png?padding=0.7'),
+  ('William Saliba', 'Saliba', 'DEF', 'France', 88, 83, 40, 75, 74, 89, 86, 12, 91, 80, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233049.png?padding=0.7'),
   ('Rúben Dias', 'R. Dias', 'DEF', 'Portugal', 88, 67, 39, 71, 69, 89, 87, 11, 88, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239818.png?padding=0.7'),
   ('Antonio Rüdiger', 'Rüdiger', 'DEF', 'Germany', 88, 82, 55, 71, 68, 86, 86, 10, 90, 60, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p205452.png?padding=0.7'),
   ('Alessandro Bastoni', 'Bastoni', 'DEF', 'Italy', 87, 75, 45, 79, 76, 87, 84, 10, 89, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p237383.png?padding=0.7'),
@@ -49,7 +49,7 @@ SELECT v.* FROM (VALUES
   ('Gabriel Magalhães', 'Gabriel', 'DEF', 'Brazil', 86, 72, 40, 68, 66, 86, 84, 10, 90, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p232580.png?padding=0.7'),
   ('Dani Carvajal', 'Carvajal', 'DEF', 'Spain', 86, 81, 54, 79, 81, 83, 82, 13, 93, 40, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p204963.png?padding=0.7'),
   ('Trent Alexander-Arnold', 'Alexander-Arnold', 'DEF', 'England', 86, 76, 71, 90, 80, 80, 74, 14, 89, 70, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p231281.png?padding=0.7'),
-  ('Alejandro Grimaldo', 'Grimaldo', 'DEF', 'Spain', 86, 85, 78, 86, 84, 78, 74, 12, 92, 50, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p205988.png?padding=0.7'),
+  ('Alejandro Grimaldo', 'Grimaldo', 'DEF', 'Spain', 86, 85, 78, 86, 84, 78, 74, 12, 92, 50, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p210035.png?padding=0.7'),
   ('Joško Gvardiol', 'Gvardiol', 'DEF', 'Croatia', 85, 80, 64, 75, 77, 84, 84, 11, 89, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p251517.png?padding=0.7'),
   ('Jules Koundé', 'Koundé', 'DEF', 'France', 85, 84, 45, 74, 75, 86, 80, 12, 90, 60, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241486.png?padding=0.7'),
   ('Ronald Araújo', 'R. Araújo', 'DEF', 'Uruguay', 85, 81, 51, 65, 65, 85, 84, 10, 87, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p253163.png?padding=0.7'),
@@ -57,12 +57,12 @@ SELECT v.* FROM (VALUES
   ('John Stones', 'Stones', 'DEF', 'England', 85, 72, 51, 78, 79, 85, 79, 10, 88, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p203574.png?padding=0.7'),
   ('Jeremie Frimpong', 'Frimpong', 'DEF', 'Netherlands', 84, 95, 74, 78, 85, 75, 73, 10, 91, 55, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p253149.png?padding=0.7'),
   ('Alphonso Davies', 'Davies', 'DEF', 'Canada', 84, 95, 68, 78, 85, 76, 78, 11, 87, 55, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p234396.png?padding=0.7'),
-  ('Federico Dimarco', 'Dimarco', 'DEF', 'Italy', 84, 82, 76, 84, 81, 77, 75, 10, 89, 50, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p228618.png?padding=0.7'),
+  ('Federico Dimarco', 'Dimarco', 'DEF', 'Italy', 84, 82, 76, 84, 81, 77, 75, 10, 89, 50, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p226268.png?padding=0.7'),
   ('Kyle Walker', 'Walker', 'DEF', 'England', 84, 87, 63, 77, 78, 80, 82, 12, 86, 25, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p188377.png?padding=0.7'),
-  ('Manuel Akanji', 'Akanji', 'DEF', 'Switzerland', 84, 78, 48, 74, 74, 84, 81, 10, 88, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p226853.png?padding=0.7'),
+  ('Manuel Akanji', 'Akanji', 'DEF', 'Switzerland', 84, 78, 48, 74, 74, 84, 81, 10, 88, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p229237.png?padding=0.7'),
   ('Cristian Romero', 'Romero', 'DEF', 'Argentina', 84, 75, 46, 65, 66, 84, 84, 10, 88, 55, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p232488.png?padding=0.7'),
-  ('Lisandro Martínez', 'L. Martínez', 'DEF', 'Argentina', 84, 76, 58, 79, 78, 84, 80, 11, 86, 50, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p237678.png?padding=0.7'),
-  ('Jonathan Tah', 'Tah', 'DEF', 'Germany', 84, 74, 36, 66, 64, 84, 85, 10, 90, 35, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p213345.png?padding=0.7'),
+  ('Lisandro Martínez', 'L. Martínez', 'DEF', 'Argentina', 84, 76, 58, 79, 78, 84, 80, 11, 86, 50, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239301.png?padding=0.7'),
+  ('Jonathan Tah', 'Tah', 'DEF', 'Germany', 84, 74, 36, 66, 64, 84, 85, 10, 90, 35, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p213331.png?padding=0.7'),
   ('Dayot Upamecano', 'Upamecano', 'DEF', 'France', 83, 82, 42, 67, 69, 83, 83, 10, 85, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p229558.png?padding=0.7'),
   ('Nuno Mendes', 'N. Mendes', 'DEF', 'Portugal', 83, 90, 62, 75, 81, 78, 78, 10, 87, 55, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p252145.png?padding=0.7'),
   ('Marc Cucurella', 'Cucurella', 'DEF', 'Spain', 82, 79, 62, 77, 78, 80, 78, 10, 92, 40, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239231.png?padding=0.7'),
@@ -86,19 +86,19 @@ SELECT v.* FROM (VALUES
   ('Luka Modrić', 'Modrić', 'MID', 'Croatia', 86, 72, 76, 89, 87, 72, 66, 10, 88, 25, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p177003.png?padding=0.7'),
   ('Pedri', 'Pedri', 'MID', 'Spain', 86, 78, 69, 85, 88, 68, 73, 10, 92, 80, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p251854.png?padding=0.7'),
   ('Joshua Kimmich', 'Kimmich', 'MID', 'Germany', 86, 70, 72, 88, 84, 81, 79, 10, 87, 50, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p212622.png?padding=0.7'),
-  ('Hakan Çalhanoğlu', 'Çalhanoğlu', 'MID', 'Turkey', 86, 68, 83, 88, 82, 72, 72, 10, 90, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p208574.png?padding=0.7'),
-  ('Alexis Mac Allister', 'Mac Allister', 'MID', 'Argentina', 86, 70, 79, 84, 84, 78, 78, 10, 90, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243627.png?padding=0.7'),
-  ('Granit Xhaka', 'Xhaka', 'MID', 'Switzerland', 86, 50, 74, 86, 76, 80, 83, 10, 92, 35, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p200145.png?padding=0.7'),
+  ('Hakan Çalhanoğlu', 'Çalhanoğlu', 'MID', 'Turkey', 86, 68, 83, 88, 82, 72, 72, 10, 90, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p208128.png?padding=0.7'),
+  ('Alexis Mac Allister', 'Mac Allister', 'MID', 'Argentina', 86, 70, 79, 84, 84, 78, 78, 10, 90, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239837.png?padding=0.7'),
+  ('Granit Xhaka', 'Xhaka', 'MID', 'Switzerland', 86, 50, 74, 86, 76, 80, 83, 10, 92, 35, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p199503.png?padding=0.7'),
   ('Cole Palmer', 'Palmer', 'MID', 'England', 85, 78, 83, 83, 86, 55, 68, 10, 96, 90, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p257534.png?padding=0.7'),
-  ('Vitinha', 'Vitinha', 'MID', 'Portugal', 85, 76, 74, 84, 86, 74, 70, 10, 90, 55, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p253002.png?padding=0.7'),
+  ('Vitinha', 'Vitinha', 'MID', 'Portugal', 85, 76, 74, 84, 86, 74, 70, 10, 90, 55, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p255253.png?padding=0.7'),
   ('Aurélien Tchouaméni', 'Tchouaméni', 'MID', 'France', 85, 73, 71, 81, 78, 83, 83, 10, 89, 100, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241637.png?padding=0.7'),
-  ('Bruno Guimarães', 'Guimarães', 'MID', 'Brazil', 85, 67, 76, 84, 84, 80, 82, 10, 89, 85, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p240130.png?padding=0.7'),
+  ('Bruno Guimarães', 'Guimarães', 'MID', 'Brazil', 85, 67, 76, 84, 84, 80, 82, 10, 89, 85, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p247851.png?padding=0.7'),
   ('James Maddison', 'Maddison', 'MID', 'England', 85, 72, 81, 86, 85, 54, 64, 10, 87, 70, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220697.png?padding=0.7'),
   ('Eduardo Camavinga', 'Camavinga', 'MID', 'France', 83, 80, 68, 82, 83, 80, 82, 10, 89, 100, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p248243.png?padding=0.7'),
-  ('Dominik Szoboszlai', 'Szoboszlai', 'MID', 'Hungary', 83, 82, 84, 83, 83, 62, 74, 10, 88, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246404.png?padding=0.7'),
+  ('Dominik Szoboszlai', 'Szoboszlai', 'MID', 'Hungary', 83, 82, 84, 83, 83, 62, 74, 10, 88, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p236772.png?padding=0.7'),
   ('Gavi', 'Gavi', 'MID', 'Spain', 83, 77, 67, 80, 85, 69, 78, 10, 88, 90, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p264240.png?padding=0.7'),
   ('Kobbie Mainoo', 'Mainoo', 'MID', 'England', 80, 73, 68, 78, 83, 76, 77, 10, 91, 55, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p269136.png?padding=0.7'),
-  ('Warren Zaïre-Emery', 'Zaïre-Emery', 'MID', 'France', 80, 76, 70, 78, 80, 75, 78, 10, 89, 60, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p272445.png?padding=0.7'),
+  ('Warren Zaïre-Emery', 'Zaïre-Emery', 'MID', 'France', 80, 76, 70, 78, 80, 75, 78, 10, 89, 60, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p270673.png?padding=0.7'),
   ('Kylian Mbappé', 'Mbappé', 'ATT', 'France', 91, 97, 90, 80, 92, 36, 78, 11, 94, 180, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p231747.png?padding=0.7'),
   ('Erling Haaland', 'Haaland', 'ATT', 'Norway', 91, 89, 92, 65, 81, 45, 88, 10, 95, 180, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239085.png?padding=0.7'),
   ('Vinícius Júnior', 'Vini Jr.', 'ATT', 'Brazil', 90, 95, 84, 81, 91, 29, 69, 10, 93, 200, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p238794.png?padding=0.7'),
@@ -119,10 +119,10 @@ SELECT v.* FROM (VALUES
   ('Raphinha', 'Raphinha', 'ATT', 'Brazil', 86, 91, 82, 82, 86, 51, 73, 10, 95, 60, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233419.png?padding=0.7'),
   ('Khvicha Kvaratskhelia', 'Kvaratskhelia', 'ATT', 'Georgia', 85, 86, 81, 81, 87, 41, 76, 10, 88, 80, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p247635.png?padding=0.7'),
   ('Alexander Isak', 'Isak', 'ATT', 'Sweden', 85, 88, 83, 73, 83, 32, 71, 10, 91, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233731.png?padding=0.7'),
-  ('Ollie Watkins', 'Watkins', 'ATT', 'England', 85, 86, 83, 77, 81, 45, 80, 10, 90, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p225213.png?padding=0.7'),
+  ('Ollie Watkins', 'Watkins', 'ATT', 'England', 85, 86, 83, 77, 81, 45, 80, 10, 90, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p221697.png?padding=0.7'),
   ('Nico Williams', 'N. Williams', 'ATT', 'Spain', 85, 93, 78, 80, 86, 36, 70, 10, 92, 70, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p256516.png?padding=0.7'),
-  ('Lamine Yamal', 'Yamal', 'ATT', 'Spain', 84, 88, 80, 84, 88, 35, 55, 10, 96, 150, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7'),
-  ('Julián Álvarez', 'J. Álvarez', 'ATT', 'Argentina', 84, 84, 84, 78, 83, 55, 76, 10, 89, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7'),
+  ('Lamine Yamal', 'Yamal', 'ATT', 'Spain', 84, 88, 80, 84, 88, 35, 55, 10, 96, 150, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277636.png?padding=0.7'),
+  ('Julián Álvarez', 'J. Álvarez', 'ATT', 'Argentina', 84, 84, 84, 78, 83, 55, 76, 10, 89, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7'),
   ('Luis Díaz', 'L. Díaz', 'ATT', 'Colombia', 84, 90, 80, 75, 87, 34, 74, 10, 92, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7')
   ('Xavi', 'Xavi', 'MID', 'Spain', 92, 75, 76, 95, 92, 74, 72, 10, 96, 65, 'https://cdn.futbin.com/content/fifa24/img/players/10535.png'),
   ('Andrés Iniesta', 'Iniesta', 'MID', 'Spain', 92, 78, 75, 93, 94, 65, 68, 10, 96, 65, 'https://cdn.futbin.com/content/fifa23/img/players/41.png'),
@@ -151,12 +151,12 @@ UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p202811.png?padding=0.7', overall = 87 WHERE name = 'Emiliano Martínez' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p177683.png?padding=0.7', overall = 87 WHERE name = 'Yann Sommer' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p167495.png?padding=0.7', overall = 86 WHERE name = 'Manuel Neuer' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220814.png?padding=0.7', overall = 85 WHERE name = 'David Raya' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220901.png?padding=0.7', overall = 85 WHERE name = 'David Raya' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p230869.png?padding=0.7', overall = 84 WHERE name = 'Unai Simón' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p240091.png?padding=0.7', overall = 84 WHERE name = 'Guglielmo Vicario' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p234577.png?padding=0.7', overall = 84 WHERE name = 'Diogo Costa' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p203376.png?padding=0.7', overall = 89 WHERE name = 'Virgil van Dijk' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243715.png?padding=0.7', overall = 88 WHERE name = 'William Saliba' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233049.png?padding=0.7', overall = 88 WHERE name = 'William Saliba' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239818.png?padding=0.7', overall = 88 WHERE name = 'Rúben Dias' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p205452.png?padding=0.7', overall = 88 WHERE name = 'Antonio Rüdiger' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p237383.png?padding=0.7', overall = 87 WHERE name = 'Alessandro Bastoni' AND (avatar_url IS NULL OR avatar_url = '');
@@ -165,7 +165,7 @@ UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p232580.png?padding=0.7', overall = 86 WHERE name = 'Gabriel Magalhães' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p204963.png?padding=0.7', overall = 86 WHERE name = 'Dani Carvajal' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p231281.png?padding=0.7', overall = 86 WHERE name = 'Trent Alexander-Arnold' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p205988.png?padding=0.7', overall = 86 WHERE name = 'Alejandro Grimaldo' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p210035.png?padding=0.7', overall = 86 WHERE name = 'Alejandro Grimaldo' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p251517.png?padding=0.7', overall = 85 WHERE name = 'Joško Gvardiol' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241486.png?padding=0.7', overall = 85 WHERE name = 'Jules Koundé' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p253163.png?padding=0.7', overall = 85 WHERE name = 'Ronald Araújo' AND (avatar_url IS NULL OR avatar_url = '');
@@ -173,12 +173,12 @@ UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p203574.png?padding=0.7', overall = 85 WHERE name = 'John Stones' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p253149.png?padding=0.7', overall = 84 WHERE name = 'Jeremie Frimpong' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p234396.png?padding=0.7', overall = 84 WHERE name = 'Alphonso Davies' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p228618.png?padding=0.7', overall = 84 WHERE name = 'Federico Dimarco' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p226268.png?padding=0.7', overall = 84 WHERE name = 'Federico Dimarco' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p188377.png?padding=0.7', overall = 84 WHERE name = 'Kyle Walker' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p226853.png?padding=0.7', overall = 84 WHERE name = 'Manuel Akanji' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p229237.png?padding=0.7', overall = 84 WHERE name = 'Manuel Akanji' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p232488.png?padding=0.7', overall = 84 WHERE name = 'Cristian Romero' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p237678.png?padding=0.7', overall = 84 WHERE name = 'Lisandro Martínez' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p213345.png?padding=0.7', overall = 84 WHERE name = 'Jonathan Tah' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239301.png?padding=0.7', overall = 84 WHERE name = 'Lisandro Martínez' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p213331.png?padding=0.7', overall = 84 WHERE name = 'Jonathan Tah' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p229558.png?padding=0.7', overall = 83 WHERE name = 'Dayot Upamecano' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p252145.png?padding=0.7', overall = 83 WHERE name = 'Nuno Mendes' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239231.png?padding=0.7', overall = 82 WHERE name = 'Marc Cucurella' AND (avatar_url IS NULL OR avatar_url = '');
@@ -202,19 +202,19 @@ UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa24/im
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p177003.png?padding=0.7', overall = 86 WHERE name = 'Luka Modrić' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p251854.png?padding=0.7', overall = 86 WHERE name = 'Pedri' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p212622.png?padding=0.7', overall = 86 WHERE name = 'Joshua Kimmich' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p208574.png?padding=0.7', overall = 86 WHERE name = 'Hakan Çalhanoğlu' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243627.png?padding=0.7', overall = 86 WHERE name = 'Alexis Mac Allister' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p200145.png?padding=0.7', overall = 86 WHERE name = 'Granit Xhaka' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p208128.png?padding=0.7', overall = 86 WHERE name = 'Hakan Çalhanoğlu' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239837.png?padding=0.7', overall = 86 WHERE name = 'Alexis Mac Allister' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p199503.png?padding=0.7', overall = 86 WHERE name = 'Granit Xhaka' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p257534.png?padding=0.7', overall = 85 WHERE name = 'Cole Palmer' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p253002.png?padding=0.7', overall = 85 WHERE name = 'Vitinha' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p255253.png?padding=0.7', overall = 85 WHERE name = 'Vitinha' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241637.png?padding=0.7', overall = 85 WHERE name = 'Aurélien Tchouaméni' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p240130.png?padding=0.7', overall = 85 WHERE name = 'Bruno Guimarães' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p247851.png?padding=0.7', overall = 85 WHERE name = 'Bruno Guimarães' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p220697.png?padding=0.7', overall = 85 WHERE name = 'James Maddison' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p248243.png?padding=0.7', overall = 83 WHERE name = 'Eduardo Camavinga' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246404.png?padding=0.7', overall = 83 WHERE name = 'Dominik Szoboszlai' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p236772.png?padding=0.7', overall = 83 WHERE name = 'Dominik Szoboszlai' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p264240.png?padding=0.7', overall = 83 WHERE name = 'Gavi' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p269136.png?padding=0.7', overall = 80 WHERE name = 'Kobbie Mainoo' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p272445.png?padding=0.7', overall = 80 WHERE name = 'Warren Zaïre-Emery' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p270673.png?padding=0.7', overall = 80 WHERE name = 'Warren Zaïre-Emery' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p231747.png?padding=0.7', overall = 91 WHERE name = 'Kylian Mbappé' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239085.png?padding=0.7', overall = 91 WHERE name = 'Erling Haaland' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p238794.png?padding=0.7', overall = 90 WHERE name = 'Vinícius Júnior' AND (avatar_url IS NULL OR avatar_url = '');
@@ -235,10 +235,10 @@ UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233419.png?padding=0.7', overall = 86 WHERE name = 'Raphinha' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p247635.png?padding=0.7', overall = 85 WHERE name = 'Khvicha Kvaratskhelia' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p233731.png?padding=0.7', overall = 85 WHERE name = 'Alexander Isak' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p225213.png?padding=0.7', overall = 85 WHERE name = 'Ollie Watkins' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p221697.png?padding=0.7', overall = 85 WHERE name = 'Ollie Watkins' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p256516.png?padding=0.7', overall = 85 WHERE name = 'Nico Williams' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7', overall = 84 WHERE name = 'Lamine Yamal' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7', overall = 84 WHERE name = 'Julián Álvarez' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277636.png?padding=0.7', overall = 84 WHERE name = 'Lamine Yamal' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7', overall = 84 WHERE name = 'Julián Álvarez' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7', overall = 84 WHERE name = 'Luis Díaz' AND (avatar_url IS NULL OR avatar_url = '');
 
 -- 10 Barcelona & Real Madrid Legends Updates
