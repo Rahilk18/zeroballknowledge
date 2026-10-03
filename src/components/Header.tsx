@@ -46,9 +46,9 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setActiveTab('dashboard')} 
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
-            <div className="relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#FF1744] to-[#BE123C] shadow-glow-cyan text-slate-950 font-black text-xl border border-[#FF1744]/40 group-hover:scale-105 transition-transform">
-              <span className="tracking-tighter">⚡</span>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#FF1744] rounded-full animate-ping opacity-80" />
+            <div className="relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#0E1324] border border-[#FF1744]/50 shadow-glow-cyan p-1.5 overflow-hidden group-hover:scale-105 transition-transform flex-shrink-0">
+              <img src="/logo.png" alt="ZBK" className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,23,68,0.7)]" />
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FF1744] rounded-full animate-ping opacity-80" />
             </div>
             <div>
               <div className="flex items-center gap-2">

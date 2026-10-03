@@ -188,8 +188,11 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#FF1744] to-rose-700 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl font-black text-slate-950 shadow-glow-cyan border border-[#FF1744]/60 flex-shrink-0">
-              {profile?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'H'}
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#0E1324] rounded-2xl flex items-center justify-center p-2 shadow-glow-cyan border border-[#FF1744]/60 flex-shrink-0 relative overflow-hidden group">
+              <img src="/logo.png" alt="ZBK" className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(255,23,68,0.7)]" />
+              <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-[#FF1744] text-[9px] font-black text-slate-950 rounded-tl-lg">
+                {profile?.displayName?.charAt(0).toUpperCase() || 'M'}
+              </div>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">

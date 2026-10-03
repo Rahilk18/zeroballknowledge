@@ -106,8 +106,10 @@ export const Navigation: React.FC<NavigationProps> = ({
           />
           <div className="relative bg-[#0E1324] border-t border-[#FF1744]/30 p-6 rounded-t-3xl max-h-[85vh] overflow-y-auto shadow-glow-cyan">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#FF1744]" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#0E1324] border border-[#FF1744]/40 p-1 flex items-center justify-center shadow-glow-cyan">
+                  <img src="/logo.png" alt="ZBK Logo" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(255,23,68,0.7)]" />
+                </div>
                 <span className="text-base font-extrabold text-white uppercase tracking-wider font-display text-glow-cyan">
                   ZEROBALLKNOWLEDGE MENU
                 </span>

@@ -116,8 +116,8 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
       <div className="relative z-10 w-full max-w-md space-y-6">
         {/* ZeroBallKnowledge Logo mark */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#FF1744] to-rose-700 rounded-3xl mb-4 shadow-glow-cyan border border-[#FF1744]/60 animate-pulse-glow">
-            <span className="text-3xl text-slate-950 font-black">⚡</span>
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-[#0E1324] rounded-3xl mb-4 shadow-glow-cyan border-2 border-[#FF1744]/60 p-3.5 group hover:scale-105 transition-transform">
+            <img src="/logo.png" alt="ZBK Logo" className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(255,23,68,0.8)]" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-wider uppercase font-display text-glow-cyan">
             ZEROBALLKNOWLEDGE

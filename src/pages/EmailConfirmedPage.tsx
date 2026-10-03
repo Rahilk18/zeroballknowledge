@@ -204,8 +204,8 @@ export const EmailConfirmedPage: React.FC<EmailConfirmedPageProps> = ({
 
         {/* Top Brand Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#FF1744] to-rose-700 rounded-2xl mb-3 shadow-glow-cyan border border-[#FF1744]/50 animate-pulse-glow">
-            <span className="text-3xl text-slate-950 font-black">⚡</span>
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-[#0E1324] rounded-3xl mb-3 shadow-glow-cyan border-2 border-[#FF1744]/60 p-3">
+            <img src="/logo.png" alt="ZBK Logo" className="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(255,23,68,0.8)]" />
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
             ZEROBALLKNOWLEDGE

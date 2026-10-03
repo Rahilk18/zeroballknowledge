@@ -328,8 +328,8 @@ export function AuctionPage({ setActiveTab }: any) {
       {/* ARENA HEADER: ROOM CODE & 3D STAGE TOGGLE */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#0E1324] border border-[#FF1744]/25 shadow-glow-cyan">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-lg text-[#FF1744]">
-            🥽
+          <div className="w-9 h-9 rounded-xl bg-[#0E1324] border border-[#FF1744]/40 p-1 flex items-center justify-center shadow-glow-cyan">
+            <img src="/logo.png" alt="ZBK" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(255,23,68,0.7)]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
