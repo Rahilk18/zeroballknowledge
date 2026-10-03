@@ -310,13 +310,18 @@ CREATE POLICY "Host can manage squads"
 -- Ensure avatar_url column exists
 ALTER TABLE public.players ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
--- Allow insert by authenticated users or anon if needed
+-- Allow insert and update by authenticated users or anon if needed
 DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE tablename = 'players' AND policyname = 'Anyone can insert players'
   ) THEN
     CREATE POLICY "Anyone can insert players" ON public.players FOR INSERT WITH CHECK (true);
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'players' AND policyname = 'Anyone can update players'
+  ) THEN
+    CREATE POLICY "Anyone can update players" ON public.players FOR UPDATE USING (true);
   END IF;
 END $$;
 
@@ -426,7 +431,7 @@ SELECT v.* FROM (VALUES
   ('Nico Williams', 'N. Williams', 'ATT', 'Spain', 85, 93, 78, 80, 86, 36, 70, 10, 92, 70, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p256516.png?padding=0.7'),
   ('Lamine Yamal', 'Yamal', 'ATT', 'Spain', 84, 88, 80, 84, 88, 35, 55, 10, 96, 150, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277636.png?padding=0.7'),
   ('Julián Álvarez', 'J. Álvarez', 'ATT', 'Argentina', 84, 84, 84, 78, 83, 55, 76, 10, 89, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p239981.png?padding=0.7'),
-  ('Luis Díaz', 'L. Díaz', 'ATT', 'Colombia', 84, 90, 80, 75, 87, 34, 74, 10, 92, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7')
+  ('Luis Díaz', 'L. Díaz', 'ATT', 'Colombia', 84, 90, 80, 75, 87, 34, 74, 10, 92, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7'),
   ('Xavi', 'Xavi', 'MID', 'Spain', 92, 75, 76, 95, 92, 74, 72, 10, 96, 65, 'https://cdn.futbin.com/content/fifa24/img/players/10535.png'),
   ('Andrés Iniesta', 'Iniesta', 'MID', 'Spain', 92, 78, 75, 93, 94, 65, 68, 10, 96, 65, 'https://cdn.futbin.com/content/fifa23/img/players/41.png'),
   ('Ronaldinho', 'Ronaldinho', 'ATT', 'Brazil', 93, 91, 89, 90, 95, 40, 81, 10, 97, 85, 'https://cdn.futbin.com/content/fifa24/img/players/28130.png'),
@@ -436,7 +441,7 @@ SELECT v.* FROM (VALUES
   ('Iker Casillas', 'Casillas', 'GK', 'Spain', 91, 60, 25, 75, 50, 35, 80, 93, 96, 55, 'https://cdn.futbin.com/content/fifa24/img/players/5479.png'),
   ('Karim Benzema', 'Benzema', 'ATT', 'France', 91, 80, 89, 84, 88, 42, 81, 10, 95, 60, 'https://cdn.futbin.com/content/fifa23/img/players/165153.png'),
   ('Marcelo', 'Marcelo', 'DEF', 'Brazil', 89, 84, 74, 86, 89, 84, 80, 10, 94, 45, 'https://cdn.futbin.com/content/fifa23/img/players/176676.png'),
-  ('Gareth Bale', 'Bale', 'ATT', 'Wales', 90, 94, 89, 84, 86, 58, 83, 10, 95, 55, 'https://cdn.futbin.com/content/fifa23/img/players/173731.png'),
+  ('Gareth Bale', 'Bale', 'ATT', 'Wales', 90, 94, 89, 84, 86, 58, 83, 10, 95, 55, 'https://cdn.futbin.com/content/fifa23/img/players/173731.png')
 ) AS v(name, short_name, position, nationality, overall, pace, shooting, passing, dribbling, defending, physical, goalkeeping, form, market_value_m, avatar_url)
 WHERE NOT EXISTS (
   SELECT 1 FROM public.players p WHERE p.name = v.name

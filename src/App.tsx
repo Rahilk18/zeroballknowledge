@@ -28,6 +28,7 @@ import { saveMatchToSupabase } from './services/sessionService';
 import { useSession } from './contexts/SessionContext';
 import { useAuth } from './contexts/AuthContext';
 import { computeTournamentStandings, generateTournamentFixtures } from './utils/tournament';
+import { syncPlayersToSupabase } from './services/playerSyncService';
 
 export function App() {
   const {
@@ -87,6 +88,11 @@ export function App() {
   useEffect(() => {
     saveState(gameState);
   }, [gameState]);
+
+  // Attempt background sync of official player catalog to Supabase
+  useEffect(() => {
+    syncPlayersToSupabase().catch(() => {});
+  }, []);
 
   // Sync logged-in Supabase user with game state
   useEffect(() => {

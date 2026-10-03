@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   Play
 } from 'lucide-react';
+import { syncPlayersToSupabase, SyncResult } from '../services/playerSyncService';
 
 interface AdminPageProps {
   allPlayers: Player[];
@@ -72,6 +73,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   // ELO adjustment state
   const [targetUsername, setTargetUsername] = useState('');
   const [eloAmount, setEloAmount] = useState(100);
+
+  // Catalog sync state
+  const [syncingPlayers, setSyncingPlayers] = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
+
+  const handleSyncAllPlayers = async () => {
+    sound.playPowerUp();
+    setSyncingPlayers(true);
+    const res = await syncPlayersToSupabase();
+    setSyncResult(res);
+    setSyncingPlayers(false);
+    if (!res.error) {
+      sound.playVictorySound();
+      setStatusMessage(`Sync complete! Database now has ${res.totalInDb}/${res.totalInCatalog} players.`);
+    } else {
+      setStatusMessage(`Sync partial/warning: ${res.error}. (Tip: If RLS blocked insert, run seed_100_players.sql in Supabase SQL editor).`);
+    }
+    setTimeout(() => setStatusMessage(''), 5000);
+  };
 
   useEffect(() => {
     if (isAuthorized) {
@@ -461,7 +481,34 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       {/* TAB 2: FOOTBALLER INJECTOR */}
       {activeTab === 'players' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-5">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-6">
+          
+          {/* OFFICIAL CATALOG AUTO-SYNC CARD */}
+          <div className="p-4 rounded-2xl bg-[#0A0A14] border border-[#FF1744]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-xs font-black uppercase text-white flex items-center gap-2">
+                <Database className="w-4 h-4 text-[#FF1744]" />
+                OFFICIAL 110+ PLAYER CATALOG SYNC
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Ensure all 110 superstars, wonderkids, and legends (including Messi 92, Ronaldo 92, Zidane, Ronaldinho) are in your live auction pool.
+              </p>
+              {syncResult && (
+                <p className="text-[10px] font-mono mt-1 text-emerald-400 font-bold">
+                  Status: {syncResult.totalInDb}/{syncResult.totalInCatalog} players currently in database. {syncResult.synced > 0 ? `(+${syncResult.synced} newly synced)` : ''}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleSyncAllPlayers}
+              disabled={syncingPlayers}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black text-xs uppercase tracking-wider transition whitespace-nowrap shadow-glow-cyan cursor-pointer disabled:opacity-50"
+            >
+              {syncingPlayers ? 'SYNCING PLAYERS...' : '⚡ SYNC ALL 110 PLAYERS TO DB'}
+            </button>
+          </div>
+
           <div className="pb-3 border-b border-slate-800">
             <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
               CREATE CUSTOM SUPERSTAR FOOTBALLER

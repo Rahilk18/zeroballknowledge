@@ -21,6 +21,7 @@ import {
   computeTournamentStandings,
   TournamentFixture
 } from '../utils/tournament';
+import { syncPlayersToSupabase } from '../services/playerSyncService';
 
 interface SessionContextType {
   currentSession: GameSession | null;
@@ -578,6 +579,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const startAuction = async (): Promise<{ error: string | null }> => {
     if (!user || !currentSession) return { error: 'No active session.' };
     if (currentSession.hostUserId !== user.id) return { error: 'Only the host can start the auction.' };
+
+    // Auto-sync all 110+ catalog players to Supabase before starting auction
+    await syncPlayersToSupabase();
 
     // Fetch all players and shuffle them for auction order
     const { data: players, error: pErr } = await supabase

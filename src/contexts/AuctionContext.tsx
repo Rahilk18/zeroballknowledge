@@ -9,6 +9,7 @@ import type {
 import {
   auctionFromRow, bidFromRow, playerFromRow, squadPlayerFromRow, teamFromRow
 } from '../services/sessionService';
+import { syncPlayersToSupabase } from '../services/playerSyncService';
 
 interface AuctionContextType {
   currentAuction: Auction | null;
@@ -600,6 +601,8 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
 
     // 3. If STILL no available players, query main players table for any players not yet in squads
     if (!nextPoolEntry) {
+      await syncPlayersToSupabase();
+
       const { data: squadData } = await supabase
         .from('squads')
         .select('player_id')
