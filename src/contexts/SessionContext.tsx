@@ -74,32 +74,76 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   const loadLobbyData = async (sessionId: string, userId: string) => {
-    // Load session_players joined with profiles
-    const { data: spRows } = await supabase
-      .from('session_players')
-      .select('user_id, joined_at, is_ready, profiles(*)')
-      .eq('session_id', sessionId);
+    try {
+      // 1. Load session_players
+      const { data: spRows, error: spErr } = await supabase
+        .from('session_players')
+        .select('user_id, joined_at, is_ready')
+        .eq('session_id', sessionId);
 
-    if (spRows) {
-      const members: LobbyMember[] = spRows.map((row: any) => ({
-        userId: row.user_id,
-        joinedAt: row.joined_at,
-        isReady: row.is_ready,
-        profile: row.profiles ? profileFromRow(row.profiles as ProfileRow) : undefined,
-      }));
-      setLobbyMembers(members);
-    }
+      if (spErr) {
+        console.error('Error fetching session_players:', spErr);
+      }
 
-    // Load teams
-    const { data: teamRows } = await supabase
-      .from('teams')
-      .select('*')
-      .eq('session_id', sessionId);
-    if (teamRows) {
-      const teams = teamRows.map((r: any) => teamFromRow(r as TeamRow));
+      // 2. Load teams for this session
+      const { data: teamRows, error: tErr } = await supabase
+        .from('teams')
+        .select('*')
+        .eq('session_id', sessionId);
+
+      if (tErr) {
+        console.error('Error fetching teams:', tErr);
+      }
+
+      const teams = teamRows ? teamRows.map((r: any) => teamFromRow(r as TeamRow)) : [];
       setAllTeams(teams);
       const mine = teams.find((t) => t.userId === userId);
       if (mine) setMyTeam(mine);
+
+      // 3. Load profiles for all players in this session
+      if (spRows && spRows.length > 0) {
+        const userIds = spRows.map((r: any) => r.user_id);
+        const { data: profileRows } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('user_id', userIds);
+
+        const profMap: Record<string, UserProfile> = {};
+        if (profileRows) {
+          profileRows.forEach((p: any) => {
+            profMap[p.user_id] = profileFromRow(p as ProfileRow);
+          });
+        }
+
+        const members: LobbyMember[] = spRows.map((row: any) => {
+          const prof = profMap[row.user_id];
+          const team = teams.find((t) => t.userId === row.user_id);
+          return {
+            userId: row.user_id,
+            joinedAt: row.joined_at,
+            isReady: row.is_ready,
+            profile: prof || {
+              id: row.user_id,
+              userId: row.user_id,
+              username: team?.abbreviation?.toLowerCase() || 'player',
+              displayName: team?.teamName || 'Player',
+              email: '',
+              totalPoints: 0,
+              gamesPlayed: 0,
+              wins: 0,
+              draws: 0,
+              losses: 0,
+              goals: 0,
+              createdAt: row.joined_at,
+            },
+          };
+        });
+        setLobbyMembers(members);
+      } else {
+        setLobbyMembers([]);
+      }
+    } catch (err) {
+      console.error('loadLobbyData exception:', err);
     }
   };
 

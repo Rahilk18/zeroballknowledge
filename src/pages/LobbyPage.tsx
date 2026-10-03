@@ -193,14 +193,14 @@ export default function LobbyPage({ setActiveTab }: Props) {
             <button
               onClick={handleStartAuction}
               disabled={starting || loadingSession || memberCount < 1}
-              className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {starting ? '⏳ Starting...' : '⚡ Start Auction'}
+              {starting ? '⏳ Starting Draft...' : `⚡ Start Auction (${memberCount} Player${memberCount === 1 ? '' : 's'} Ready)`}
             </button>
           </div>
           {memberCount < 2 && (
             <p className="text-xs text-gray-500 text-center">
-              You can start with just yourself or wait for more players to join.
+              You can start drafting solo or wait for friends to enter code <span className="text-green-400 font-mono font-bold">{currentSession.sessionCode}</span>.
             </p>
           )}
         </div>
@@ -208,10 +208,14 @@ export default function LobbyPage({ setActiveTab }: Props) {
 
       {/* Non-host waiting message */}
       {!isHost && currentSession.status === 'LOBBY' && (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-5 text-center">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-5 text-center space-y-1">
           <div className="text-3xl mb-2">⏳</div>
-          <p className="text-gray-300 font-medium">Waiting for the host to start the auction...</p>
-          <p className="text-gray-500 text-sm mt-1">Share the code <span className="text-green-400 font-mono font-bold">{currentSession.sessionCode}</span> with more friends!</p>
+          <p className="text-gray-200 font-semibold">
+            Waiting for host <span className="text-green-400 font-bold">{allTeams.find(t => t.userId === currentSession.hostUserId)?.teamName || 'Host'}</span> to click Start Auction...
+          </p>
+          <p className="text-gray-400 text-xs">
+            {memberCount} player{memberCount === 1 ? '' : 's'} connected in lobby. As soon as the host starts, everyone will enter the live auction room automatically!
+          </p>
         </div>
       )}
 
