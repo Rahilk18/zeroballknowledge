@@ -108,11 +108,11 @@ SELECT v.* FROM (VALUES
   ('Phil Foden', 'Foden', 'ATT', 'England', 88, 86, 86, 85, 90, 57, 63, 10, 90, 150, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p237692.png?padding=0.7'),
   ('Robert Lewandowski', 'Lewandowski', 'ATT', 'Poland', 88, 72, 88, 78, 84, 44, 80, 10, 93, 30, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p188545.png?padding=0.7'),
   ('Antoine Griezmann', 'Griezmann', 'ATT', 'France', 88, 78, 88, 88, 88, 58, 72, 10, 89, 35, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p194765.png?padding=0.7'),
-  ('Lionel Messi', 'Messi', 'ATT', 'Argentina', 88, 79, 85, 87, 92, 33, 64, 10, 90, 30, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p158023.png?padding=0.7'),
+  ('Lionel Messi', 'Messi', 'ATT', 'Argentina', 92, 85, 92, 93, 95, 36, 68, 10, 95, 85, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p158023.png?padding=0.7'),
   ('Victor Osimhen', 'Osimhen', 'ATT', 'Nigeria', 87, 89, 85, 66, 80, 42, 82, 10, 89, 100, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p232293.png?padding=0.7'),
   ('Son Heung-min', 'Son', 'ATT', 'South Korea', 87, 87, 89, 82, 84, 42, 70, 10, 89, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p200104.png?padding=0.7'),
   ('Bukayo Saka', 'Saka', 'ATT', 'England', 87, 86, 83, 83, 88, 65, 76, 10, 92, 140, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246669.png?padding=0.7'),
-  ('Cristiano Ronaldo', 'C. Ronaldo', 'ATT', 'Portugal', 86, 77, 88, 75, 80, 34, 74, 10, 91, 20, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p20801.png?padding=0.7'),
+  ('Cristiano Ronaldo', 'C. Ronaldo', 'ATT', 'Portugal', 92, 88, 94, 82, 88, 38, 86, 10, 95, 85, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p20801.png?padding=0.7'),
   ('Rodrygo', 'Rodrygo', 'ATT', 'Brazil', 86, 89, 82, 80, 88, 32, 60, 10, 89, 110, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243812.png?padding=0.7'),
   ('Rafael Leão', 'Leão', 'ATT', 'Portugal', 86, 93, 81, 76, 87, 28, 77, 10, 88, 90, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241721.png?padding=0.7'),
   ('Ousmane Dembélé', 'Dembélé', 'ATT', 'France', 86, 93, 79, 84, 90, 36, 58, 10, 89, 60, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p231443.png?padding=0.7'),
@@ -224,11 +224,11 @@ UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p237692.png?padding=0.7', overall = 88 WHERE name = 'Phil Foden' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p188545.png?padding=0.7', overall = 88 WHERE name = 'Robert Lewandowski' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p194765.png?padding=0.7', overall = 88 WHERE name = 'Antoine Griezmann' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p158023.png?padding=0.7', overall = 88 WHERE name = 'Lionel Messi' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p158023.png?padding=0.7', overall = 92 WHERE name = 'Lionel Messi' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p232293.png?padding=0.7', overall = 87 WHERE name = 'Victor Osimhen' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p200104.png?padding=0.7', overall = 87 WHERE name = 'Son Heung-min' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246669.png?padding=0.7', overall = 87 WHERE name = 'Bukayo Saka' AND (avatar_url IS NULL OR avatar_url = '');
-UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p20801.png?padding=0.7', overall = 86 WHERE name = 'Cristiano Ronaldo' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p20801.png?padding=0.7', overall = 92 WHERE name = 'Cristiano Ronaldo' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p243812.png?padding=0.7', overall = 86 WHERE name = 'Rodrygo' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241721.png?padding=0.7', overall = 86 WHERE name = 'Rafael Leão' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p231443.png?padding=0.7', overall = 86 WHERE name = 'Ousmane Dembélé' AND (avatar_url IS NULL OR avatar_url = '');
