@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: football-draft-fc
+    runtime: static
+    buildCommand: npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        value: https://anzusmxmcdxlhscopjug.supabase.co
+      - key: VITE_SUPABASE_ANON_KEY
+        value: sb_publishable_geRHUTng1n3FDvYiMm--6Q_diqyxnK1
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
