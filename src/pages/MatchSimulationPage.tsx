@@ -12,9 +12,12 @@ import {
   Clock, 
   Award, 
   ArrowRight,
-  RotateCcw
+  RotateCcw,
+  Swords,
+  Zap
 } from 'lucide-react';
 import { getPositionBadgeColor } from '../utils/formatters';
+import { sound } from '../utils/audioSynth';
 
 interface MatchSimulationPageProps {
   matchResult: MatchResult;
@@ -37,6 +40,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
   // Trigger win confetti once
   const confettiFired = useRef(false);
+  const prevGoalCount = useRef(0);
 
   // Filter events up to current minute
   const visibleEvents = matchResult.events.filter((e) => e.minute <= currentMinute);
@@ -48,6 +52,15 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   const currentAwayScore = visibleEvents.filter(
     (e) => e.type === 'goal' && e.teamId === matchResult.awayTeamId
   ).length;
+
+  // Sound effects on goal
+  useEffect(() => {
+    const goalsCount = currentHomeScore + currentAwayScore;
+    if (goalsCount > prevGoalCount.current) {
+      sound.playVictorySound();
+      prevGoalCount.current = goalsCount;
+    }
+  }, [currentHomeScore, currentAwayScore]);
 
   // Timer loop
   useEffect(() => {
@@ -61,6 +74,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           clearInterval(timer);
           setIsFinished(true);
           setIsPlaying(false);
+          sound.playVictorySound();
           return 90;
         }
         return prev + 1;
@@ -85,74 +99,69 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   }, [isFinished, matchResult.homeScore, matchResult.awayScore]);
 
   const handleInstantSkip = () => {
+    sound.playClick();
     setCurrentMinute(90);
     setIsFinished(true);
     setIsPlaying(false);
+    sound.playVictorySound();
   };
 
   const handleRestart = () => {
+    sound.playClick();
     setCurrentMinute(0);
     setIsFinished(false);
     setIsPlaying(true);
     confettiFired.current = false;
+    prevGoalCount.current = 0;
   };
 
   const potm = matchResult.playerOfTheMatch;
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-20">
+    <div className="space-y-6 animate-fadeIn pb-20 max-w-6xl mx-auto">
       
       {/* SCOREBOARD HERO HEADER */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#111e28] via-[#0b141d] to-[#070d11] border-2 border-emerald-500/40 p-6 sm:p-8 shadow-2xl">
-        
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#0E1324] via-[#0A0A14] to-[#12182D] border-2 border-[#00E5FF]/40 p-6 sm:p-8 shadow-glow-cyan">
+        <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
+
         {/* Top Match Status and Clock */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800/80 mb-6">
+        <div className="relative z-10 flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
           <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${isFinished ? 'bg-slate-400' : 'bg-emerald-400 animate-ping'}`} />
-            <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
-              {isFinished ? 'FULL TIME' : currentMinute < 45 ? '1ST HALF' : '2ND HALF'}
+            <span className={`w-2.5 h-2.5 rounded-full ${isFinished ? 'bg-slate-500' : 'bg-[#00E5FF] animate-ping'}`} />
+            <span className="text-xs font-black uppercase tracking-widest text-[#00E5FF] font-display text-glow-cyan">
+              {isFinished ? 'FULL TIME BATTLE END' : currentMinute < 45 ? '1ST HALF IN PROGRESS' : '2ND HALF CLASH'}
             </span>
           </div>
 
           {/* Clock Display */}
-          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 font-mono font-black text-sm text-emerald-300">
-            <Clock className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#0A0A14] border border-[#00E5FF]/30 font-mono font-black text-sm text-[#00E5FF] shadow-glow-cyan">
+            <Clock className="w-4 h-4 text-[#00E5FF]" />
             <span>{String(currentMinute).padStart(2, '0')}:00</span>
           </div>
 
           {/* Simulation Speed & Skip Controls */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSpeedMultiplier(1)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                speedMultiplier === 1 ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-400'
-              }`}
-            >
-              1x
-            </button>
-            <button
-              onClick={() => setSpeedMultiplier(2)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                speedMultiplier === 2 ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-400'
-              }`}
-            >
-              2x
-            </button>
-            <button
-              onClick={() => setSpeedMultiplier(4)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                speedMultiplier === 4 ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-400'
-              }`}
-            >
-              4x
-            </button>
+            {[1, 2, 4].map(s => (
+              <button
+                key={s}
+                onClick={() => {
+                  sound.playClick();
+                  setSpeedMultiplier(s);
+                }}
+                className={`px-3 py-1 rounded-xl text-xs font-black transition ${
+                  speedMultiplier === s ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan' : 'bg-[#0A0A14] text-slate-400 border border-slate-800'
+                }`}
+              >
+                {s}x
+              </button>
+            ))}
             {!isFinished && (
               <button
                 onClick={handleInstantSkip}
-                className="flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-black hover:bg-amber-500/30 transition"
+                className="flex items-center gap-1 px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-black hover:bg-purple-500/30 transition shadow-glow-purple"
               >
                 <FastForward className="w-3.5 h-3.5" />
-                <span>Instant</span>
+                <span>SKIP TO END</span>
               </button>
             )}
           </div>

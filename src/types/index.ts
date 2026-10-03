@@ -570,6 +570,7 @@ export type ActiveTab =
   | 'players'
   | 'my-team'
   | 'myteam'
+  | 'lineup'
   | 'matches'
   | 'matchsetup'
   | 'simulation'
@@ -578,4 +579,6 @@ export type ActiveTab =
   | 'statistics'
   | 'settings'
   | 'lobby'
-  | 'leaderboard';
+  | 'leaderboard'
+  | 'admin';
+

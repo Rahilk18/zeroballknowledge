@@ -109,3 +109,13 @@ export function getPlayerAvatarUrl(player: any): string | undefined {
   if (player.short_name && PLAYER_AVATARS[player.short_name]) return PLAYER_AVATARS[player.short_name];
   return undefined;
 }
+
+export function getCORSPlayerAvatarUrl(player: any): string | undefined {
+  const url = getPlayerAvatarUrl(player);
+  if (!url) return undefined;
+  // If requesting from EA Sports FC pulse CDN, proxy via wsrv.nl to add Access-Control-Allow-Origin: * for HTML5 Canvas/WebGL
+  if (url.includes('pulse.ea.com')) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&output=png`;
+  }
+  return url;
+}

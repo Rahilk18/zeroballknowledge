@@ -12,6 +12,42 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
+
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.7), 0 0 20px rgba(46, 230, 255, 0.4);
+  }
+
+  .text-glow-purple {
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.7), 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+
+  .text-glow-gold {
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.7), 0 0 20px rgba(245, 158, 11, 0.4);
+  }
+
+  .border-glow-cyan {
+    border-color: rgba(46, 230, 255, 0.4);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.2), inset 0 0 15px rgba(0, 229, 255, 0.05);
+  }
+
+  .cyber-clip {
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+
+  .cyber-clip-sm {
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+
+  .cyber-grid-bg {
+    background-size: 32px 32px;
+    background-image: 
+      linear-gradient(to right, rgba(46, 230, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(46, 230, 255, 0.05) 1px, transparent 1px);
+  }
+
+  .holo-ring {
+    background: radial-gradient(circle, rgba(0, 229, 255, 0.15) 0%, rgba(10, 10, 20, 0) 70%);
+  }
 }
 
 @keyframes fadeIn {
@@ -29,21 +65,24 @@
   animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Custom dark scrollbar */
+/* HeroBid custom dark scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090e13;
+  background: #0A0A14;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e2c38;
+  background: #18223c;
   border-radius: 9999px;
+  border: 1px solid rgba(46, 230, 255, 0.2);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: #00E5FF;
+  box-shadow: 0 0 10px #00E5FF;
 }
+

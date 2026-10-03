@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ActiveTab, MatchResult, Player, Team, UserAccount } from './types';
 import { loadInitialState, saveState, resetToDefaults, applyMatchToStandings } from './services/gameStorage';
 import { simulateMatch } from './simulation/engine';
@@ -10,6 +10,7 @@ import { Navigation } from './components/Navigation';
 import { Dashboard } from './pages/Dashboard';
 import { PlayersPage } from './pages/PlayersPage';
 import { MyTeamPage } from './pages/MyTeamPage';
+import { LineupBuilderPage } from './pages/LineupBuilderPage';
 import { MatchSetupPage } from './pages/MatchSetupPage';
 import { MatchSimulationPage } from './pages/MatchSimulationPage';
 import { LeaguePage } from './pages/LeaguePage';
@@ -19,20 +20,63 @@ import { SettingsPage } from './pages/SettingsPage';
 import { AuthPage } from './pages/AuthPage';
 import LobbyPage from './pages/LobbyPage';
 import LeaderboardPage from './pages/LeaderboardPage';
+import { AdminPage } from './pages/AdminPage';
+import { EmailConfirmedPage } from './pages/EmailConfirmedPage';
 import SeasonCompleteModal from './components/SeasonCompleteModal';
 import { saveMatchToSupabase } from './services/sessionService';
 import { useSession } from './contexts/SessionContext';
 import { useAuth } from './contexts/AuthContext';
+import { computeTournamentStandings, generateTournamentFixtures } from './utils/tournament';
 
 export function App() {
-  const { currentSession, myTeam: sessionTeam, allTeams: sessionAllTeams, clearSession } = useSession();
+  const {
+    currentSession,
+    myTeam: sessionTeam,
+    allTeams: sessionAllTeams,
+    sessionPlayers,
+    sessionMatches,
+    sessionStandings,
+    tournamentFixtures,
+    isTournamentComplete,
+    tournamentWinner,
+    latestMatchResult,
+    clearSession,
+    broadcastSimulatedMatch,
+    updateLineup,
+    remoteNavigation,
+    broadcastNavigation,
+  } = useSession();
   const { user, profile, loading: authLoading, signOut } = useAuth();
+  const isHost = Boolean(currentSession ? currentSession.hostUserId === user?.id : true);
   const [guestMode, setGuestMode] = useState(false);
   const [gameState, setGameState] = useState(loadInitialState);
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [showSeasonComplete, setShowSeasonComplete] = useState(false);
+
+  // Email confirmation link route detection
+  const [isEmailConfirmedRoute, setIsEmailConfirmedRoute] = useState(() => {
+    const hash = window.location.hash || '';
+    const search = window.location.search || '';
+    const pathname = window.location.pathname || '';
+    return (
+      hash.includes('access_token=') ||
+      hash.includes('type=signup') ||
+      hash.includes('type=email') ||
+      hash.includes('type=email_change') ||
+      hash.includes('error_description') ||
+      hash.includes('error=') ||
+      hash.includes('confirmed') ||
+      search.includes('code=') ||
+      search.includes('token_hash=') ||
+      search.includes('type=signup') ||
+      search.includes('type=email') ||
+      search.includes('error_description') ||
+      search.includes('confirmed') ||
+      pathname.includes('/confirm')
+    );
+  });
 
   // Match setup & simulation state
   const [targetOpponentId, setTargetOpponentId] = useState<string>('');
@@ -62,11 +106,19 @@ export function App() {
     }
   }, [user, profile, sessionTeam]);
 
+  // Combine offline prototype players with any real players drafted in multiplayer session
+  const combinedPlayers = useMemo(() => {
+    const map = new Map<string, Player>();
+    (gameState.players || []).forEach(p => map.set(p.id, p));
+    (sessionPlayers || []).forEach(p => map.set(p.id, p));
+    return Array.from(map.values());
+  }, [gameState.players, sessionPlayers]);
+
   // Dynamic user team — strictly derived from active session team (or null if no team yet)
   const userTeam = sessionTeam || (gameState.teams.find((t) => t.id === gameState.userTeamId) || null);
 
   const userStartingPlayers = (userTeam?.startingSeven || [])
-    .map((id) => gameState.players.find((p) => p.id === id))
+    .map((id) => combinedPlayers.find((p) => p.id === id))
     .filter((p): p is Player => p !== undefined);
 
   const teamOverall = userStartingPlayers.length > 0 ? calculateTeamOverall(userStartingPlayers) : 0;
@@ -74,77 +126,195 @@ export function App() {
   const activeAllTeams = sessionAllTeams.length > 0 ? sessionAllTeams : gameState.teams;
   const opponentOptions = activeAllTeams.filter(t => t.id !== userTeam?.id);
 
+  // Active fixtures, standings, and matches for tournament (3 matches per pair)
+  const effectiveStandings = useMemo(() => {
+    if (currentSession && sessionStandings.length > 0) {
+      return sessionStandings;
+    }
+    const matches = currentSession ? sessionMatches : gameState.recentMatches;
+    return computeTournamentStandings(activeAllTeams, matches);
+  }, [currentSession, sessionStandings, sessionMatches, gameState.recentMatches, activeAllTeams]);
+
+  const effectiveMatches = useMemo(() => {
+    return currentSession ? sessionMatches : gameState.recentMatches;
+  }, [currentSession, sessionMatches, gameState.recentMatches]);
+
+  const effectiveFixtures = useMemo(() => {
+    if (currentSession && tournamentFixtures.length > 0) {
+      return tournamentFixtures;
+    }
+    return generateTournamentFixtures(activeAllTeams);
+  }, [currentSession, tournamentFixtures, activeAllTeams]);
+
+  const nextUnplayedFixture = useMemo(() => {
+    if (effectiveFixtures.length === 0) return null;
+    const completedCount = effectiveMatches.length;
+    if (completedCount >= effectiveFixtures.length) return null;
+    return effectiveFixtures[completedCount] || null;
+  }, [effectiveFixtures, effectiveMatches]);
+
+  // Synchronize remote navigation across room members
+  useEffect(() => {
+    if (remoteNavigation && currentSession) {
+      if (remoteNavigation.opponentId) {
+        setTargetOpponentId(remoteNavigation.opponentId);
+      }
+      setActiveTab(remoteNavigation.tab as ActiveTab);
+    }
+  }, [remoteNavigation, currentSession]);
+
+  // When room status transitions to TEAM_SETUP, move room participants to lineup view
+  useEffect(() => {
+    if (currentSession?.status === 'TEAM_SETUP') {
+      if (activeTab === 'auction' || activeTab === 'lobby') {
+        setActiveTab('lineup');
+      }
+    }
+  }, [currentSession?.status, activeTab]);
+
+  // When room status transitions to MATCHES, move room participants to matches view
+  useEffect(() => {
+    if (currentSession?.status === 'MATCHES') {
+      if (activeTab === 'auction' || activeTab === 'lobby' || activeTab === 'lineup') {
+        setActiveTab('matches');
+      }
+    }
+  }, [currentSession?.status, activeTab]);
+
+  // Keep activeMatchResult in sync with real-time simulations and navigate joined players to watch
+  useEffect(() => {
+    if (latestMatchResult) {
+      setActiveMatchResult(latestMatchResult);
+      setActiveTab('simulation');
+    }
+  }, [latestMatchResult]);
+
+  // When tournament finishes across room, trigger celebration modal
+  useEffect(() => {
+    if (isTournamentComplete) {
+      setShowSeasonComplete(true);
+    }
+  }, [isTournamentComplete]);
+
   // Launch Match Setup
   const handleStartMatchSetup = (opponentTeamId: string) => {
     setTargetOpponentId(opponentTeamId);
     setActiveTab('matches');
+    if (currentSession && isHost) {
+      broadcastNavigation('matches', opponentTeamId);
+    }
   };
 
   // Run the Simulation Engine
-  const handleExecuteSimulation = (opponentTeamId: string) => {
-    if (!userTeam) return;
-    const opponent = activeAllTeams.find((t) => t.id === opponentTeamId) || opponentOptions[0];
-    if (!opponent) return;
+  const handleExecuteSimulation = async (opponentTeamId?: string) => {
+    if (currentSession && !isHost) return;
+    let homeTeam: Team | undefined;
+    let awayTeam: Team | undefined;
 
-    const result = simulateMatch(
-      { team: userTeam, players: gameState.players },
-      { team: opponent, players: gameState.players }
-    );
+    if (nextUnplayedFixture) {
+      homeTeam = activeAllTeams.find(t => t.id === nextUnplayedFixture.homeTeamId);
+      awayTeam = activeAllTeams.find(t => t.id === nextUnplayedFixture.awayTeamId);
+    }
 
-    // Update league standings
-    const updatedStandings = applyMatchToStandings(gameState.standings, result);
+    if (!homeTeam) {
+      homeTeam = userTeam || activeAllTeams[0];
+    }
 
-    // Update player season stats
-    const updatedPlayers = gameState.players.map((p) => {
-      const matchRating = result.playerRatings[p.id];
-      if (!matchRating) return p;
+    if (!awayTeam) {
+      awayTeam = activeAllTeams.find(t => t.id === opponentTeamId) || opponentOptions[0] || {
+        id: 'ai-sparring-bot',
+        name: 'Apex AI Rivals',
+        shortCode: 'AI',
+        teamName: 'Apex AI Rivals',
+        abbreviation: 'AI',
+        manager: 'Sparring Bot',
+        budget: 100,
+        badgeIcon: '🤖',
+        badge: '🤖',
+        startingSeven: [],
+        bench: [],
+        formation: '1-2-2-2',
+      };
+    }
 
-      const prevMatches = p.stats.matches;
-      const newMatches = prevMatches + 1;
-      const newGoals = p.stats.goals + matchRating.goals;
-      const newAssists = p.stats.assists + matchRating.assists;
-      const newRating = Number(
-        (((p.stats.avgRating * prevMatches) + matchRating.rating) / newMatches).toFixed(1)
+    if (!homeTeam) return;
+
+    try {
+      const result = simulateMatch(
+        { team: homeTeam, players: combinedPlayers },
+        { team: awayTeam, players: combinedPlayers }
       );
 
-      return {
-        ...p,
-        stats: {
-          ...p.stats,
-          matches: newMatches,
-          goals: newGoals,
-          assists: newAssists,
-          avgRating: newRating
+      result.matchweek = effectiveMatches.length + 1;
+
+      // Update player season stats
+      const updatedPlayers = gameState.players.map((p) => {
+        const matchRating = result.playerRatings[p.id];
+        if (!matchRating) return p;
+
+        const prevMatches = p.stats.matches;
+        const newMatches = prevMatches + 1;
+        const newGoals = p.stats.goals + matchRating.goals;
+        const newAssists = p.stats.assists + matchRating.assists;
+        const newRating = Number(
+          (((p.stats.avgRating * prevMatches) + matchRating.rating) / newMatches).toFixed(1)
+        );
+
+        return {
+          ...p,
+          stats: {
+            ...p.stats,
+            matches: newMatches,
+            goals: newGoals,
+            assists: newAssists,
+            avgRating: newRating
+          }
+        };
+      });
+
+      if (currentSession) {
+        await broadcastSimulatedMatch(result);
+        setGameState((prev) => ({
+          ...prev,
+          players: updatedPlayers,
+        }));
+      } else {
+        const updatedMatches = [...gameState.recentMatches, result];
+        const updatedStandings = computeTournamentStandings(activeAllTeams, updatedMatches);
+
+        setGameState((prev) => ({
+          ...prev,
+          standings: updatedStandings,
+          players: updatedPlayers,
+          recentMatches: updatedMatches
+        }));
+
+        if (effectiveFixtures.length > 0 && updatedMatches.length >= effectiveFixtures.length) {
+          setShowSeasonComplete(true);
         }
-      };
-    });
+      }
 
-    const updatedMatches = [...gameState.recentMatches, result];
-
-    setGameState((prev) => ({
-      ...prev,
-      standings: updatedStandings,
-      players: updatedPlayers,
-      recentMatches: updatedMatches
-    }));
-
-    setActiveMatchResult(result);
-    if (currentSession) {
-      saveMatchToSupabase(result, currentSession.id);
+      setActiveMatchResult(result);
+      setActiveTab('simulation');
+    } catch (err) {
+      console.error('Match simulation error:', err);
     }
-    setActiveTab('simulation');
   };
 
   // Lineup update handler
-  const handleUpdateLineup = (newStartingSeven: string[], newBench: string[]) => {
+  const handleUpdateLineup = (newStartingSeven: string[], newBench: string[], formation?: string) => {
     if (!userTeam) return;
+    if (currentSession && userTeam.id) {
+      updateLineup(userTeam.id, newStartingSeven, newBench, formation);
+    }
     setGameState((prev) => {
       const updatedTeams = prev.teams.map((t) => {
         if (t.id === userTeam.id) {
           return {
             ...t,
             startingSeven: newStartingSeven,
-            bench: newBench
+            bench: newBench,
+            formation: formation || t.formation
           };
         }
         return t;
@@ -233,6 +403,21 @@ export function App() {
     setActiveTab('dashboard');
   };
 
+  // Super Admin handlers
+  const handleAddPlayer = (newPlayer: Player) => {
+    setGameState((prev) => ({
+      ...prev,
+      players: [newPlayer, ...prev.players]
+    }));
+  };
+
+  const handleUpdateTeamBudget = (teamId: string, newBudget: number) => {
+    setGameState((prev) => ({
+      ...prev,
+      teams: prev.teams.map((t) => t.id === teamId ? { ...t, budget: newBudget } : t)
+    }));
+  };
+
   // Auth Handlers
   const handleLogin = (user: UserAccount) => {
     setGameState((prev) => ({
@@ -270,6 +455,30 @@ export function App() {
           <p className="text-emerald-400 font-bold tracking-wider text-sm uppercase">Loading Football Draft FC...</p>
         </div>
       </div>
+    );
+  }
+
+  // DEDICATED EMAIL CONFIRMED PAGE (Intercepts Supabase email confirmation links)
+  if (isEmailConfirmedRoute) {
+    return (
+      <EmailConfirmedPage
+        onContinue={() => {
+          setIsEmailConfirmedRoute(false);
+          setIsAuthOpen(false);
+          try {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch (e) {}
+          setActiveTab('dashboard');
+        }}
+        onGoToLogin={() => {
+          setIsEmailConfirmedRoute(false);
+          setGuestMode(false);
+          setIsAuthOpen(true);
+          try {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch (e) {}
+        }}
+      />
     );
   }
 
@@ -334,9 +543,19 @@ export function App() {
         {activeTab === 'my-team' && (
           <MyTeamPage
             currentTeam={userTeam}
-            allPlayers={gameState.players}
+            allPlayers={combinedPlayers}
             onUpdateLineup={handleUpdateLineup}
             onNavigateTab={setActiveTab}
+          />
+        )}
+
+        {activeTab === 'lineup' && (
+          <LineupBuilderPage
+            currentTeam={userTeam}
+            allPlayers={combinedPlayers}
+            onUpdateLineup={handleUpdateLineup}
+            setActiveTab={setActiveTab}
+            isHost={isHost}
           />
         )}
 
@@ -349,31 +568,76 @@ export function App() {
 
         {activeTab === 'matches' && (
           <MatchSetupPage
-            currentTeam={userTeam!}
+            currentTeam={
+              nextUnplayedFixture
+                ? (activeAllTeams.find(t => t.id === nextUnplayedFixture.homeTeamId) || userTeam)
+                : userTeam
+            }
             allTeams={activeAllTeams}
-            allPlayers={gameState.players}
-            preselectedOpponentId={targetOpponentId || opponentOptions[0]?.id}
+            allPlayers={combinedPlayers}
+            preselectedOpponentId={
+              nextUnplayedFixture
+                ? nextUnplayedFixture.awayTeamId
+                : (targetOpponentId || opponentOptions[0]?.id)
+            }
             onSimulate={handleExecuteSimulation}
-            onBack={() => setActiveTab('dashboard')}
+            onBack={() => {
+              setActiveTab('league');
+              if (currentSession && isHost) broadcastNavigation('league');
+            }}
+            onGoToDashboard={() => setActiveTab('dashboard')}
+            isHost={isHost}
           />
         )}
 
-        {activeTab === 'simulation' && activeMatchResult && (
-          <MatchSimulationPage
-            matchResult={activeMatchResult}
-            allPlayers={gameState.players}
-            onFinishMatch={() => setActiveTab('dashboard')}
-            onGoToLeague={() => setActiveTab('league')}
-          />
+        {activeTab === 'simulation' && (
+          activeMatchResult ? (
+            <MatchSimulationPage
+              matchResult={activeMatchResult}
+              allPlayers={combinedPlayers}
+              onFinishMatch={() => {
+                setActiveTab('league');
+                if (currentSession && isHost) broadcastNavigation('league');
+              }}
+              onGoToLeague={() => {
+                setActiveTab('league');
+                if (currentSession && isHost) broadcastNavigation('league');
+              }}
+            />
+          ) : (
+            <div className="max-w-md mx-auto py-20 text-center space-y-4 animate-fadeIn">
+              <p className="text-sm text-slate-400">No active match simulation recorded.</p>
+              <button
+                onClick={() => setActiveTab('league')}
+                className="px-6 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs uppercase tracking-wider"
+              >
+                Go to Tournament Standings
+              </button>
+            </div>
+          )
         )}
 
         {activeTab === 'league' && (
           <LeaguePage
-            standings={gameState.standings}
+            standings={effectiveStandings}
             currentTeam={userTeam}
             allTeams={activeAllTeams}
-            recentMatches={gameState.recentMatches}
-            onPlayNextMatch={() => handleStartMatchSetup(targetOpponentId || opponentOptions[0]?.id)}
+            recentMatches={effectiveMatches}
+            nextFixture={nextUnplayedFixture}
+            totalFixtures={effectiveFixtures.length}
+            completedFixtures={effectiveMatches.length}
+            isTournamentComplete={isTournamentComplete || (effectiveFixtures.length > 0 && effectiveMatches.length >= effectiveFixtures.length)}
+            isHost={isHost}
+            onPlayNextMatch={() => {
+              if (nextUnplayedFixture) {
+                const oppId = nextUnplayedFixture.homeTeamId === userTeam?.id
+                  ? nextUnplayedFixture.awayTeamId
+                  : nextUnplayedFixture.homeTeamId;
+                handleStartMatchSetup(oppId);
+              } else if (opponentOptions.length > 0) {
+                handleStartMatchSetup(opponentOptions[0]?.id);
+              }
+            }}
             onViewSeasonComplete={() => setShowSeasonComplete(true)}
           />
         )}
@@ -400,7 +664,7 @@ export function App() {
 
         {activeTab === 'leaderboard' && (
           <LeaderboardPage
-            sessionStandings={gameState.standings}
+            sessionStandings={effectiveStandings}
             onBackToDashboard={() => setActiveTab('dashboard')}
           />
         )}
@@ -418,12 +682,21 @@ export function App() {
             }}
           />
         )}
+
+        {activeTab === 'admin' && (
+          <AdminPage
+            allPlayers={gameState.players}
+            allTeams={activeAllTeams}
+            onAddPlayer={handleAddPlayer}
+            onUpdateTeamBudget={handleUpdateTeamBudget}
+          />
+        )}
       </main>
 
       {/* Season Complete Celebration & Career Points Modal */}
       {showSeasonComplete && (
         <SeasonCompleteModal
-          standings={gameState.standings}
+          standings={effectiveStandings}
           onStartNewGame={() => {
             setShowSeasonComplete(false);
             clearSession();
@@ -438,6 +711,8 @@ export function App() {
           }}
           onViewLeaderboard={() => {
             setShowSeasonComplete(false);
+            clearSession();
+            handleResetSeason();
             setActiveTab('leaderboard');
           }}
         />

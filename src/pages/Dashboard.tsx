@@ -3,7 +3,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
 import { fetchUserGameHistory, fetchUserTeams, UserGameHistoryItem, UserPastTeamItem } from '../services/userService';
 import type { ActiveTab } from '../types';
-import { Trophy, Swords, Shield, PlusCircle, LogIn, History, Sparkles, ArrowRight, Award, Flame } from 'lucide-react';
+import { Trophy, Swords, Shield, PlusCircle, LogIn, LogOut, History, Sparkles, ArrowRight, Award, Flame, Glasses, Zap, Radio } from 'lucide-react';
+import { FOOTBALL_GEARS } from '../data/gearData';
 
 const BADGES = ['⚡', '🔥', '🦁', '🐉', '⭐', '🚀', '🏆', '🎯', '🦅', '💎', '🌟', '⚔️'];
 
@@ -16,7 +17,17 @@ type DashboardModal = 'none' | 'create' | 'join';
 
 export function Dashboard({ setActiveTab }: DashboardProps) {
   const { user, profile } = useAuth();
-  const { currentSession, myTeam, createGame, joinGame, loadingSession } = useSession();
+  const { 
+    currentSession, 
+    myTeam, 
+    createGame, 
+    joinGame, 
+    leaveGame,
+    endGame,
+    inactivityNotice,
+    clearInactivityNotice,
+    loadingSession 
+  } = useSession();
 
   const [modal, setModal] = useState<DashboardModal>('none');
   const [error, setError] = useState('');
@@ -26,13 +37,13 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
   const [pastTeams, setPastTeams] = useState<UserPastTeamItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
-  // Create Game form state — completely empty by default, no hardcoded team names!
+  // Create Game form state
   const [teamName, setTeamName] = useState('');
   const [abbreviation, setAbbreviation] = useState('');
   const [selectedBadge, setSelectedBadge] = useState('⚡');
   const [createdCode, setCreatedCode] = useState('');
 
-  // Join Game form state — completely empty by default
+  // Join Game form state
   const [joinCode, setJoinCode] = useState('');
   const [joinTeamName, setJoinTeamName] = useState('');
   const [joinAbbr, setJoinAbbr] = useState('');
@@ -105,7 +116,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
     if (user) loadUserData(user.id);
   };
 
-  // User-specific stats (New user defaults to strictly 0 with no legacy demo data)
+  // User-specific stats
   const gamesPlayed = profile?.gamesPlayed ?? 0;
   const wins = profile?.wins ?? 0;
   const draws = profile?.draws ?? 0;
@@ -113,176 +124,338 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
   const careerPoints = profile?.totalPoints ?? 0;
 
   const stats = [
-    { label: 'Games Played', value: gamesPlayed, icon: '🎮', color: 'text-white' },
-    { label: 'Wins', value: wins, icon: '🏆', color: 'text-emerald-400' },
-    { label: 'Draws', value: draws, icon: '🤝', color: 'text-amber-400' },
-    { label: 'Losses', value: losses, icon: '💔', color: 'text-rose-400' },
-    { label: 'Career Points', value: `${careerPoints} pts`, icon: '⭐', color: 'text-yellow-400' },
+    { label: 'GAMES PLAYED', value: gamesPlayed, icon: '🎮', color: 'text-white' },
+    { label: 'VICTORIES', value: wins, icon: '🏆', color: 'text-[#00E5FF]' },
+    { label: 'DRAWS', value: draws, icon: '🤝', color: 'text-amber-400' },
+    { label: 'DEFEATS', value: losses, icon: '💔', color: 'text-rose-400' },
+    { label: 'CAREER ELO', value: `${careerPoints} pts`, icon: '⭐', color: 'text-[#2EE6FF]' },
   ];
 
   const getPositionLabel = (pos: number) => {
-    if (pos === 1) return { label: 'Winner 🏆', badge: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
-    if (pos === 2) return { label: '2nd Place 🥈', badge: 'bg-slate-500/20 text-slate-300 border-slate-500/30' };
-    if (pos === 3) return { label: '3rd Place 🥉', badge: 'bg-amber-700/20 text-amber-500 border-amber-700/30' };
-    return { label: `${pos}th Place`, badge: 'bg-slate-800 text-slate-400 border-slate-700' };
+    if (pos === 1) return { label: 'CHAMPION 🏆', badge: 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]/40 shadow-glow-cyan' };
+    if (pos === 2) return { label: 'RUNNER UP 🥈', badge: 'bg-slate-700/40 text-slate-300 border-slate-600' };
+    if (pos === 3) return { label: '3RD PLACE 🥉', badge: 'bg-amber-700/20 text-amber-500 border-amber-700/30' };
+    return { label: `RANK #${pos}`, badge: 'bg-[#0A0A14] text-slate-400 border-slate-800' };
+  };
+
+  const isHost = currentSession?.hostUserId === user?.id;
+  const [exitingRoom, setExitingRoom] = useState(false);
+
+  const handleExitRoom = async () => {
+    const confirmMsg = isHost
+      ? 'You are the host of this room. Quitting will end the room for all players. Are you sure you want to end and quit the room?'
+      : 'Are you sure you want to exit and disconnect from this room?';
+    if (!window.confirm(confirmMsg)) return;
+
+    setExitingRoom(true);
+    try {
+      if (isHost) {
+        await endGame();
+      } else {
+        await leaveGame();
+      }
+    } catch (err) {
+      console.error('Failed to exit room:', err);
+    } finally {
+      setExitingRoom(false);
+    }
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 animate-fadeIn pb-16">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6 animate-fadeIn pb-16">
       
-      {/* 1. WELCOME HEADER (Dynamically generated from authenticated user) */}
-      <div className="bg-gradient-to-br from-emerald-950/40 via-[#0e1720] to-[#070b0e] border border-emerald-500/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+      {/* Inactivity Notice Alert */}
+      {inactivityNotice && (
+        <div className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-4 flex items-center justify-between gap-4 text-amber-300 text-xs font-bold animate-fadeIn shadow-lg">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xl">⚠️</span>
+            <span>{inactivityNotice}</span>
+          </div>
+          <button
+            onClick={clearInactivityNotice}
+            className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-lg text-[10px] uppercase font-bold tracking-wider transition"
+          >
+            DISMISS
+          </button>
+        </div>
+      )}
+
+      {/* 1. HEROBID ARENA HEADER BANNER */}
+      <div className="relative bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border border-[#00E5FF]/30 rounded-3xl p-6 sm:p-8 shadow-glow-cyan overflow-hidden">
+        {/* Holographic grid and glow lines */}
+        <div className="absolute inset-0 cyber-grid-bg opacity-30 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#00E5FF]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl flex items-center justify-center text-3xl font-black text-slate-950 shadow-lg shadow-emerald-500/20 border border-emerald-300/40">
-              {profile?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'M'}
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#00E5FF] to-blue-600 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl font-black text-slate-950 shadow-glow-cyan border border-[#00E5FF]/60 flex-shrink-0">
+              {profile?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'H'}
             </div>
             <div>
-              <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Manager Dashboard</p>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-0.5">
-                Welcome, {profile?.displayName || profile?.username || 'Manager'}
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#00E5FF]/15 text-[#00E5FF] border border-[#00E5FF]/30 tracking-widest text-glow-cyan">
+                  ZEROBALLKNOWLEDGE // MULTIPLAYER ARENA
+                </span>
+                <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  SERVER ONLINE
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-wide font-display text-glow-cyan">
+                {profile?.displayName || profile?.username || 'CYBER MANAGER'}
               </h1>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-emerald-400 text-xs font-mono">@{profile?.username || 'manager'}</span>
+              <div className="flex items-center gap-3 mt-1 text-xs">
+                <span className="text-[#00E5FF] font-mono">@{profile?.username || 'manager'}</span>
+                <span className="text-slate-500">•</span>
+                <span className="text-slate-400 font-semibold">Division I Rank</span>
                 {myTeam && (
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-semibold">
-                    Current: {myTeam.name}
+                  <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold">
+                    {myTeam.name}
                   </span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Quick Career Points Badge */}
-          <div className="bg-[#090f14]/80 border border-slate-800/80 rounded-2xl px-5 py-3 text-left sm:text-right">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">Total Career Points</span>
-            <span className="text-2xl font-black font-mono text-amber-400">{careerPoints} pts</span>
+          {/* Quick Stats Pill */}
+          <div className="flex items-center gap-3 self-start lg:self-center">
+            <div className="bg-[#0A0A14]/90 border border-[#00E5FF]/25 rounded-2xl px-5 py-3 shadow-lg">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">CAREER POINTS</span>
+              <span className="text-2xl font-black font-mono text-[#00E5FF] text-glow-cyan">{careerPoints} ELO</span>
+            </div>
+            <div className="bg-[#0A0A14]/90 border border-amber-500/30 rounded-2xl px-5 py-3 shadow-lg">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">WIN RATIO</span>
+              <span className="text-2xl font-black font-mono text-amber-300">
+                {gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0}%
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 2. STATS GRID (Personal to authenticated user) */}
-      <div>
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Your Career Statistics</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {stats.map(s => (
-            <div key={s.label} className="bg-[#0e1720] border border-slate-800 rounded-2xl p-4 text-center shadow-lg hover:border-slate-700 transition">
-              <div className="text-2xl mb-1">{s.icon}</div>
-              <div className={`text-2xl font-black font-mono ${s.color}`}>{s.value}</div>
-              <div className="text-[11px] text-slate-400 font-medium mt-1">{s.label}</div>
+      {/* 2. PROMINENT 3D BIDDING ARENA ENTRY */}
+      <div 
+        onClick={() => setActiveTab('auction')}
+        className="group relative cursor-pointer bg-gradient-to-r from-cyan-950/40 via-[#0E1324] to-purple-950/40 border border-[#00E5FF]/40 rounded-3xl p-6 sm:p-7 shadow-glow-cyan hover:shadow-glow-cyan-lg transition-all hover:-translate-y-0.5 overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 w-80 h-full bg-[#00E5FF]/10 blur-2xl group-hover:bg-[#00E5FF]/20 transition-all pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#00E5FF]/20 to-purple-600/30 border border-[#00E5FF]/50 flex items-center justify-center text-3xl shadow-glow-cyan group-hover:scale-110 transition-transform">
+              🥽
             </div>
-          ))}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 tracking-wider">
+                  IMMERSIVE 3D STUDIO
+                </span>
+                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                  REAL-TIME BID WARS
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+                ENTER 3D FOOTBALL BIDDING ARENA
+              </h2>
+              <p className="text-slate-300 text-xs mt-1 max-w-xl">
+                Experience ZeroBallKnowledge's high-performance 60 FPS WebGL holographic player stage, interactive 3D camera controls, live timer, and tactical bidding AI advisor.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 self-end md:self-center">
+            <button className="px-5 py-2.5 rounded-xl bg-[#00E5FF] text-slate-950 font-black text-xs uppercase tracking-wider shadow-glow-cyan group-hover:bg-[#2EE6FF] transition flex items-center gap-2">
+              <span>LAUNCH ARENA</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 3. ACTIVE SESSION STATUS OR CREATE / JOIN GAME */}
+      {/* 3. MULTIPLAYER BATTLE ROOM STATUS / ACTIONS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {currentSession ? (
-          <div className="md:col-span-2 bg-gradient-to-br from-emerald-950/30 to-[#0e1720] border-2 border-emerald-500/40 rounded-3xl p-6 shadow-xl">
+          <div className="md:col-span-2 bg-[#0E1324] border-2 border-[#00E5FF]/50 rounded-3xl p-6 shadow-glow-cyan relative overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Active Game Session</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-ping" />
+                  <span className="text-xs font-bold text-[#00E5FF] uppercase tracking-wider text-glow-cyan">
+                    ACTIVE ROOM CONNECTED
+                  </span>
                 </div>
                 <h2 className="text-2xl font-black text-white tracking-tight">
-                  Code: <span className="font-mono text-emerald-400 tracking-widest">{currentSession.sessionCode}</span>
+                  ROOM CODE: <span className="font-mono text-[#00E5FF] tracking-widest text-glow-cyan">{currentSession.sessionCode}</span>
                 </h2>
                 <p className="text-slate-400 text-xs mt-1">
-                  Team: <span className="text-white font-semibold">{myTeam?.name || 'Your Team'}</span> • Status: <span className="text-emerald-400 font-bold capitalize">{currentSession.status.toLowerCase()}</span>
+                  Team: <span className="text-white font-bold">{myTeam?.name || 'Your Team'}</span> • Status: <span className="text-[#00E5FF] font-bold uppercase">{currentSession.status}</span>
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={() => {
                     if (currentSession.status === 'LOBBY') setActiveTab('lobby');
                     else if (currentSession.status === 'AUCTION') setActiveTab('auction');
                     else setActiveTab('my-team');
                   }}
-                  className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black rounded-xl text-sm transition shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center gap-2"
+                  className="px-6 py-3 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-sm transition shadow-glow-cyan flex items-center gap-2 active:scale-95 uppercase tracking-wider"
                 >
-                  <span>Continue Game</span>
+                  <span>RETURN TO ROOM</span>
                   <ArrowRight className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={handleExitRoom}
+                  disabled={exitingRoom}
+                  className="px-5 py-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/40 hover:border-rose-500 text-rose-400 hover:text-rose-300 font-black rounded-xl text-xs transition shadow-lg flex items-center gap-2 active:scale-95 uppercase tracking-wider disabled:opacity-50"
+                  title={isHost ? "End and quit room" : "Leave room"}
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>{exitingRoom ? 'EXITING...' : (isHost ? 'END & QUIT ROOM' : 'EXIT ROOM')}</span>
                 </button>
               </div>
             </div>
           </div>
         ) : (
           <>
+            {/* Create Room Button */}
             <button
               onClick={() => { setModal('create'); setError(''); setCreatedCode(''); setTeamName(''); setAbbreviation(''); }}
-              className="group bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 rounded-3xl p-6 text-left transition-all shadow-xl shadow-emerald-600/10 hover:shadow-emerald-500/20 hover:-translate-y-0.5 border border-emerald-400/30"
+              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-[#00E5FF]/60 rounded-3xl p-6 text-left transition-all shadow-xl hover:-translate-y-0.5 border border-[#00E5FF]/25 hover:shadow-glow-cyan"
             >
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl mb-4 text-white">
-                <PlusCircle className="w-7 h-7" />
+              <div className="w-12 h-12 rounded-2xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-2xl mb-4 text-[#00E5FF] shadow-glow-cyan">
+                <PlusCircle className="w-6 h-6" />
               </div>
-              <h2 className="text-xl font-black text-white mb-1">Create New Game</h2>
-              <p className="text-emerald-100/80 text-xs leading-relaxed">
-                Host a brand new draft session. Enter your custom team name and invite friends with your 6-letter room code.
+              <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-cyan">
+                HOST BATTLE ROOM
+              </h2>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Host a multiplayer room for up to 8 managers. Customize the $150M starting budget, set timer, and summon the football legends pool.
               </p>
             </button>
 
+            {/* Join Room Button */}
             <button
               onClick={() => { setModal('join'); setError(''); setJoinCode(''); setJoinTeamName(''); setJoinAbbr(''); }}
-              className="group bg-[#0e1720] border border-slate-800 hover:border-emerald-500/40 rounded-3xl p-6 text-left transition-all hover:-translate-y-0.5 shadow-xl"
+              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-purple-500/60 rounded-3xl p-6 text-left transition-all hover:-translate-y-0.5 shadow-xl border border-purple-500/25 hover:shadow-glow-purple"
             >
-              <div className="w-12 h-12 rounded-2xl bg-slate-850 flex items-center justify-center text-2xl mb-4 text-emerald-400">
-                <LogIn className="w-7 h-7" />
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl mb-4 text-purple-300 shadow-glow-purple">
+                <Radio className="w-6 h-6" />
               </div>
-              <h2 className="text-xl font-black text-white mb-1">Join Friend's Game</h2>
+              <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-purple">
+                JOIN ARENA ROOM
+              </h2>
               <p className="text-slate-400 text-xs leading-relaxed">
-                Enter a 6-letter game code shared by your friend. Choose your custom team name and join their live auction lobby.
+                Enter a 6-letter room code from your friends or discord lobby. Draft your superstar lineup and battle in the live season.
               </p>
             </button>
           </>
         )}
       </div>
 
-      {/* 4. MY GAME HISTORY SECTION (Personal to authenticated user) */}
-      <div className="bg-[#0e1720] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+      {/* 4. ZEROBALLKNOWLEDGE GEAR & TRAITS SHOWCASE */}
+      <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <History className="w-5 h-5 text-emerald-400" />
-            <h2 className="text-base font-black uppercase tracking-wider text-white">
-              My Game History
+            <Zap className="w-5 h-5 text-amber-400" />
+            <h2 className="text-sm font-black uppercase tracking-widest text-white font-display">
+              ZEROBALLKNOWLEDGE GEAR & SPECIAL TRAITS
             </h2>
           </div>
-          <span className="text-xs text-slate-400 font-medium">
-            {gameHistory.length} {gameHistory.length === 1 ? 'game' : 'games'} recorded
+          <span className="text-[11px] text-[#00E5FF] font-bold uppercase tracking-wider">
+            {FOOTBALL_GEARS.length} ITEMS CATALOGED
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {FOOTBALL_GEARS.slice(0, 5).map((gear) => (
+            <div
+              key={gear.id}
+              className="bg-[#0A0A14] border border-slate-800 hover:border-[#00E5FF]/40 rounded-2xl p-3.5 transition group relative overflow-hidden"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-2xl">{gear.icon}</span>
+                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${
+                  gear.rarity === 'MYTHIC'
+                    ? 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]/40'
+                    : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                }`}>
+                  {gear.rarity}
+                </span>
+              </div>
+              <h4 className="text-white font-bold text-xs group-hover:text-[#00E5FF] transition truncate">
+                {gear.name}
+              </h4>
+              <p className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                {gear.description}
+              </p>
+              <div className="mt-2.5 pt-2 border-t border-slate-850 flex items-center justify-between text-[10px]">
+                <span className="text-amber-400 font-bold uppercase">{gear.category}</span>
+                <span className="text-emerald-400 font-mono font-bold">+{gear.statBoost.amount} {gear.statBoost.stat.slice(0, 3).toUpperCase()}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 5. CAREER STATISTICS GRID */}
+      <div>
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+          MANAGER CAREER STATISTICS
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {stats.map(s => (
+            <div key={s.label} className="bg-[#0E1324] border border-[#00E5FF]/15 rounded-2xl p-4 text-center shadow-lg hover:border-[#00E5FF]/40 transition">
+              <div className="text-2xl mb-1">{s.icon}</div>
+              <div className={`text-2xl font-black font-mono ${s.color}`}>{s.value}</div>
+              <div className="text-[10px] text-slate-400 font-bold tracking-wider mt-1">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 6. MY GAME HISTORY */}
+      <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl p-6 shadow-xl space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-2">
+            <History className="w-5 h-5 text-[#00E5FF]" />
+            <h2 className="text-sm font-black uppercase tracking-widest text-white font-display">
+              BATTLE HISTORY
+            </h2>
+          </div>
+          <span className="text-xs text-slate-400 font-mono">
+            {gameHistory.length} GAMES RECORDED
           </span>
         </div>
 
         {loadingHistory ? (
           <div className="py-12 text-center text-slate-400 space-y-2">
-            <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-xs">Loading your personal game history...</p>
+            <div className="w-8 h-8 border-2 border-[#00E5FF] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
+            <p className="text-xs font-mono">SYNCING GAME RECORDS...</p>
           </div>
         ) : gameHistory.length === 0 ? (
-          /* Empty State as required by prompt */
-          <div className="text-center py-12 px-4 rounded-2xl bg-[#090f14]/60 border border-dashed border-slate-800/80 space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-slate-800/60 flex items-center justify-center text-2xl mx-auto text-slate-500">
+          <div className="text-center py-12 px-4 rounded-2xl bg-[#0A0A14] border border-dashed border-slate-800 space-y-3">
+            <div className="w-14 h-14 rounded-2xl bg-[#0E1324] border border-slate-800 flex items-center justify-center text-2xl mx-auto text-slate-500">
               🎮
             </div>
             <div>
-              <h3 className="text-white font-bold text-base">No games played yet.</h3>
+              <h3 className="text-white font-bold text-base">NO GAMES PLAYED YET</h3>
               <p className="text-slate-400 text-xs mt-1 max-w-sm mx-auto">
-                Create a game or join a friend’s game to start playing. Your match results and tournament finishes will appear here.
+                Host a battle room or join with a room code to launch your football draft journey.
               </p>
             </div>
             {!currentSession && (
               <div className="pt-2 flex justify-center gap-3">
                 <button
                   onClick={() => { setModal('create'); setError(''); }}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs transition"
+                  className="px-4 py-2 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-bold rounded-xl text-xs transition shadow-glow-cyan uppercase"
                 >
-                  Create Game
+                  Host Room
                 </button>
                 <button
                   onClick={() => { setModal('join'); setError(''); }}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg text-xs transition border border-slate-700"
+                  className="px-4 py-2 bg-[#0E1324] hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition border border-slate-700 uppercase"
                 >
-                  Join Game
+                  Join Room
                 </button>
               </div>
             )}
@@ -294,15 +467,15 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               return (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#090f14] border border-slate-800/80 hover:border-slate-700 transition"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0A0A14] border border-slate-800 hover:border-[#00E5FF]/40 transition"
                 >
                   <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl border border-slate-700 flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-[#0E1324] flex items-center justify-center text-2xl border border-slate-700 flex-shrink-0">
                       {item.teamBadge}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold font-mono text-emerald-400">Game #{item.gameNumber}</span>
+                        <span className="text-xs font-bold font-mono text-[#00E5FF]">Game #{item.gameNumber}</span>
                         <span className="text-[10px] text-slate-500 font-mono">Room: {item.sessionCode}</span>
                       </div>
                       <h4 className="text-white font-extrabold text-sm sm:text-base">{item.teamName}</h4>
@@ -316,7 +489,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border ${pos.badge}`}>
                       {pos.label}
                     </span>
-                    <div className="text-right bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+                    <div className="text-right bg-[#0E1324] px-3 py-1.5 rounded-xl border border-slate-800">
                       <span className="text-[10px] text-slate-400 block font-medium">Points Earned</span>
                       <span className="text-xs font-black font-mono text-amber-400">+{item.pointsEarned} pts</span>
                     </div>
@@ -328,49 +501,16 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
         )}
       </div>
 
-      {/* 5. USER'S PAST TEAMS (From their previous sessions) */}
-      {pastTeams.length > 0 && (
-        <div className="bg-[#0e1720] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-emerald-400" />
-              <h2 className="text-base font-black uppercase tracking-wider text-white">
-                My Created Teams
-              </h2>
-            </div>
-            <span className="text-xs text-slate-400 font-medium">
-              {pastTeams.length} {pastTeams.length === 1 ? 'team' : 'teams'} across all sessions
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {pastTeams.map(t => (
-              <div key={t.teamId} className="bg-[#090f14] border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-xl flex-shrink-0">
-                  {t.badgeIcon}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-white font-bold text-sm truncate">{t.teamName}</h4>
-                  <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                    <span className="font-mono font-bold text-emerald-400">{t.abbreviation}</span>
-                    <span>•</span>
-                    <span>Room: {t.sessionCode || 'Completed'}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* CREATE GAME MODAL */}
       {modal === 'create' && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0e1720] border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-fadeIn">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0E1324] border border-[#00E5FF]/40 rounded-3xl w-full max-w-md shadow-glow-cyan overflow-hidden animate-fadeIn">
             <div className="flex items-center justify-between p-6 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🚀</span>
-                <h2 className="text-lg font-black text-white">Create New Game</h2>
+                <h2 className="text-lg font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+                  HOST BATTLE ROOM
+                </h2>
               </div>
               <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-lg">✕</button>
             </div>
@@ -385,22 +525,22 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               {createdCode ? (
                 <div className="text-center space-y-4">
                   <div className="text-5xl">🎉</div>
-                  <h3 className="text-lg font-black text-white">Game Created!</h3>
-                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5">
-                    <p className="text-slate-400 text-xs mb-1">Your 6-letter room code is:</p>
-                    <p className="text-4xl font-black text-emerald-400 tracking-widest font-mono select-all">{createdCode}</p>
-                    <p className="text-slate-500 text-xs mt-2">Share this code with your friends so they can join your live auction room.</p>
+                  <h3 className="text-lg font-black text-white font-display text-glow-cyan">ROOM INITIALIZED!</h3>
+                  <div className="bg-[#00E5FF]/10 border border-[#00E5FF]/40 rounded-2xl p-5 shadow-glow-cyan">
+                    <p className="text-slate-400 text-xs mb-1">YOUR 6-LETTER ARENA CODE:</p>
+                    <p className="text-4xl font-black text-[#00E5FF] tracking-widest font-mono select-all text-glow-cyan">{createdCode}</p>
+                    <p className="text-slate-400 text-xs mt-2">Share this code with your friends to join the real-time live auction.</p>
                   </div>
                   <div className="flex gap-3">
                     <button
                       onClick={() => navigator.clipboard.writeText(createdCode)}
-                      className="flex-1 py-3 bg-slate-850 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition border border-slate-700"
+                      className="flex-1 py-3 bg-[#0A0A14] hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition border border-slate-700"
                     >
                       📋 Copy Code
                     </button>
                     <button
                       onClick={() => { setModal('none'); setActiveTab('lobby'); }}
-                      className="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg shadow-emerald-500/20"
+                      className="flex-1 py-3 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-xs transition shadow-glow-cyan uppercase"
                     >
                       Go to Lobby →
                     </button>
@@ -410,7 +550,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                 <form onSubmit={handleCreateGame} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
-                      Your Team Name <span className="text-emerald-400">*</span>
+                      Your Club Name <span className="text-[#00E5FF]">*</span>
                     </label>
                     <input
                       type="text"
@@ -422,27 +562,27 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                           setAbbreviation(e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase());
                         }
                       }}
-                      placeholder="e.g. Barcelona Legends"
-                      className="w-full bg-[#090f14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm font-semibold"
+                      placeholder="e.g. Cyber City FC"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm font-semibold"
                     />
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
-                      Team Abbreviation (3 letters)
+                      Club Code (3 letters)
                     </label>
                     <input
                       type="text"
                       value={abbreviation}
                       onChange={e => setAbbreviation(e.target.value.toUpperCase().slice(0, 3))}
-                      placeholder="e.g. BCL"
+                      placeholder="e.g. CCF"
                       maxLength={3}
-                      className="w-full bg-[#090f14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm font-mono uppercase tracking-widest"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm font-mono uppercase tracking-widest"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Team Badge</label>
+                    <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Club Crest Badge</label>
                     <div className="grid grid-cols-6 gap-2">
                       {BADGES.map(b => (
                         <button
@@ -450,7 +590,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                           type="button"
                           onClick={() => setSelectedBadge(b)}
                           className={`aspect-square flex items-center justify-center text-xl rounded-xl border transition ${
-                            selectedBadge === b ? 'border-emerald-500 bg-emerald-500/20 shadow-md shadow-emerald-500/10' : 'border-slate-800 bg-[#090f14] hover:border-slate-700'
+                            selectedBadge === b ? 'border-[#00E5FF] bg-[#00E5FF]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
                           }`}
                         >
                           {b}
@@ -462,9 +602,9 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                   <button
                     type="submit"
                     disabled={loadingSession}
-                    className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black rounded-xl text-sm transition shadow-lg shadow-emerald-500/20 disabled:opacity-50 mt-2"
+                    className="w-full py-3.5 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl text-sm transition shadow-glow-cyan disabled:opacity-50 mt-2 uppercase tracking-wider"
                   >
-                    {loadingSession ? 'Creating Game...' : '🚀 Create Game'}
+                    {loadingSession ? 'GENERATING ROOM...' : '🚀 CREATE ROOM'}
                   </button>
                 </form>
               )}
@@ -475,12 +615,14 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
       {/* JOIN GAME MODAL */}
       {modal === 'join' && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0e1720] border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-fadeIn">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0E1324] border border-purple-500/40 rounded-3xl w-full max-w-md shadow-glow-purple overflow-hidden animate-fadeIn">
             <div className="flex items-center justify-between p-6 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🎯</span>
-                <h2 className="text-lg font-black text-white">Join Game</h2>
+                <h2 className="text-lg font-black text-white uppercase tracking-wider font-display text-glow-purple">
+                  JOIN ARENA ROOM
+                </h2>
               </div>
               <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-lg">✕</button>
             </div>
@@ -495,7 +637,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               <form onSubmit={handleJoinGame} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
-                    Game Code (6 letters) <span className="text-emerald-400">*</span>
+                    Room Code (6 letters) <span className="text-[#00E5FF]">*</span>
                   </label>
                   <input
                     type="text"
@@ -504,13 +646,13 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     onChange={e => setJoinCode(e.target.value.toUpperCase())}
                     placeholder="e.g. F7K92A"
                     maxLength={6}
-                    className="w-full bg-[#090f14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-lg font-mono tracking-widest uppercase text-center font-bold"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-lg font-mono tracking-widest uppercase text-center font-bold"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
-                    Your Team Name <span className="text-emerald-400">*</span>
+                    Your Team Name <span className="text-[#00E5FF]">*</span>
                   </label>
                   <input
                     type="text"
@@ -522,8 +664,8 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                         setJoinAbbr(e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase());
                       }
                     }}
-                    placeholder="e.g. Mumbai United"
-                    className="w-full bg-[#090f14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm font-semibold"
+                    placeholder="e.g. Cyber Squad"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm font-semibold"
                   />
                 </div>
 
@@ -535,9 +677,9 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     type="text"
                     value={joinAbbr}
                     onChange={e => setJoinAbbr(e.target.value.toUpperCase().slice(0, 3))}
-                    placeholder="e.g. MMU"
+                    placeholder="e.g. CSQ"
                     maxLength={3}
-                    className="w-full bg-[#090f14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm font-mono uppercase tracking-widest"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm font-mono uppercase tracking-widest"
                   />
                 </div>
 
@@ -550,7 +692,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                         type="button"
                         onClick={() => setJoinBadge(b)}
                         className={`aspect-square flex items-center justify-center text-xl rounded-xl border transition ${
-                          joinBadge === b ? 'border-emerald-500 bg-emerald-500/20 shadow-md shadow-emerald-500/10' : 'border-slate-800 bg-[#090f14] hover:border-slate-700'
+                          joinBadge === b ? 'border-[#00E5FF] bg-[#00E5FF]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
                         }`}
                       >
                         {b}
@@ -562,9 +704,9 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                 <button
                   type="submit"
                   disabled={loadingSession}
-                  className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black rounded-xl text-sm transition shadow-lg shadow-emerald-500/20 disabled:opacity-50 mt-2"
+                  className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-black rounded-xl text-sm transition shadow-glow-purple disabled:opacity-50 mt-2 uppercase tracking-wider"
                 >
-                  {loadingSession ? 'Joining...' : '🎯 Join Game'}
+                  {loadingSession ? 'CONNECTING...' : '🎯 ENTER ROOM'}
                 </button>
               </form>
             </div>

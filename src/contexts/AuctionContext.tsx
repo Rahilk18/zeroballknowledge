@@ -28,7 +28,7 @@ const AuctionContext = createContext<AuctionContextType | undefined>(undefined);
 
 export function AuctionProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const { currentSession, myTeam: sessionTeam, allTeams } = useSession();
+  const { currentSession, myTeam: sessionTeam, allTeams, refreshSessionData } = useSession();
   const [currentAuction, setCurrentAuction] = useState<Auction | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
@@ -39,31 +39,75 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoNextTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentAuctionRef = useRef<Auction | null>(null);
+  const isResolvingRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    currentAuctionRef.current = currentAuction;
+  }, [currentAuction]);
 
   useEffect(() => {
     setMyTeam(sessionTeam);
   }, [sessionTeam]);
 
-  // Load fresh team budget
+  // Load fresh team budget dynamically from actual purchases
   const refreshMyTeam = async () => {
     if (!currentSession || !user) return;
-    const { data } = await supabase
+    const teamId = sessionTeam?.id;
+    if (!teamId) return;
+
+    const { data: squadData } = await supabase
+      .from('squads')
+      .select('purchase_price')
+      .eq('session_id', currentSession.id)
+      .eq('team_id', teamId);
+
+    const totalSpent = (squadData || []).reduce((sum, r) => sum + (r.purchase_price || 0), 0);
+    const baseBudget = currentSession.startingBudget || 100;
+    const computedBudget = Math.max(0, baseBudget - totalSpent);
+
+    const { data: teamData } = await supabase
       .from('teams')
       .select('*')
       .eq('session_id', currentSession.id)
       .eq('user_id', user.id)
       .maybeSingle();
-    if (data) setMyTeam(teamFromRow(data as TeamRow));
+
+    if (teamData) {
+      if (teamData.budget !== computedBudget) {
+        // Sync database team row with actual remaining budget
+        await supabase
+          .from('teams')
+          .update({ budget: computedBudget })
+          .eq('id', teamId);
+      }
+      const t = teamFromRow(teamData as TeamRow);
+      t.budget = computedBudget;
+      setMyTeam(t);
+    }
   };
 
   // Load my squad
   const loadMySquad = async () => {
-    if (!currentSession || !sessionTeam) return;
+    if (!currentSession || !user) return;
+    const teamId = sessionTeam?.id || myTeam?.id;
+    let effectiveTeamId = teamId;
+    if (!effectiveTeamId) {
+      const { data: tRow } = await supabase
+        .from('teams')
+        .select('id')
+        .eq('session_id', currentSession.id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (tRow) effectiveTeamId = tRow.id;
+    }
+    if (!effectiveTeamId) return;
+
     const { data } = await supabase
       .from('squads')
       .select('*, players(*)')
       .eq('session_id', currentSession.id)
-      .eq('team_id', sessionTeam.id);
+      .eq('team_id', effectiveTeamId);
     if (data) {
       const squad = data.map((row: any) => {
         const sq = squadPlayerFromRow(row as SquadRow);
@@ -158,9 +202,12 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
         setCurrentPlayer(playerObj);
       }
       setCurrentAuction(auction);
+      currentAuctionRef.current = auction;
+      isResolvingRef.current = false;
       setAuctionComplete(false); // CRITICAL: Reset auctionComplete when auction is found!
+      setBids(prev => (prev.length > 0 && prev[0].auctionId !== auction.id ? [] : prev));
       loadBids(auction.id);
-      if (auction.endsAt) startTimer(auction.endsAt);
+      if (auction.endsAt) startTimer(auction.endsAt, auction.id);
     } catch (err) {
       console.error('Error loading current auction:', err);
     }
@@ -176,25 +223,46 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     if (data) setBids(data.map((r: any) => bidFromRow(r as BidRow)));
   };
 
-  const startTimer = (endsAt: string) => {
+  const startTimer = (endsAt: string, auctionId: string) => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (autoNextTimeoutRef.current) {
       clearTimeout(autoNextTimeoutRef.current);
       autoNextTimeoutRef.current = null;
     }
+
+    const targetTime = new Date(endsAt).getTime();
+
     const tick = () => {
-      const diff = Math.max(0, Math.ceil((new Date(endsAt).getTime() - Date.now()) / 1000));
+      const now = Date.now();
+      const diff = Math.max(0, Math.ceil((targetTime - now) / 1000));
       setTimeLeft(diff);
-      if (diff === 0 && currentSession?.hostUserId === user?.id) {
+
+      if (diff === 0) {
         clearInterval(timerRef.current!);
         timerRef.current = null;
-        autoNextTimeoutRef.current = setTimeout(() => {
-          nextPlayer();
-        }, 1500);
+
+        const isHost = currentSession?.hostUserId === user?.id;
+
+        if (isHost) {
+          // Host immediately auto-sells to highest bidder and advances without waiting for clicks
+          if (!isResolvingRef.current) {
+            isResolvingRef.current = true;
+            autoSellAndAdvance(auctionId);
+          }
+        } else {
+          // Safety fallback for non-host if host disconnects or lags: advance after 1.5s
+          autoNextTimeoutRef.current = setTimeout(() => {
+            if (!isResolvingRef.current) {
+              isResolvingRef.current = true;
+              autoSellAndAdvance(auctionId);
+            }
+          }, 1500);
+        }
       }
     };
+
     tick();
-    timerRef.current = setInterval(tick, 500);
+    timerRef.current = setInterval(tick, 300);
   };
 
   const subscribeToAuction = () => {
@@ -206,21 +274,43 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'auctions',
         filter: `session_id=eq.${currentSession.id}`,
-      }, () => {
+      }, (payload) => {
+        if (payload.new && (payload.new as any).ends_at && (payload.new as any).status === 'LIVE') {
+          const row = payload.new as any;
+          startTimer(row.ends_at, row.id);
+        }
         loadCurrentAuction();
       })
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'bids',
       }, (payload) => {
         const newBid = bidFromRow(payload.new as BidRow);
-        setBids(prev => [newBid, ...prev]);
+        setBids(prev => {
+          if (prev.some(b => b.id === newBid.id)) return prev;
+          return [newBid, ...prev];
+        });
+        setCurrentAuction(prev => {
+          if (!prev || prev.id !== newBid.auctionId) return prev;
+          const updated = {
+            ...prev,
+            currentBid: Math.max(prev.currentBid || 0, newBid.amount),
+            highestTeamId: newBid.teamId,
+          };
+          currentAuctionRef.current = updated;
+          return updated;
+        });
       })
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'squads',
-        filter: `session_id=eq.${currentSession.id}`,
       }, () => {
         loadMySquad();
         refreshMyTeam();
+        if (typeof refreshSessionData === 'function') refreshSessionData();
+      })
+      .on('broadcast', { event: 'squad_updated' }, () => {
+        loadMySquad();
+        refreshMyTeam();
+        if (typeof refreshSessionData === 'function') refreshSessionData();
       })
       .subscribe();
     channelRef.current = channel;
@@ -229,16 +319,29 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   const placeBid = async (amount: number): Promise<{ error: string | null }> => {
     if (!user || !currentAuction || !sessionTeam) return { error: 'Not ready.' };
     if (currentAuction.status !== 'LIVE') return { error: 'Auction is not live.' };
-    if (amount <= currentAuction.currentBid) return { error: `Bid must be higher than current bid (€${currentAuction.currentBid}M).` };
-    if (myTeam && amount > myTeam.budget) return { error: `Insufficient budget. You have €${myTeam?.budget}M.` };
-    if (mySquad.length >= 7) return { error: 'Your squad is full (7 players max).' };
-    if (currentAuction.highestTeamId === sessionTeam.id) return { error: 'You are already the highest bidder.' };
 
-    // Calculate new ends_at by adding 3 seconds (+3,000ms) to remaining auction time
+    const effectiveCurrentBid = Math.max(
+      currentAuction.currentBid || 0,
+      bids.length > 0 ? bids[0].amount : 0
+    );
+    const minRequired = effectiveCurrentBid > 0 
+      ? effectiveCurrentBid + 1 
+      : (currentAuction.startingPrice || 5);
+
+    if (amount < minRequired) {
+      return { error: `Bid must be at least €${minRequired}M.` };
+    }
+    if (myTeam && amount > myTeam.budget) {
+      return { error: `Insufficient budget. You have €${myTeam?.budget}M.` };
+    }
+    if (mySquad.length >= 10) {
+      return { error: 'Your squad is full (10 players max).' };
+    }
+
+    // Increase remaining auction time by 5 seconds (+5,000ms), ensuring at least 5 seconds remaining
     const currentEndMs = currentAuction.endsAt ? new Date(currentAuction.endsAt).getTime() : Date.now();
     const remainingMs = Math.max(0, currentEndMs - Date.now());
-    // Ensure at least 3 seconds, capped at max 20 seconds so rapid bidding doesn't grow indefinitely
-    const newRemainingMs = Math.min(20_000, Math.max(3_000, remainingMs + 3_000));
+    const newRemainingMs = Math.min(30_000, Math.max(5_000, remainingMs + 5_000));
     const newEndsAt = new Date(Date.now() + newRemainingMs).toISOString();
 
     // Insert bid
@@ -263,81 +366,178 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     if (auctErr) return { error: auctErr.message };
 
     // Optimistically update local timer & auction state for instant responsiveness
-    setCurrentAuction(prev => prev ? {
-      ...prev,
+    const updated = {
+      ...currentAuction,
       currentBid: amount,
       highestTeamId: sessionTeam.id,
       endsAt: newEndsAt,
-    } : null);
-    startTimer(newEndsAt);
+    };
+    setCurrentAuction(updated);
+    currentAuctionRef.current = updated;
+    startTimer(newEndsAt, currentAuction.id);
 
     return { error: null };
   };
 
-  const nextPlayer = async (): Promise<{ error: string | null }> => {
-    if (!user || !currentSession) return { error: 'No session.' };
-    if (currentSession.hostUserId !== user.id) return { error: 'Only the host can advance the auction.' };
-    if (!currentAuction) return { error: 'No auction active.' };
+  const autoSellAndAdvance = async (auctionIdToResolve?: string): Promise<{ error: string | null }> => {
+    if (!currentSession) return { error: 'No session.' };
+    const targetId = auctionIdToResolve || currentAuctionRef.current?.id;
+    if (!targetId) return { error: 'No auction active.' };
 
-    // If there's a winner, award the player
-    if (currentAuction.highestTeamId && currentAuction.currentBid > 0) {
-      // Deduct budget
-      const { data: teamData } = await supabase
-        .from('teams')
-        .select('budget')
-        .eq('id', currentAuction.highestTeamId)
-        .single();
-      if (teamData) {
-        await supabase
-          .from('teams')
-          .update({ budget: Math.max(0, teamData.budget - currentAuction.currentBid) })
-          .eq('id', currentAuction.highestTeamId);
+    try {
+      // 1. Fetch live auction from DB to guarantee freshest state
+      const { data: auctionRow } = await supabase
+        .from('auctions')
+        .select('*')
+        .eq('id', targetId)
+        .maybeSingle();
+
+      if (!auctionRow || auctionRow.status !== 'LIVE') {
+        // Already sold or not in LIVE status
+        return { error: null };
       }
 
-      // Add to squad
-      await supabase.from('squads').insert({
-        session_id: currentSession.id,
-        team_id: currentAuction.highestTeamId,
-        player_id: currentAuction.playerId,
-        purchase_price: currentAuction.currentBid,
-      });
+      // 2. Query the bids table directly to identify the absolute highest bidder
+      const { data: topBids } = await supabase
+        .from('bids')
+        .select('*')
+        .eq('auction_id', targetId)
+        .order('amount', { ascending: false })
+        .order('created_at', { ascending: true })
+        .limit(1);
 
-      // Mark pool entry as SOLD
-      await supabase
-        .from('session_player_pool')
-        .update({ status: 'SOLD' })
-        .eq('session_id', currentSession.id)
-        .eq('player_id', currentAuction.playerId);
+      const winningBid = topBids && topBids.length > 0 ? topBids[0] : null;
+      const winningTeamId = winningBid?.team_id || auctionRow.highest_team_id;
+      const winningAmount = winningBid?.amount || auctionRow.current_bid;
+      const hasWinner = Boolean(winningTeamId && winningAmount > 0);
 
-      // Mark auction as SOLD
-      await supabase.from('auctions').update({ status: 'SOLD' }).eq('id', currentAuction.id);
-    } else {
-      // No bids — skip
-      await supabase.from('auctions').update({ status: 'SKIPPED' }).eq('id', currentAuction.id);
-      await supabase
-        .from('session_player_pool')
-        .update({ status: 'SKIPPED' })
-        .eq('session_id', currentSession.id)
-        .eq('player_id', currentAuction.playerId);
+      if (hasWinner && winningTeamId) {
+        // Deduct winning team's budget
+        const { data: teamData } = await supabase
+          .from('teams')
+          .select('budget')
+          .eq('id', winningTeamId)
+          .maybeSingle();
+
+        if (teamData) {
+          await supabase
+            .from('teams')
+            .update({ budget: Math.max(0, teamData.budget - winningAmount) })
+            .eq('id', winningTeamId);
+        }
+
+        // Add to squads table (upsert with fallback)
+        const { error: sqErr } = await supabase.from('squads').upsert({
+          session_id: currentSession.id,
+          team_id: winningTeamId,
+          player_id: auctionRow.player_id,
+          purchase_price: winningAmount,
+        }, { onConflict: 'session_id,player_id' });
+
+        if (sqErr) {
+          console.warn('Squad upsert error, trying direct insert:', sqErr);
+          const { error: insErr } = await supabase.from('squads').insert({
+            session_id: currentSession.id,
+            team_id: winningTeamId,
+            player_id: auctionRow.player_id,
+            purchase_price: winningAmount,
+          });
+          if (insErr) console.error('Direct squad insert error:', insErr);
+        }
+
+        // Immediately refresh local squad, team budget, and room state!
+        await loadMySquad();
+        await refreshMyTeam();
+        if (typeof refreshSessionData === 'function') {
+          await refreshSessionData();
+        }
+
+        // Broadcast to all peers in the room so everyone's squad & budget updates immediately!
+        if (channelRef.current) {
+          channelRef.current.send({
+            type: 'broadcast',
+            event: 'squad_updated',
+            payload: {
+              sessionId: currentSession.id,
+              teamId: winningTeamId,
+              playerId: auctionRow.player_id,
+              price: winningAmount,
+            }
+          });
+        }
+
+        // Mark session_player_pool as SOLD
+        await supabase
+          .from('session_player_pool')
+          .update({ status: 'SOLD' })
+          .eq('session_id', currentSession.id)
+          .eq('player_id', auctionRow.player_id);
+
+        // Mark auctions as SOLD
+        await supabase
+          .from('auctions')
+          .update({
+            status: 'SOLD',
+            highest_team_id: winningTeamId,
+            current_bid: winningAmount,
+          })
+          .eq('id', targetId);
+      } else {
+        // True skip: no bids placed at all
+        await supabase
+          .from('auctions')
+          .update({ status: 'SKIPPED' })
+          .eq('id', targetId);
+
+        await supabase
+          .from('session_player_pool')
+          .update({ status: 'SKIPPED' })
+          .eq('session_id', currentSession.id)
+          .eq('player_id', auctionRow.player_id);
+      }
+
+      setBids([]);
+
+      // Start next auction automatically without waiting for host click
+      return await advanceToNextPlayer();
+    } catch (err: any) {
+      console.error('Error auto-selling lot:', err);
+      return { error: err.message || 'Auto-sell error' };
+    } finally {
+      isResolvingRef.current = false;
     }
+  };
 
-    // Start next auction
-    return advanceToNextPlayer();
+  const nextPlayer = async (): Promise<{ error: string | null }> => {
+    if (!user || !currentSession) return { error: 'No session.' };
+    const targetId = currentAuctionRef.current?.id;
+    if (!targetId) return { error: 'No auction active.' };
+    return await autoSellAndAdvance(targetId);
   };
 
   const skipPlayer = async (): Promise<{ error: string | null }> => {
     if (!user || !currentSession) return { error: 'No session.' };
     if (currentSession.hostUserId !== user.id) return { error: 'Only the host can skip.' };
-    if (!currentAuction) return { error: 'No auction active.' };
+    const targetId = currentAuctionRef.current?.id;
+    if (!targetId) return { error: 'No auction active.' };
 
-    await supabase.from('auctions').update({ status: 'SKIPPED' }).eq('id', currentAuction.id);
-    await supabase
-      .from('session_player_pool')
-      .update({ status: 'SKIPPED' })
-      .eq('session_id', currentSession.id)
-      .eq('player_id', currentAuction.playerId);
+    const { data: auctionRow } = await supabase
+      .from('auctions')
+      .select('player_id')
+      .eq('id', targetId)
+      .maybeSingle();
 
-    return advanceToNextPlayer();
+    await supabase.from('auctions').update({ status: 'SKIPPED' }).eq('id', targetId);
+    if (auctionRow?.player_id) {
+      await supabase
+        .from('session_player_pool')
+        .update({ status: 'SKIPPED' })
+        .eq('session_id', currentSession.id)
+        .eq('player_id', auctionRow.player_id);
+    }
+
+    setBids([]);
+    return await advanceToNextPlayer();
   };
 
   const advanceToNextPlayer = async (): Promise<{ error: string | null }> => {

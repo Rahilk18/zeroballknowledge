@@ -91,30 +91,43 @@ export function SeasonCompleteModal({
           .eq('id', currentSession.id);
       }
 
-      // 3. Update user profile permanent career points
-      if (profile) {
-        const isChamp = position === 1;
-        const myStanding = sorted.find(s => s.teamId === myTeamId);
-        const wins = myStanding?.won || 0;
-        const draws = myStanding?.drawn || 0;
-        const losses = myStanding?.lost || 0;
-        const goals = myStanding?.goalsFor || 0;
+      // 3. Update user profile permanent career points (fetch latest to avoid stale data)
+      const { data: currentProf } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-        await supabase
-          .from('profiles')
-          .update({
-            total_points: (profile.totalPoints || 0) + pts,
-            games_played: (profile.gamesPlayed || 0) + 1,
-            wins: (profile.wins || 0) + wins,
-            draws: (profile.draws || 0) + draws,
-            losses: (profile.losses || 0) + losses,
-            goals: (profile.goals || 0) + goals,
-            trophies: (profile.trophies || 0) + (isChamp ? 1 : 0)
-          })
-          .eq('user_id', user.id);
+      const basePoints = currentProf?.total_points ?? profile?.totalPoints ?? 0;
+      const baseGames = currentProf?.games_played ?? profile?.gamesPlayed ?? 0;
+      const baseWins = currentProf?.wins ?? profile?.wins ?? 0;
+      const baseDraws = currentProf?.draws ?? profile?.draws ?? 0;
+      const baseLosses = currentProf?.losses ?? profile?.losses ?? 0;
+      const baseGoals = currentProf?.goals ?? profile?.goals ?? 0;
 
-        await refreshProfile();
+      const myStanding = sorted.find(s => s.teamId === myTeamId);
+      const wins = myStanding?.won || 0;
+      const draws = myStanding?.drawn || 0;
+      const losses = myStanding?.lost || 0;
+      const goals = myStanding?.goalsFor || 0;
+
+      const { error: profUpdateErr } = await supabase
+        .from('profiles')
+        .update({
+          total_points: basePoints + pts,
+          games_played: baseGames + 1,
+          wins: baseWins + wins,
+          draws: baseDraws + draws,
+          losses: baseLosses + losses,
+          goals: baseGoals + goals,
+        })
+        .eq('user_id', user.id);
+
+      if (profUpdateErr) {
+        console.error('Error updating profile career stats:', profUpdateErr);
       }
+
+      await refreshProfile();
       setAwardedSuccess(true);
     } catch (e) {
       console.error('Error saving game results:', e);
@@ -242,6 +255,9 @@ export function SeasonCompleteModal({
           </button>
         </div>
 
+        <p className="text-center text-[11px] text-slate-400">
+          💰 The €100M transfer budget was for this room only and resets to fresh €100.0M for your next game. Your manager career ELO points persist permanently!
+        </p>
       </div>
     </div>
   );

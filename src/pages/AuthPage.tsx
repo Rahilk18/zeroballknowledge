@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { sound } from '../utils/audioSynth';
+import { Zap, Shield, Trophy, ArrowRight, User, Sparkles } from 'lucide-react';
 
 type AuthMode = 'signin' | 'signup' | 'reset';
 
@@ -37,6 +39,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    sound.playClick();
     setError('');
     setSuccess('');
     setSubmitting(true);
@@ -44,6 +47,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
     if (err) {
       setError(err);
     } else {
+      sound.playVictorySound();
       if (onLogin) {
         onLogin({ email: loginEmail });
       }
@@ -53,6 +57,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    sound.playClick();
     setError('');
     setSuccess('');
     if (regPassword !== regConfirm) { setError('Passwords do not match.'); return; }
@@ -64,7 +69,7 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
     if (err) {
       setError(err);
     } else {
-      // Check if logged in directly
+      sound.playVictorySound();
       if (onSignUp) {
         onSignUp({
           email: regEmail,
@@ -73,13 +78,14 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
           badgeIcon: selectedBadge
         });
       }
-      setSuccess('Account created successfully! Welcome to Football Draft FC.');
+      setSuccess('Account created successfully! Welcome to ZeroBallKnowledge Football Arena.');
     }
     setSubmitting(false);
   };
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    sound.playClick();
     setError('');
     setSubmitting(true);
     const { error: err } = await resetPassword(resetEmail);
@@ -90,63 +96,68 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading...</p>
+      <div className="min-h-screen bg-[#0A0A14] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 border-4 border-[#00E5FF] border-t-transparent rounded-full animate-spin mx-auto shadow-glow-cyan" />
+          <p className="text-[#00E5FF] font-bold text-xs tracking-widest uppercase font-display text-glow-cyan">
+            ZEROBALLKNOWLEDGE SYNCING...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4">
-      {/* Background pattern */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-green-950/30 via-gray-950 to-gray-950" />
-      </div>
+    <div className="min-h-screen bg-[#0A0A14] flex flex-col items-center justify-center p-4 relative overflow-hidden select-none">
+      {/* Cyber Grid background */}
+      <div className="fixed inset-0 cyber-grid-bg opacity-30 pointer-events-none" />
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#00E5FF]/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mb-4 shadow-lg shadow-green-500/20">
-            <span className="text-3xl">⚽</span>
+      <div className="relative z-10 w-full max-w-md space-y-6">
+        {/* ZeroBallKnowledge Logo mark */}
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00E5FF] to-blue-600 rounded-3xl mb-4 shadow-glow-cyan border border-[#00E5FF]/60 animate-pulse-glow">
+            <span className="text-3xl text-slate-950 font-black">⚡</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Football Draft FC</h1>
-          <p className="text-gray-400 mt-1 text-sm">The ultimate multiplayer football manager</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-wider uppercase font-display text-glow-cyan">
+            ZEROBALLKNOWLEDGE
+          </h1>
+          <p className="text-slate-400 mt-1 text-xs font-bold tracking-wider uppercase">
+            REAL-TIME MULTIPLAYER FOOTBALL AUCTION BATTLE
+          </p>
         </div>
 
         {/* Card */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="bg-[#0E1324] border border-[#00E5FF]/30 rounded-3xl shadow-glow-cyan overflow-hidden backdrop-blur-xl">
           {/* Tabs */}
-          <div className="flex border-b border-gray-800">
+          <div className="flex border-b border-slate-800">
             <button
               onClick={() => { setMode('signin'); setError(''); setSuccess(''); }}
-              className={`flex-1 py-4 text-sm font-semibold transition-colors ${
-                mode === 'signin' ? 'text-green-400 border-b-2 border-green-400 bg-green-400/5' : 'text-gray-400 hover:text-gray-200'
+              className={`flex-1 py-4 text-xs font-black uppercase tracking-wider transition-colors font-display ${
+                mode === 'signin' ? 'text-[#00E5FF] border-b-2 border-[#00E5FF] bg-[#00E5FF]/10 text-glow-cyan' : 'text-slate-400 hover:text-white'
               }`}
             >
-              Sign In
+              MANAGER SIGN IN
             </button>
             <button
               onClick={() => { setMode('signup'); setError(''); setSuccess(''); }}
-              className={`flex-1 py-4 text-sm font-semibold transition-colors ${
-                mode === 'signup' ? 'text-green-400 border-b-2 border-green-400 bg-green-400/5' : 'text-gray-400 hover:text-gray-200'
+              className={`flex-1 py-4 text-xs font-black uppercase tracking-wider transition-colors font-display ${
+                mode === 'signup' ? 'text-[#00E5FF] border-b-2 border-[#00E5FF] bg-[#00E5FF]/10 text-glow-cyan' : 'text-slate-400 hover:text-white'
               }`}
             >
-              Create Account
+              CREATE ROSTER
             </button>
           </div>
 
           <div className="p-6">
             {/* Error / Success */}
             {error && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-bold">
                 {error}
               </div>
             )}
             {success && (
-              <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm">
+              <div className="mb-4 p-3 bg-[#00E5FF]/10 border border-[#00E5FF]/40 rounded-xl text-[#00E5FF] text-xs font-bold text-glow-cyan">
                 {success}
               </div>
             )}
@@ -155,38 +166,38 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
             {mode === 'signin' && (
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1">Email or Username</label>
+                  <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1 tracking-wider">Email or Username</label>
                   <input
                     type="text"
                     required
                     value={loginEmail}
                     onChange={e => setLoginEmail(e.target.value)}
                     placeholder="you@example.com or username"
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] transition text-sm font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1">Password</label>
+                  <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1 tracking-wider">Password</label>
                   <input
                     type="password"
                     required
                     value={loginPassword}
                     onChange={e => setLoginPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] transition text-sm font-medium"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider text-xs active:scale-95"
                 >
-                  {submitting ? 'Signing in...' : 'Sign In'}
+                  {submitting ? 'CONNECTING...' : 'ENTER ARENA'}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setMode('reset'); setError(''); setSuccess(''); }}
-                  className="w-full text-center text-xs text-gray-500 hover:text-green-400 transition-colors"
+                  className="w-full text-center text-xs text-slate-500 hover:text-[#00E5FF] transition pt-1"
                 >
                   Forgot your password?
                 </button>
@@ -195,90 +206,87 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
 
             {/* SIGN UP */}
             {mode === 'signup' && (
-              <form onSubmit={handleSignUp} className="space-y-4">
+              <form onSubmit={handleSignUp} className="space-y-3.5">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">Full Name</label>
+                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Full Name</label>
                     <input
                       type="text"
                       required
                       value={regName}
                       onChange={e => setRegName(e.target.value)}
                       placeholder="Alex Ferguson"
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs font-medium"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">Username</label>
+                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Username</label>
                     <input
                       type="text"
                       required
                       value={regUsername}
                       onChange={e => setRegUsername(e.target.value)}
                       placeholder="manager99"
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs font-mono"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1">Club Name</label>
+                  <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Club Name</label>
                   <input
                     type="text"
                     value={regClub}
                     onChange={e => setRegClub(e.target.value)}
-                    placeholder="e.g. Barcelona Legends"
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
+                    placeholder="e.g. Cyber City FC"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1">Email</label>
+                  <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Email</label>
                   <input
                     type="email"
                     required
                     value={regEmail}
                     onChange={e => setRegEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">Password</label>
+                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Password</label>
                     <input
                       type="password"
                       required
                       value={regPassword}
                       onChange={e => setRegPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">Confirm</label>
+                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Confirm</label>
                     <input
                       type="password"
                       required
                       value={regConfirm}
                       onChange={e => setRegConfirm(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-xs"
                     />
                   </div>
                 </div>
 
-                {/* Badge picker */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-2">Team Badge</label>
-                  <div className="grid grid-cols-6 gap-2">
+                  <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Club Crest</label>
+                  <div className="grid grid-cols-6 gap-1.5">
                     {BADGES.map(b => (
                       <button
                         key={b}
                         type="button"
                         onClick={() => setSelectedBadge(b)}
-                        className={`aspect-square flex items-center justify-center text-xl rounded-lg border transition-all ${
-                          selectedBadge === b
-                            ? 'border-green-500 bg-green-500/20'
-                            : 'border-gray-700 bg-gray-800 hover:border-gray-600'
+                        className={`aspect-square flex items-center justify-center text-lg rounded-xl border transition ${
+                          selectedBadge === b ? 'border-[#00E5FF] bg-[#00E5FF]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14]'
                         }`}
                       >
                         {b}
@@ -290,9 +298,9 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-xl transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider text-xs active:scale-95"
                 >
-                  {submitting ? 'Creating account...' : 'Create Account'}
+                  {submitting ? 'INITIALIZING...' : 'CREATE MANAGER ACCOUNT'}
                 </button>
               </form>
             )}
@@ -300,51 +308,51 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
             {/* RESET PASSWORD */}
             {mode === 'reset' && (
               <form onSubmit={handleReset} className="space-y-4">
-                <p className="text-sm text-gray-400">Enter your email and we'll send you a link to reset your password.</p>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1">Email</label>
+                  <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Your Email</label>
                   <input
                     type="email"
                     required
                     value={resetEmail}
                     onChange={e => setResetEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-sm"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E5FF] text-sm"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50"
+                  className="w-full py-3.5 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-black rounded-xl uppercase tracking-wider text-xs shadow-glow-cyan"
                 >
-                  {submitting ? 'Sending...' : 'Send Reset Link'}
+                  SEND RESET LINK
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setMode('signin'); setError(''); setSuccess(''); }}
-                  className="w-full text-center text-xs text-gray-500 hover:text-green-400 transition-colors"
+                  onClick={() => setMode('signin')}
+                  className="w-full text-center text-xs text-slate-500 hover:text-white"
                 >
-                  ← Back to Sign In
+                  Back to Sign In
                 </button>
               </form>
             )}
+
+            {/* Guest Pass / Instant Demo Entry */}
             {onContinueGuest && (
-              <div className="mt-4 pt-4 border-t border-gray-800 text-center">
+              <div className="mt-5 pt-5 border-t border-slate-800 text-center">
                 <button
-                  type="button"
-                  onClick={onContinueGuest}
-                  className="text-xs text-gray-400 hover:text-green-400 transition"
+                  onClick={() => {
+                    sound.playClick();
+                    onContinueGuest();
+                  }}
+                  className="w-full py-3 bg-[#0A0A14] hover:bg-slate-800 text-[#00E5FF] border border-[#00E5FF]/40 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-glow-cyan flex items-center justify-center gap-2"
                 >
-                  ⚡ Skip & Continue as Guest / Demo Mode
+                  <Zap className="w-4 h-4 text-[#00E5FF]" />
+                  <span>CONTINUE AS GUEST / DEMO PASS</span>
                 </button>
               </div>
             )}
           </div>
         </div>
-
-        <p className="text-center text-xs text-gray-600 mt-6">
-          Football Draft FC © 2025
-        </p>
       </div>
     </div>
   );

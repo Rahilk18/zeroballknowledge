@@ -144,6 +144,12 @@ export function squadPlayerFromRow(row: SquadRow): SquadPlayer {
   };
 }
 
+function toValidUUID(id: any): string | null {
+  if (!id || typeof id !== 'string') return null;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id) ? id : null;
+}
+
 /**
  * Saves completed match result and events into Supabase
  */
@@ -156,18 +162,21 @@ export async function saveMatchToSupabase(result: any, sessionId: string) {
       .from('matches')
       .insert({
         session_id: sessionId,
-        home_team_id: result.homeTeamId,
-        away_team_id: result.awayTeamId,
+        home_team_id: toValidUUID(result.homeTeamId),
+        away_team_id: toValidUUID(result.awayTeamId),
         home_score: result.homeScore,
         away_score: result.awayScore,
         status: 'COMPLETED',
-        potm_player_id: result.playerOfTheMatch?.playerId || null,
+        potm_player_id: toValidUUID(result.playerOfTheMatch?.playerId),
         played_at: new Date().toISOString()
       })
       .select('id')
       .single();
 
-    if (matchError || !matchData) return;
+    if (matchError || !matchData) {
+      console.error('saveMatchToSupabase match error:', matchError);
+      return;
+    }
 
     // 2. Insert match events
     if (result.events && result.events.length > 0) {
@@ -177,13 +186,99 @@ export async function saveMatchToSupabase(result: any, sessionId: string) {
         minute: evt.minute,
         event_type: evt.type,
         description: evt.description,
-        team_id: evt.teamId || null,
-        player_id: evt.playerId || null,
-        assist_player_id: evt.assistPlayerId || null
+        team_id: toValidUUID(evt.teamId),
+        player_id: toValidUUID(evt.playerId),
+        assist_player_id: toValidUUID(evt.assistPlayerId)
       }));
-      await supabase.from('match_events').insert(eventRows);
+      const { error: evtError } = await supabase.from('match_events').insert(eventRows);
+      if (evtError) {
+        console.error('saveMatchToSupabase match_events error:', evtError);
+      }
     }
   } catch (err) {
     console.error('Failed to sync match to Supabase:', err);
   }
 }
+
+/**
+ * Upserts computed standings into public.session_standings
+ */
+export async function upsertSessionStandings(sessionId: string, standings: any[]) {
+  try {
+    const { supabase } = await import('../lib/supabase');
+    const rows = standings.map((s) => ({
+      session_id: sessionId,
+      team_id: s.teamId,
+      played: s.played,
+      won: s.won,
+      drawn: s.drawn,
+      lost: s.lost,
+      goals_for: s.goalsFor,
+      goals_against: s.goalsAgainst,
+      goal_difference: s.goalDifference,
+      points: s.points,
+      form: s.recentForm || [],
+      updated_at: new Date().toISOString(),
+    }));
+
+    await supabase
+      .from('session_standings')
+      .upsert(rows, { onConflict: 'session_id,team_id' });
+  } catch (err) {
+    console.error('Failed to upsert session standings:', err);
+  }
+}
+
+/**
+ * Loads all completed matches for this session from Supabase
+ */
+export async function fetchSessionMatches(sessionId: string, allTeams: Team[]): Promise<any[]> {
+  try {
+    const { supabase } = await import('../lib/supabase');
+    const { data: rows, error } = await supabase
+      .from('matches')
+      .select('*, match_events(*)')
+      .eq('session_id', sessionId)
+      .eq('status', 'COMPLETED')
+      .order('played_at', { ascending: true });
+
+    if (error || !rows) return [];
+
+    return rows.map((r: any) => {
+      const homeTeam = allTeams.find(t => t.id === r.home_team_id);
+      const awayTeam = allTeams.find(t => t.id === r.away_team_id);
+
+      const events = (r.match_events || []).map((e: any) => ({
+        id: e.id,
+        minute: e.minute,
+        type: e.event_type,
+        description: e.description,
+        teamId: e.team_id,
+        playerId: e.player_id,
+        assistPlayerId: e.assist_player_id,
+      }));
+
+      return {
+        id: r.id,
+        homeTeamId: r.home_team_id,
+        awayTeamId: r.away_team_id,
+        homeTeamName: homeTeam?.name || homeTeam?.teamName || 'Home Team',
+        awayTeamName: awayTeam?.name || awayTeam?.teamName || 'Away Team',
+        homeScore: r.home_score ?? 0,
+        awayScore: r.away_score ?? 0,
+        events: events,
+        stats: {
+          home: { possession: 50, shots: 10, shotsOnTarget: 5, passAccuracy: 80, fouls: 4, corners: 3 },
+          away: { possession: 50, shots: 10, shotsOnTarget: 5, passAccuracy: 80, fouls: 4, corners: 3 },
+        },
+        playerRatings: {},
+        played: true,
+        date: r.played_at ? new Date(r.played_at).toLocaleDateString() : 'Today',
+      };
+    });
+  } catch (err) {
+    console.error('Failed to fetch session matches:', err);
+    return [];
+  }
+}
+

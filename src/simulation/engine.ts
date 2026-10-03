@@ -5,6 +5,49 @@ export interface SimulationTeam {
   players: Player[];
 }
 
+function ensureStartingSeven(team: Team, availablePlayers: Player[]): Player[] {
+  const teamPlayerIds = team.startingSeven || [];
+  let starters = (availablePlayers || []).filter(p => p && teamPlayerIds.includes(p.id));
+
+  // If not enough matched by startingSeven, pick any available players for this team
+  if (starters.length < 7) {
+    const remaining = (availablePlayers || []).filter(p => p && !starters.some(s => s.id === p.id));
+    starters = [...starters, ...remaining.slice(0, 7 - starters.length)];
+  }
+
+  // If still fewer than 7 (e.g. fresh draft or empty squad), generate balanced 7-a-side roster:
+  // 1 GK, 2 DEF, 2 MID, 2 ATT
+  if (starters.length < 7) {
+    const roles: Array<'GK' | 'DEF' | 'DEF' | 'MID' | 'MID' | 'ATT' | 'ATT'> = [
+      'GK', 'DEF', 'DEF', 'MID', 'MID', 'ATT', 'ATT'
+    ];
+    while (starters.length < 7) {
+      const idx = starters.length;
+      const pos = roles[idx] || 'MID';
+      const label = pos === 'GK' ? 'Goalkeeper' : pos === 'DEF' ? 'Defender' : pos === 'MID' ? 'Midfielder' : 'Striker';
+      starters.push({
+        id: `${team.id || 'team'}-squad-${idx + 1}`,
+        name: `${team.name || 'Club'} ${label} #${idx + 1}`,
+        shortName: `${label} #${idx + 1}`,
+        position: pos,
+        nationality: 'Club',
+        overall: 76,
+        pace: 75,
+        shooting: pos === 'ATT' ? 80 : 70,
+        passing: pos === 'MID' ? 80 : 72,
+        dribbling: 74,
+        defending: pos === 'DEF' ? 80 : (pos === 'GK' ? 30 : 65),
+        physical: 75,
+        goalkeeping: pos === 'GK' ? 80 : 15,
+        form: 80,
+        stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.0 }
+      });
+    }
+  }
+
+  return starters.slice(0, 7);
+}
+
 export function simulateMatch(
   homeSimTeam: SimulationTeam,
   awaySimTeam: SimulationTeam
@@ -12,9 +55,9 @@ export function simulateMatch(
   const { team: homeTeam, players: homePlayers } = homeSimTeam;
   const { team: awayTeam, players: awayPlayers } = awaySimTeam;
 
-  // Filter down to the starting 7 players
-  const homeStarting = homePlayers.filter(p => homeTeam.startingSeven.includes(p.id));
-  const awayStarting = awayPlayers.filter(p => awayTeam.startingSeven.includes(p.id));
+  // Filter down to the starting 7 players (guaranteed 7 players via fallback generator)
+  const homeStarting = ensureStartingSeven(homeTeam, homePlayers);
+  const awayStarting = ensureStartingSeven(awayTeam, awayPlayers);
 
   // Compute unit ratings
   const getUnitRating = (players: Player[], pos: string, defaultAttr: keyof Player) => {
@@ -27,17 +70,31 @@ export function simulateMatch(
     return total / unit.length;
   };
 
+  const getFormationMod = (fmt?: string) => {
+    switch (fmt) {
+      case '1-3-2-1': return { def: 3, mid: 0, att: -1 };
+      case '1-2-3-1': return { def: 0, mid: 3, att: 0 };
+      case '1-3-1-2': return { def: 2, mid: -2, att: 2 };
+      case '1-1-3-2': return { def: -3, mid: 2, att: 3 };
+      case '1-2-2-2':
+      default: return { def: 0, mid: 0, att: 0 };
+    }
+  };
+
+  const homeFmtMod = getFormationMod(homeTeam.formation);
+  const awayFmtMod = getFormationMod(awayTeam.formation);
+
   const homeGkRating = getUnitRating(homeStarting, 'GK', 'goalkeeping');
   const awayGkRating = getUnitRating(awayStarting, 'GK', 'goalkeeping');
 
-  const homeDefRating = getUnitRating(homeStarting, 'DEF', 'defending');
-  const awayDefRating = getUnitRating(awayStarting, 'DEF', 'defending');
+  const homeDefRating = getUnitRating(homeStarting, 'DEF', 'defending') + homeFmtMod.def;
+  const awayDefRating = getUnitRating(awayStarting, 'DEF', 'defending') + awayFmtMod.def;
 
-  const homeMidRating = getUnitRating(homeStarting, 'MID', 'passing');
-  const awayMidRating = getUnitRating(awayStarting, 'MID', 'passing');
+  const homeMidRating = getUnitRating(homeStarting, 'MID', 'passing') + homeFmtMod.mid;
+  const awayMidRating = getUnitRating(awayStarting, 'MID', 'passing') + awayFmtMod.mid;
 
-  const homeAttRating = getUnitRating(homeStarting, 'ATT', 'shooting');
-  const awayAttRating = getUnitRating(awayStarting, 'ATT', 'shooting');
+  const homeAttRating = getUnitRating(homeStarting, 'ATT', 'shooting') + homeFmtMod.att;
+  const awayAttRating = getUnitRating(awayStarting, 'ATT', 'shooting') + awayFmtMod.att;
 
   // Home advantage
   const homeAdvantage = 2.5;
@@ -91,16 +148,23 @@ export function simulateMatch(
     cards: number;
   }> = {};
 
-  const allPlayers = [...homeStarting, ...awayStarting];
+  const ensureTracker = (id: string) => {
+    if (!playerStatsTracker[id]) {
+      playerStatsTracker[id] = { goals: 0, assists: 0, shots: 0, saves: 0, tackles: 0, cards: 0 };
+    }
+  };
+
+  const allPlayers: Player[] = [...homeStarting, ...awayStarting];
   allPlayers.forEach(p => {
-    playerStatsTracker[p.id] = { goals: 0, assists: 0, shots: 0, saves: 0, tackles: 0, cards: 0 };
+    ensureTracker(p.id);
   });
 
   // Helper to pick attacker/scorer weighted by shooting & overall
   const pickScorer = (players: Player[]): Player => {
-    const attackers = players.filter(p => p.position === 'ATT');
-    const midfielders = players.filter(p => p.position === 'MID');
-    const defenders = players.filter(p => p.position === 'DEF');
+    const list = players && players.length > 0 ? players : allPlayers;
+    const attackers = list.filter(p => p.position === 'ATT');
+    const midfielders = list.filter(p => p.position === 'MID');
+    const defenders = list.filter(p => p.position === 'DEF');
 
     const roll = Math.random();
     if (attackers.length > 0 && roll < 0.70) {
@@ -112,11 +176,11 @@ export function simulateMatch(
     if (defenders.length > 0) {
       return defenders[Math.floor(Math.random() * defenders.length)];
     }
-    return players[Math.floor(Math.random() * players.length)];
+    return list[Math.floor(Math.random() * list.length)] || homeStarting[0];
   };
 
   const pickAssister = (players: Player[], scorerId: string): Player | undefined => {
-    const candidates = players.filter(p => p.id !== scorerId && p.position !== 'GK');
+    const candidates = (players || []).filter(p => p.id !== scorerId && p.position !== 'GK');
     if (candidates.length === 0 || Math.random() > 0.82) return undefined;
     
     // Midfielders provide most assists
@@ -162,9 +226,11 @@ export function simulateMatch(
         awayShotsOnTarget++;
       }
 
+      ensureTracker(scorer.id);
       playerStatsTracker[scorer.id].goals++;
       playerStatsTracker[scorer.id].shots++;
       if (assister) {
+        ensureTracker(assister.id);
         playerStatsTracker[assister.id].assists++;
       }
 
@@ -197,8 +263,10 @@ export function simulateMatch(
         homeSaves++;
       }
 
+      ensureTracker(opposingGk.id);
       playerStatsTracker[opposingGk.id].saves++;
       const attackerShooting = pickScorer(attackingPlayers);
+      ensureTracker(attackerShooting.id);
       playerStatsTracker[attackerShooting.id].shots++;
 
       events.push({
@@ -219,6 +287,7 @@ export function simulateMatch(
         ? defenders[Math.floor(Math.random() * defenders.length)]
         : defendingPlayers[Math.floor(Math.random() * defendingPlayers.length)];
 
+      ensureTracker(cardedPlayer.id);
       playerStatsTracker[cardedPlayer.id].cards++;
 
       events.push({
@@ -239,6 +308,7 @@ export function simulateMatch(
         awayShots++;
       }
       const attackerShooting = pickScorer(attackingPlayers);
+      ensureTracker(attackerShooting.id);
       playerStatsTracker[attackerShooting.id].shots++;
     }
   });

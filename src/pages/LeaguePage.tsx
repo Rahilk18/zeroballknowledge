@@ -1,6 +1,7 @@
 import React from 'react';
 import { LeagueStanding, Team, MatchResult } from '../types';
-import { Trophy, Swords, Shield, Award, Calendar, ArrowRight, Play } from 'lucide-react';
+import { Trophy, Swords, Shield, Award, Calendar, ArrowRight, Play, CheckCircle } from 'lucide-react';
+import { TournamentFixture } from '../utils/tournament';
 
 interface LeaguePageProps {
   standings: LeagueStanding[];
@@ -9,6 +10,11 @@ interface LeaguePageProps {
   recentMatches: MatchResult[];
   onPlayNextMatch: () => void;
   onViewSeasonComplete?: () => void;
+  nextFixture?: TournamentFixture | null;
+  totalFixtures?: number;
+  completedFixtures?: number;
+  isTournamentComplete?: boolean;
+  isHost?: boolean;
 }
 
 export const LeaguePage: React.FC<LeaguePageProps> = ({
@@ -17,10 +23,19 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
   allTeams,
   recentMatches,
   onPlayNextMatch,
-  onViewSeasonComplete
+  onViewSeasonComplete,
+  nextFixture,
+  totalFixtures,
+  completedFixtures,
+  isTournamentComplete,
+  isHost = true,
 }) => {
   const userStanding = currentTeam ? standings.find((s) => s.teamId === currentTeam.id) : null;
   const currentLeader = standings[0];
+  const totalMatchesCount = totalFixtures ?? Math.max(3, (allTeams.length * (allTeams.length - 1) / 2) * 3);
+  const playedCount = completedFixtures ?? recentMatches.length;
+  const matchesRemaining = Math.max(0, totalMatchesCount - playedCount);
+  const finished = isTournamentComplete || (totalMatchesCount > 0 && playedCount >= totalMatchesCount);
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fadeIn pb-16">
@@ -31,34 +46,107 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
           <div className="flex items-center gap-2 mb-1">
             <Trophy className="w-6 h-6 text-amber-400" />
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
-              League Standings
+              Tournament Standings
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-400">
-            Season 1 • 38-Match League Championship. Top team wins the trophy.
+            Head-to-Head Tournament • Each team plays each rival 3 times. Most points wins the championship!
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          {onViewSeasonComplete && (
+          {finished && onViewSeasonComplete && (
             <button
               onClick={onViewSeasonComplete}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs uppercase tracking-wider transition border border-amber-500/40 active:scale-95"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/20 active:scale-95"
             >
-              <Trophy className="w-4 h-4 text-amber-400" />
-              <span>Season Awards</span>
+              <Trophy className="w-4 h-4 text-slate-950" />
+              <span>Winner Ceremony</span>
             </button>
           )}
 
-          <button
-            onClick={onPlayNextMatch}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20 active:scale-95 w-fit"
-          >
-            <Play className="w-4 h-4 fill-slate-950" />
-            <span>Play Next Fixture</span>
-          </button>
+          {!finished && (
+            isHost ? (
+              <button
+                onClick={onPlayNextMatch}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20 active:scale-95 w-fit"
+              >
+                <Play className="w-4 h-4 fill-slate-950" />
+                <span>Play Next Fixture</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 text-xs font-bold font-mono">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span>HOST CONTROLS NEXT FIXTURE</span>
+              </div>
+            )
+          )}
         </div>
       </div>
+
+      {/* NEXT FIXTURE PROMINENT CARD */}
+      {!finished && nextFixture && (
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-950/40 via-[#0e1720] to-teal-950/40 border border-emerald-500/40 p-4 sm:p-5 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-lg font-black">
+              ⚡
+            </div>
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">
+                Next Match (Leg {nextFixture.leg} of 3)
+              </span>
+              <div className="flex items-center gap-2 mt-0.5 text-sm sm:text-base font-black text-white">
+                <span>{nextFixture.homeBadge} {nextFixture.homeTeamName}</span>
+                <span className="text-xs text-slate-400 uppercase font-bold">vs</span>
+                <span>{nextFixture.awayBadge} {nextFixture.awayTeamName}</span>
+              </div>
+            </div>
+          </div>
+
+          {isHost ? (
+            <button
+              onClick={onPlayNextMatch}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-md shadow-emerald-500/20 active:scale-95 whitespace-nowrap"
+            >
+              <Play className="w-3.5 h-3.5 fill-slate-950" />
+              <span>Simulate Match</span>
+            </button>
+          ) : (
+            <div className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0A0D1A] border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-bold font-mono whitespace-nowrap">
+              <span>HOST WILL LAUNCH FIXTURE</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TOURNAMENT COMPLETED BANNER */}
+      {finished && (
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-950/40 via-[#0e1720] to-yellow-950/40 border-2 border-amber-500/60 p-4 sm:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-2xl font-black">
+              🏆
+            </div>
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 block">
+                Tournament Complete
+              </span>
+              <h3 className="text-base sm:text-lg font-black text-white mt-0.5">
+                Champion: {currentLeader?.teamName || 'Winner'} with {currentLeader?.points || 0} Points!
+              </h3>
+            </div>
+          </div>
+
+          {onViewSeasonComplete && (
+            <button
+              onClick={onViewSeasonComplete}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/30 active:scale-95"
+            >
+              <Trophy className="w-4 h-4 fill-slate-950" />
+              <span>Show Final Awards</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Season Stats Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -67,9 +155,9 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
             <Trophy className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block">League Leader</span>
-            <span className="text-sm font-black text-white">{currentLeader?.teamName}</span>
-            <span className="text-[11px] text-amber-400 font-semibold block">{currentLeader?.points} Points</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">Tournament Leader</span>
+            <span className="text-sm font-black text-white">{currentLeader?.teamName || '—'}</span>
+            <span className="text-[11px] text-amber-400 font-semibold block">{currentLeader?.points ?? 0} Points</span>
           </div>
         </div>
 
@@ -78,11 +166,11 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
             <Shield className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block">Your Position</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">Your Standing</span>
             <span className="text-sm font-black text-white">
               {currentTeam ? `#${Math.max(1, standings.findIndex(s => s.teamId === currentTeam.id) + 1)} (${currentTeam.name})` : '--'}
             </span>
-            <span className="text-[11px] text-emerald-400 font-semibold block">{userStanding?.points ?? 0} Points</span>
+            <span className="text-[11px] text-emerald-400 font-semibold block">{userStanding?.points ?? 0} Points ({userStanding?.won ?? 0} Wins)</span>
           </div>
         </div>
 
@@ -91,9 +179,9 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
             <Calendar className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block">Season Progress</span>
-            <span className="text-sm font-black text-white">Matchday {userStanding?.played || 0} / 38</span>
-            <span className="text-[11px] text-slate-400 font-semibold block">38 Total Matches</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">Tournament Progress</span>
+            <span className="text-sm font-black text-white">Match {playedCount} / {totalMatchesCount}</span>
+            <span className="text-[11px] text-slate-400 font-semibold block">{matchesRemaining} Matches Remaining</span>
           </div>
         </div>
       </div>
@@ -104,7 +192,7 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-emerald-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">
-              Elite Division Table
+              Tournament Standings Table
             </h3>
           </div>
           <div className="flex items-center gap-3 text-[11px] font-semibold text-slate-400">

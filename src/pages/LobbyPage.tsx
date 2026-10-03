@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
+import { sound } from '../utils/audioSynth';
 import type { ActiveTab } from '../types';
+import { Radio, Users, Copy, Check, Zap, Play, LogOut, Shield } from 'lucide-react';
 
 interface Props {
   setActiveTab: (tab: ActiveTab) => void;
 }
 
 export default function LobbyPage({ setActiveTab }: Props) {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { currentSession, myTeam, lobbyMembers, allTeams, loadingSession, startAuction, leaveGame } = useSession();
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState('');
@@ -16,15 +18,17 @@ export default function LobbyPage({ setActiveTab }: Props) {
 
   if (!currentSession) {
     return (
-      <div className="p-4 md:p-6 max-w-2xl mx-auto text-center py-20">
+      <div className="p-6 max-w-xl mx-auto text-center py-20 bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl my-12 shadow-glow-cyan">
         <div className="text-5xl mb-4">🏟️</div>
-        <h2 className="text-xl font-bold text-white mb-2">No Active Game</h2>
-        <p className="text-gray-400 mb-6">Create or join a game from the dashboard.</p>
+        <h2 className="text-xl font-black text-white uppercase tracking-wider font-display text-glow-cyan mb-2">
+          NO ACTIVE BATTLE ROOM
+        </h2>
+        <p className="text-slate-400 text-xs mb-6">Create or join an arena room from the Battle Hub.</p>
         <button
           onClick={() => setActiveTab('dashboard')}
-          className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg transition-colors"
+          className="px-6 py-3 bg-[#00E5FF] hover:bg-[#2EE6FF] text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition shadow-glow-cyan"
         >
-          Go to Dashboard
+          Return to Battle Hub
         </button>
       </div>
     );
@@ -43,12 +47,14 @@ export default function LobbyPage({ setActiveTab }: Props) {
   }, [currentSession?.status, setActiveTab]);
 
   const copyCode = () => {
+    sound.playClick();
     navigator.clipboard.writeText(currentSession.sessionCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleStartAuction = async () => {
+    sound.playVictorySound();
     setStartError('');
     setStarting(true);
     const { error } = await startAuction();
@@ -58,77 +64,85 @@ export default function LobbyPage({ setActiveTab }: Props) {
   };
 
   const handleLeave = async () => {
-    if (!confirm('Are you sure you want to leave this game?')) return;
+    sound.playClick();
+    const msg = isHost
+      ? 'You are the host of this room. Quitting will end the room for all players. Are you sure you want to end and quit the room?'
+      : 'Are you sure you want to disconnect from this arena room?';
+    if (!confirm(msg)) return;
     await leaveGame();
     setActiveTab('dashboard');
   };
 
-  const statusColor = {
-    LOBBY: 'text-yellow-400',
-    AUCTION: 'text-green-400',
-    TEAM_SETUP: 'text-blue-400',
-    MATCHES: 'text-purple-400',
-    COMPLETED: 'text-gray-400',
-  }[currentSession.status] ?? 'text-gray-400';
-
   return (
-    <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-5">
-      {/* Session Header */}
-      <div className="bg-gradient-to-br from-green-900/30 to-gray-900 border border-green-800/30 rounded-2xl p-5">
-        <div className="flex items-start justify-between gap-4">
+    <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6 animate-fadeIn pb-16">
+      
+      {/* Session Header Banner */}
+      <div className="relative bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border border-[#00E5FF]/30 rounded-3xl p-6 sm:p-7 shadow-glow-cyan overflow-hidden">
+        <div className="absolute inset-0 cyber-grid-bg opacity-30 pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Game Lobby</span>
-              <span className={`text-xs font-semibold uppercase tracking-wider ${statusColor}`}>
-                • {currentSession.status}
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-ping" />
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#00E5FF]/15 text-[#00E5FF] border border-[#00E5FF]/30 tracking-widest text-glow-cyan">
+                ROOM STATUS: {currentSession.status}
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-white">
-              {myTeam?.teamName ?? 'Your Game'}
+            <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wide font-display text-glow-cyan">
+              {myTeam?.teamName ?? 'ZEROBALLKNOWLEDGE ARENA'}
             </h1>
-            <p className="text-gray-400 text-sm mt-0.5">
-              {memberCount} / {currentSession.maxPlayers} players joined
+            <p className="text-slate-400 text-xs mt-1 font-medium">
+              {memberCount} / {currentSession.maxPlayers} managers connected in session
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-500 mb-1">Game Code</p>
+
+          <div className="text-left sm:text-right bg-[#0A0A14]/80 border border-[#00E5FF]/20 p-4 rounded-2xl">
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">ROOM CODE</p>
             <button
               onClick={copyCode}
-              className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl px-4 py-2 transition-colors"
+              className="flex items-center gap-2.5 bg-[#0E1324] hover:bg-slate-800 border border-[#00E5FF]/30 rounded-xl px-4 py-2 transition shadow-glow-cyan group"
             >
-              <span className="text-2xl font-bold text-green-400 font-mono tracking-widest">
+              <span className="text-2xl font-black text-[#00E5FF] font-mono tracking-widest text-glow-cyan">
                 {currentSession.sessionCode}
               </span>
-              <span className="text-gray-400 text-sm">{copied ? '✓' : '📋'}</span>
+              <span className="text-[#00E5FF] text-sm">
+                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 group-hover:scale-110 transition-transform" />}
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Session config pills */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          <span className="bg-gray-800/50 border border-gray-700/50 text-gray-300 text-xs px-3 py-1 rounded-full">
-            💰 €{currentSession.startingBudget}M Budget
+        {/* Room Parameters Pills */}
+        <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-800/80">
+          <span className="bg-[#0A0A14] border border-[#00E5FF]/20 text-[#00E5FF] text-xs font-mono font-bold px-3 py-1 rounded-xl">
+            💰 €{currentSession.startingBudget}M STARTING BUDGET
           </span>
-          <span className="bg-gray-800/50 border border-gray-700/50 text-gray-300 text-xs px-3 py-1 rounded-full">
-            👤 {currentSession.squadSize} players per squad
+          <span className="bg-[#0A0A14] border border-slate-800 text-slate-300 text-xs font-mono px-3 py-1 rounded-xl">
+            👤 {currentSession.squadSize} PLAYERS PER SQUAD
           </span>
-          <span className="bg-gray-800/50 border border-gray-700/50 text-gray-300 text-xs px-3 py-1 rounded-full">
-            🏆 {currentSession.seasonLength} match season
+          <span className="bg-[#0A0A14] border border-slate-800 text-slate-300 text-xs font-mono px-3 py-1 rounded-xl">
+            🏆 {currentSession.seasonLength} MATCH TOURNAMENT
           </span>
         </div>
       </div>
 
-      {/* Players in Lobby */}
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-800 flex items-center justify-between">
-          <h2 className="font-semibold text-white">Players in Lobby</h2>
-          <span className="text-xs text-gray-500">{memberCount} joined</span>
+      {/* Connected Managers in Room */}
+      <div className="bg-[#0E1324] border border-[#00E5FF]/20 rounded-3xl overflow-hidden shadow-xl">
+        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-[#0A0A14]/60">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-[#00E5FF]" />
+            <h2 className="font-black text-white text-xs uppercase tracking-wider font-display text-glow-cyan">
+              CONNECTED MANAGERS
+            </h2>
+          </div>
+          <span className="text-xs text-[#00E5FF] font-mono font-bold">{memberCount} CONNECTED</span>
         </div>
-        <div className="divide-y divide-gray-800">
+
+        <div className="divide-y divide-slate-800/80">
           {lobbyMembers.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-slate-500">
               <div className="text-3xl mb-2">⏳</div>
-              <p>Waiting for players to join...</p>
+              <p className="text-xs font-mono">WAITING FOR MANAGERS TO ENTER CODE...</p>
             </div>
           ) : (
             lobbyMembers.map((member) => {
@@ -137,41 +151,38 @@ export default function LobbyPage({ setActiveTab }: Props) {
               const isMemberHost = member.userId === currentSession.hostUserId;
 
               return (
-                <div key={member.userId} className="flex items-center gap-4 px-5 py-4">
-                  {/* Badge */}
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center text-lg flex-shrink-0">
-                    {memberTeam?.badgeIcon ?? '⚽'}
+                <div key={member.userId} className="flex items-center gap-4 px-6 py-4 hover:bg-[#12182D] transition">
+                  <div className="w-11 h-11 bg-[#0A0A14] border border-[#00E5FF]/30 rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-glow-cyan">
+                    {memberTeam?.badgeIcon ?? '⚡'}
                   </div>
 
-                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-white truncate">
-                        {memberTeam?.teamName ?? member.profile?.displayName ?? 'Unknown'}
+                      <span className="font-bold text-white text-sm truncate">
+                        {memberTeam?.teamName ?? member.profile?.displayName ?? 'Manager'}
                       </span>
                       {isMemberHost && (
-                        <span className="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-0.5 rounded-full border border-yellow-500/30 flex-shrink-0">
+                        <span className="bg-amber-500/20 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded border border-amber-500/40 flex-shrink-0">
                           HOST
                         </span>
                       )}
                       {isMe && (
-                        <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full border border-green-500/30 flex-shrink-0">
+                        <span className="bg-[#00E5FF]/20 text-[#00E5FF] text-[10px] font-black px-2 py-0.5 rounded border border-[#00E5FF]/40 flex-shrink-0">
                           YOU
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 truncate">
-                      @{member.profile?.username ?? '...'}
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      @{member.profile?.username ?? 'manager'}
                       {memberTeam && ` · ${memberTeam.abbreviation}`}
                     </p>
                   </div>
 
-                  {/* Budget */}
                   <div className="text-right flex-shrink-0">
-                    <p className="text-green-400 font-semibold text-sm">
+                    <p className="text-amber-400 font-mono font-black text-sm">
                       €{memberTeam?.budget ?? currentSession.startingBudget}M
                     </p>
-                    <p className="text-xs text-gray-500">budget</p>
+                    <p className="text-[10px] text-slate-500 uppercase font-bold">BUDGET</p>
                   </div>
                 </div>
               );
@@ -182,25 +193,34 @@ export default function LobbyPage({ setActiveTab }: Props) {
 
       {/* Host Controls */}
       {isHost && currentSession.status === 'LOBBY' && (
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-4">
-          <h2 className="font-semibold text-white">🎛️ Host Controls</h2>
+        <div className="bg-[#0E1324] border border-[#00E5FF]/30 rounded-3xl p-6 space-y-4 shadow-glow-cyan">
+          <div className="flex items-center gap-2">
+            <Radio className="w-5 h-5 text-[#00E5FF]" />
+            <h2 className="font-black text-white text-xs uppercase tracking-wider font-display text-glow-cyan">
+              ROOM HOST COMMAND CENTER
+            </h2>
+          </div>
+
           {startError && (
-            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-bold">
               {startError}
             </div>
           )}
+
           <div className="flex gap-3">
             <button
               onClick={handleStartAuction}
               disabled={starting || loadingSession || memberCount < 1}
-              className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-4 bg-gradient-to-r from-[#00E5FF] to-blue-600 hover:from-[#2EE6FF] hover:to-blue-500 text-slate-950 font-black rounded-2xl transition-all shadow-glow-cyan disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-sm flex items-center justify-center gap-2"
             >
-              {starting ? '⏳ Starting Draft...' : `⚡ Start Auction (${memberCount} Player${memberCount === 1 ? '' : 's'} Ready)`}
+              <Play className="w-4 h-4 fill-slate-950" />
+              <span>{starting ? 'INITIALIZING STAGE...' : `LAUNCH 3D AUCTION (${memberCount} READY)`}</span>
             </button>
           </div>
+
           {memberCount < 2 && (
-            <p className="text-xs text-gray-500 text-center">
-              You can start drafting solo or wait for friends to enter code <span className="text-green-400 font-mono font-bold">{currentSession.sessionCode}</span>.
+            <p className="text-xs text-slate-400 text-center font-medium">
+              You can start drafting solo vs intelligent AI bidders or wait for managers with code <span className="text-[#00E5FF] font-mono font-bold">{currentSession.sessionCode}</span>.
             </p>
           )}
         </div>
@@ -208,38 +228,25 @@ export default function LobbyPage({ setActiveTab }: Props) {
 
       {/* Non-host waiting message */}
       {!isHost && currentSession.status === 'LOBBY' && (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-5 text-center space-y-1">
-          <div className="text-3xl mb-2">⏳</div>
-          <p className="text-gray-200 font-semibold">
-            Waiting for host <span className="text-green-400 font-bold">{allTeams.find(t => t.userId === currentSession.hostUserId)?.teamName || 'Host'}</span> to click Start Auction...
+        <div className="bg-[#0E1324]/80 border border-slate-800 rounded-3xl p-6 text-center space-y-2">
+          <div className="text-3xl mb-1">⏳</div>
+          <p className="text-white font-bold text-sm">
+            Waiting for Host <span className="text-[#00E5FF] font-black">{allTeams.find(t => t.userId === currentSession.hostUserId)?.teamName || 'Host'}</span> to launch auction...
           </p>
-          <p className="text-gray-400 text-xs">
-            {memberCount} player{memberCount === 1 ? '' : 's'} connected in lobby. As soon as the host starts, everyone will enter the live auction room automatically!
+          <p className="text-slate-400 text-xs">
+            {memberCount} manager{memberCount === 1 ? '' : 's'} connected. You will automatically drop into the 3D Bidding Arena as soon as lot #1 opens!
           </p>
-        </div>
-      )}
-
-      {/* If auction is live, go to it */}
-      {currentSession.status === 'AUCTION' && (
-        <div className="bg-green-900/30 border border-green-800/40 rounded-2xl p-5 text-center">
-          <div className="text-3xl mb-2">🔥</div>
-          <p className="text-white font-bold">Auction is LIVE!</p>
-          <button
-            onClick={() => setActiveTab('auction')}
-            className="mt-3 px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg transition-colors"
-          >
-            Go to Auction →
-          </button>
         </div>
       )}
 
       {/* Leave button */}
-      <div className="text-center">
+      <div className="text-center pt-2">
         <button
           onClick={handleLeave}
-          className="text-sm text-gray-600 hover:text-red-400 transition-colors"
+          className="text-xs text-slate-500 hover:text-rose-400 font-bold uppercase tracking-wider transition flex items-center gap-1.5 mx-auto"
         >
-          Leave Game
+          <LogOut className="w-3.5 h-3.5" />
+          <span>{isHost ? 'END & QUIT ROOM' : 'DISCONNECT FROM ROOM'}</span>
         </button>
       </div>
     </div>

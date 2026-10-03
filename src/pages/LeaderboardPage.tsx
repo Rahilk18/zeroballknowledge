@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
-import { Trophy, Award, Globe, Users, Shield, ArrowUpRight, Flame } from 'lucide-react';
+import { Trophy, Award, Globe, Users, Shield, ArrowUpRight, Flame, Zap } from 'lucide-react';
 import type { UserProfile, LeagueStanding, ProfileRow } from '../types';
 import { profileFromRow } from '../services/sessionService';
 
@@ -11,9 +11,9 @@ interface LeaderboardPageProps {
   onBackToDashboard?: () => void;
 }
 
-export function LeaderboardPage({ sessionStandings = [], onBackToDashboard }: LeaderboardPageProps) {
+export function LeaderboardPage({ sessionStandings = [] }: LeaderboardPageProps) {
   const { user, profile } = useAuth();
-  const { currentSession, allTeams } = useSession();
+  const { currentSession } = useSession();
   const [activeTab, setActiveTab] = useState<'global' | 'session'>('global');
   const [globalProfiles, setGlobalProfiles] = useState<UserProfile[]>([]);
   const [loadingGlobal, setLoadingGlobal] = useState(false);
@@ -44,72 +44,115 @@ export function LeaderboardPage({ sessionStandings = [], onBackToDashboard }: Le
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-16 max-w-5xl mx-auto">
+    <div className="space-y-6 animate-fadeIn pb-16 max-w-6xl mx-auto">
+      
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950/40 via-[#0e1720] to-teal-950/40 border border-emerald-500/30 p-6 sm:p-8 shadow-2xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-950/40 via-[#0E1324] to-purple-950/40 border border-[#00E5FF]/30 p-6 sm:p-8 shadow-glow-cyan">
+        <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1.5">
               <Trophy className="w-5 h-5 text-amber-400" />
-              <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
-                HALL OF FAME & RANKINGS
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF] font-display text-glow-cyan">
+                ZEROBALLKNOWLEDGE RANKINGS & HALL OF FAME
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white">Leaderboards</h1>
-            <p className="text-sm text-slate-400 mt-1">
-              Track global career manager points and active game standings
+            <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+              GLOBAL LEADERBOARDS
+            </h1>
+            <p className="text-xs text-slate-400 mt-1 font-medium">
+              Track global career manager ELO points and live tournament standings
             </p>
           </div>
 
           {/* Tab Switcher */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-900/90 rounded-2xl border border-slate-800">
+          <div className="flex items-center gap-1.5 p-1.5 bg-[#0A0A14] rounded-2xl border border-slate-800">
             <button
               onClick={() => setActiveTab('global')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${
                 activeTab === 'global'
-                  ? 'bg-emerald-500 text-slate-950 shadow-lg'
+                  ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Globe className="w-4 h-4" />
-              Global Career
+              <Globe className="w-3.5 h-3.5" />
+              <span>GLOBAL ELO</span>
             </button>
             <button
               onClick={() => setActiveTab('session')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${
                 activeTab === 'session'
-                  ? 'bg-emerald-500 text-slate-950 shadow-lg'
+                  ? 'bg-[#00E5FF] text-slate-950 shadow-glow-cyan'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Users className="w-4 h-4" />
-              Current Game
+              <Users className="w-3.5 h-3.5" />
+              <span>ROOM TOURNAMENT</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* TAB 1: GLOBAL CAREER LEADERBOARD */}
+      {/* TOP 3 PODIUM CARDS */}
+      {activeTab === 'global' && globalProfiles.length >= 3 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* 2nd Place */}
+          <div className="bg-[#0E1324] border border-slate-700 rounded-3xl p-5 text-center shadow-lg order-2 md:order-1 relative overflow-hidden">
+            <div className="text-3xl mb-2">🥈</div>
+            <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+              RANK #2
+            </span>
+            <h3 className="text-lg font-black text-white mt-2 truncate font-display">{globalProfiles[1].displayName}</h3>
+            <p className="text-xs text-[#00E5FF] font-mono mt-0.5">@{globalProfiles[1].username}</p>
+            <div className="mt-3 text-2xl font-black font-mono text-slate-200">{globalProfiles[1].totalPoints} ELO</div>
+          </div>
+
+          {/* 1st Place Champion */}
+          <div className="bg-gradient-to-b from-[#12182D] to-[#0E1324] border-2 border-[#00E5FF] rounded-3xl p-6 text-center shadow-glow-cyan order-1 md:order-2 relative overflow-hidden -translate-y-1">
+            <div className="text-4xl mb-2">👑</div>
+            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 text-glow-cyan">
+              CHAMPION 🥇
+            </span>
+            <h3 className="text-xl font-black text-white mt-2 truncate font-display text-glow-cyan">{globalProfiles[0].displayName}</h3>
+            <p className="text-xs text-[#00E5FF] font-mono mt-0.5">@{globalProfiles[0].username}</p>
+            <div className="mt-3 text-3xl font-black font-mono text-[#00E5FF] text-glow-cyan">{globalProfiles[0].totalPoints} ELO</div>
+          </div>
+
+          {/* 3rd Place */}
+          <div className="bg-[#0E1324] border border-amber-900/40 rounded-3xl p-5 text-center shadow-lg order-3 relative overflow-hidden">
+            <div className="text-3xl mb-2">🥉</div>
+            <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-amber-950/40 text-amber-400 border border-amber-800/40">
+              RANK #3
+            </span>
+            <h3 className="text-lg font-black text-white mt-2 truncate font-display">{globalProfiles[2].displayName}</h3>
+            <p className="text-xs text-[#00E5FF] font-mono mt-0.5">@{globalProfiles[2].username}</p>
+            <div className="mt-3 text-2xl font-black font-mono text-amber-400">{globalProfiles[2].totalPoints} ELO</div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 1: GLOBAL CAREER LEADERBOARD TABLE */}
       {activeTab === 'global' && (
-        <div className="bg-[#0e1720] rounded-3xl border border-slate-800 p-6 shadow-2xl space-y-4">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/20 p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <div>
-              <h2 className="text-sm font-black uppercase tracking-wider text-white">
-                Permanent Manager Leaderboard
+              <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
+                ALL RANKED MANAGERS
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Points persist across all draft tournaments and seasons
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                ELO persists across all multiplayer draft tournaments
               </p>
             </div>
-            <span className="text-xs font-bold text-emerald-400">
-              {globalProfiles.length} Ranked Managers
+            <span className="text-xs font-mono font-bold text-[#00E5FF]">
+              {globalProfiles.length} REGISTERED
             </span>
           </div>
 
           {globalProfiles.length === 0 ? (
             <div className="text-center py-16 text-slate-400">
               <Trophy className="w-12 h-12 mx-auto text-slate-600 mb-3 opacity-50" />
-              <p className="text-base font-bold text-white mb-1">No ranked managers yet</p>
+              <p className="text-base font-bold text-white mb-1">NO RANKED MANAGERS YET</p>
               <p className="text-xs text-slate-400 max-w-sm mx-auto">
                 Play and complete match sessions to earn career points and claim your spot on the leaderboard!
               </p>
@@ -118,103 +161,103 @@ export function LeaderboardPage({ sessionStandings = [], onBackToDashboard }: Le
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800/80 pb-2">
+                  <tr className="text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">
                     <th className="py-3 px-3">Rank</th>
-                  <th className="py-3 px-3">Manager</th>
-                  <th className="py-3 px-3 text-center">Games</th>
-                  <th className="py-3 px-3 text-center">W</th>
-                  <th className="py-3 px-3 text-center">D</th>
-                  <th className="py-3 px-3 text-center">L</th>
-                  <th className="py-3 px-3 text-center">Win Rate</th>
-                  <th className="py-3 px-3 text-right">Points</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                {globalProfiles.map((p, idx) => {
-                  const isCurrentUser = user && p.userId === user.id;
-                  const winRate = p.gamesPlayed > 0 
-                    ? Math.round((p.wins / p.gamesPlayed) * 100) 
-                    : 0;
+                    <th className="py-3 px-3">Manager</th>
+                    <th className="py-3 px-3 text-center">Games</th>
+                    <th className="py-3 px-3 text-center">W</th>
+                    <th className="py-3 px-3 text-center">D</th>
+                    <th className="py-3 px-3 text-center">L</th>
+                    <th className="py-3 px-3 text-center">Win Rate</th>
+                    <th className="py-3 px-3 text-right">ELO Points</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {globalProfiles.map((p, idx) => {
+                    const isCurrentUser = user && p.userId === user.id;
+                    const winRate = p.gamesPlayed > 0 
+                      ? Math.round((p.wins / p.gamesPlayed) * 100) 
+                      : 0;
 
-                  return (
-                    <tr
-                      key={p.id}
-                      className={`transition hover:bg-slate-900/60 ${
-                        isCurrentUser ? 'bg-emerald-500/10 font-bold' : ''
-                      }`}
-                    >
-                      <td className="py-3 px-3 font-mono font-black">
-                        {idx === 0 && <span className="text-amber-400 text-base">🥇 1</span>}
-                        {idx === 1 && <span className="text-slate-300 text-base">🥈 2</span>}
-                        {idx === 2 && <span className="text-amber-600 text-base">🥉 3</span>}
-                        {idx > 2 && <span className="text-slate-400">#{idx + 1}</span>}
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs border border-emerald-500/30">
-                            {p.displayName.charAt(0).toUpperCase()}
+                    return (
+                      <tr
+                        key={p.id}
+                        className={`transition hover:bg-[#12182D] ${
+                          isCurrentUser ? 'bg-[#00E5FF]/10 font-bold' : ''
+                        }`}
+                      >
+                        <td className="py-3 px-3 font-mono font-black">
+                          {idx === 0 && <span className="text-[#00E5FF] text-base">🥇 #1</span>}
+                          {idx === 1 && <span className="text-slate-300 text-base">🥈 #2</span>}
+                          {idx === 2 && <span className="text-amber-500 text-base">🥉 #3</span>}
+                          {idx > 2 && <span className="text-slate-400">#{idx + 1}</span>}
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-[#00E5FF]/20 text-[#00E5FF] font-bold flex items-center justify-center text-xs border border-[#00E5FF]/40 shadow-glow-cyan">
+                              {p.displayName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <span className="font-bold text-white block">
+                                {p.displayName} {isCurrentUser && <span className="text-[10px] text-[#00E5FF] font-black uppercase">(YOU)</span>}
+                              </span>
+                              <span className="text-[10px] text-slate-500 font-mono">@{p.username}</span>
+                            </div>
                           </div>
-                          <div>
-                            <span className="font-extrabold text-white block">
-                              {p.displayName} {isCurrentUser && <span className="text-[10px] text-emerald-400 font-black">(You)</span>}
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-mono">@{p.username}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3 px-3 text-center font-mono text-slate-300">{p.gamesPlayed}</td>
-                      <td className="py-3 px-3 text-center font-mono text-emerald-400 font-bold">{p.wins}</td>
-                      <td className="py-3 px-3 text-center font-mono text-amber-400">{p.draws}</td>
-                      <td className="py-3 px-3 text-center font-mono text-rose-400">{p.losses}</td>
-                      <td className="py-3 px-3 text-center font-mono">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          winRate >= 60 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-300'
-                        }`}>
-                          {winRate}%
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        <span className="font-black text-sm font-mono text-amber-400">
-                          {p.totalPoints} pts
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                        </td>
+                        <td className="py-3 px-3 text-center font-mono text-slate-300">{p.gamesPlayed}</td>
+                        <td className="py-3 px-3 text-center font-mono text-emerald-400 font-bold">{p.wins}</td>
+                        <td className="py-3 px-3 text-center font-mono text-amber-400">{p.draws}</td>
+                        <td className="py-3 px-3 text-center font-mono text-rose-400">{p.losses}</td>
+                        <td className="py-3 px-3 text-center font-mono">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            winRate >= 60 ? 'bg-[#00E5FF]/20 text-[#00E5FF]' : 'bg-slate-800 text-slate-300'
+                          }`}>
+                            {winRate}%
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-right">
+                          <span className="font-black text-sm font-mono text-[#00E5FF] text-glow-cyan">
+                            {p.totalPoints} pts
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
       {/* TAB 2: CURRENT GAME SESSION LEADERBOARD */}
       {activeTab === 'session' && (
-        <div className="bg-[#0e1720] rounded-3xl border border-slate-800 p-6 shadow-2xl space-y-4">
+        <div className="bg-[#0E1324] rounded-3xl border border-[#00E5FF]/20 p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <div>
-              <h2 className="text-sm font-black uppercase tracking-wider text-white">
-                Active Game Session Standings
+              <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
+                ACTIVE TOURNAMENT STANDINGS
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Session Code: <span className="text-emerald-400 font-mono font-bold">{currentSession?.sessionCode || 'OFFLINE'}</span>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Room Code: <span className="text-[#00E5FF] font-mono font-bold">{currentSession?.sessionCode || 'OFFLINE'}</span>
               </p>
             </div>
-            <span className="text-xs font-bold text-slate-400">
-              Win = 3pts • Draw = 1pt • Loss = 0pts
+            <span className="text-[11px] font-mono text-slate-400">
+              WIN = 3PTS • DRAW = 1PT • LOSS = 0PTS
             </span>
           </div>
 
           {sessionStandings.length === 0 ? (
             <div className="text-center py-12 text-slate-400">
               <Users className="w-10 h-10 mx-auto text-slate-600 mb-2" />
-              <p>No matches played yet in this session.</p>
+              <p className="text-xs font-mono">NO MATCHES PLAYED IN THIS ROOM YET.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800/80 pb-2">
+                  <tr className="text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">
                     <th className="py-3 px-3">Pos</th>
                     <th className="py-3 px-3">Team</th>
                     <th className="py-3 px-3 text-center">P</th>
@@ -227,22 +270,22 @@ export function LeaderboardPage({ sessionStandings = [], onBackToDashboard }: Le
                     <th className="py-3 px-3 text-right">PTS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/50">
+                <tbody className="divide-y divide-slate-800/60">
                   {sessionStandings.map((s, idx) => {
                     return (
                       <tr
                         key={s.teamId}
-                        className="transition hover:bg-slate-900/60"
+                        className="transition hover:bg-[#12182D]"
                       >
                         <td className="py-3 px-3 font-mono font-black">
-                          {idx === 0 && <span className="text-amber-400">🥇 1</span>}
-                          {idx === 1 && <span className="text-slate-300">🥈 2</span>}
-                          {idx === 2 && <span className="text-amber-600">🥉 3</span>}
-                          {idx > 2 && <span className="text-slate-400">{idx + 1}</span>}
+                          {idx === 0 && <span className="text-[#00E5FF]">🥇 #1</span>}
+                          {idx === 1 && <span className="text-slate-300">🥈 #2</span>}
+                          {idx === 2 && <span className="text-amber-500">🥉 #3</span>}
+                          {idx > 2 && <span className="text-slate-400">#{idx + 1}</span>}
                         </td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-2">
-                            <span className="text-base">{s.badge || s.badgeIcon || '⚽'}</span>
+                            <span className="text-base">{s.badge || s.badgeIcon || '⚡'}</span>
                             <span className="font-extrabold text-white">{s.teamName}</span>
                           </div>
                         </td>
@@ -255,7 +298,7 @@ export function LeaderboardPage({ sessionStandings = [], onBackToDashboard }: Le
                         <td className="py-3 px-3 text-center font-mono font-bold text-slate-200">
                           {s.goalDifference > 0 ? `+${s.goalDifference}` : s.goalDifference}
                         </td>
-                        <td className="py-3 px-3 text-right font-mono font-black text-amber-400 text-sm">
+                        <td className="py-3 px-3 text-right font-mono font-black text-[#00E5FF] text-sm text-glow-cyan">
                           {s.points}
                         </td>
                       </tr>
