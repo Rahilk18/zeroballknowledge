@@ -122,9 +122,17 @@ export function AuthPage({ onLogin, onSignUp, onContinueGuest }: AuthPageProps =
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-wider uppercase font-display text-glow-cyan">
             ZEROBALLKNOWLEDGE
           </h1>
-          <p className="text-slate-400 mt-1 text-xs font-bold tracking-wider uppercase">
-            REAL-TIME MULTIPLAYER FOOTBALL AUCTION BATTLE
-          </p>
+          <div className="flex items-center justify-center gap-2 mt-1.5 flex-wrap">
+            <span className="text-slate-400 text-xs font-bold tracking-wider uppercase">
+              REAL-TIME MULTIPLAYER FOOTBALL AUCTION BATTLE
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-950/60 border border-[#00E5FF]/30 text-[10px] font-medium shadow-[0_0_10px_rgba(0,229,255,0.18)]">
+              <span className="text-slate-400 lowercase font-normal text-[9px]">by</span>
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] via-cyan-300 to-sky-400">
+                Rahil Kirtikar
+              </span>
+            </span>
+          </div>
         </div>
 
         {/* Card */}

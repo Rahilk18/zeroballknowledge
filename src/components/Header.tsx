@@ -59,9 +59,26 @@ export const Header: React.FC<HeaderProps> = ({
                   FOOTBALL
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 hidden sm:block font-bold tracking-widest uppercase">
-                REAL-TIME MULTIPLAYER AUCTION BATTLE
-              </p>
+              <div className="hidden sm:flex items-center gap-2 mt-0.5">
+                <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
+                  REAL-TIME MULTIPLAYER AUCTION BATTLE
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-950/60 border border-[#00E5FF]/30 text-[9px] font-medium tracking-wide shadow-[0_0_10px_rgba(0,229,255,0.18)]">
+                  <span className="text-slate-400 font-normal lowercase text-[8.5px]">by</span>
+                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] via-cyan-300 to-sky-400 drop-shadow-[0_0_6px_rgba(0,229,255,0.4)]">
+                    Rahil Kirtikar
+                  </span>
+                </span>
+              </div>
+              <div className="flex sm:hidden items-center gap-1.5 mt-0.5">
+                <span className="text-[8.5px] text-slate-400 font-bold tracking-wider uppercase">
+                  AUCTION BATTLE
+                </span>
+                <span className="text-slate-600 text-[8px]">•</span>
+                <span className="text-[8.5px] font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-sky-400">
+                  by Rahil Kirtikar
+                </span>
+              </div>
             </div>
           </div>
 
