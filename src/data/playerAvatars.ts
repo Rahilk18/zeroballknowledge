@@ -3,6 +3,23 @@
 // https://www.ea.com/games/ea-sports-fc/ratings
 
 export const PLAYER_AVATARS: Record<string, string> = {
+  'Xavi': 'https://cdn.futbin.com/content/fifa24/img/players/10535.png',
+  'Andrés Iniesta': 'https://cdn.futbin.com/content/fifa23/img/players/41.png',
+  'Iniesta': 'https://cdn.futbin.com/content/fifa23/img/players/41.png',
+  'Ronaldinho': 'https://cdn.futbin.com/content/fifa24/img/players/28130.png',
+  'Gerard Piqué': 'https://cdn.futbin.com/content/fifa23/img/players/152729.png',
+  'Piqué': 'https://cdn.futbin.com/content/fifa23/img/players/152729.png',
+  'Sergio Busquets': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p189511.png?padding=0.7',
+  'Busquets': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p189511.png?padding=0.7',
+  'Zinedine Zidane': 'https://cdn.futbin.com/content/fifa24/img/players/1397.png',
+  'Zidane': 'https://cdn.futbin.com/content/fifa24/img/players/1397.png',
+  'Iker Casillas': 'https://cdn.futbin.com/content/fifa24/img/players/5479.png',
+  'Casillas': 'https://cdn.futbin.com/content/fifa24/img/players/5479.png',
+  'Karim Benzema': 'https://cdn.futbin.com/content/fifa23/img/players/165153.png',
+  'Benzema': 'https://cdn.futbin.com/content/fifa23/img/players/165153.png',
+  'Marcelo': 'https://cdn.futbin.com/content/fifa23/img/players/176676.png',
+  'Gareth Bale': 'https://cdn.futbin.com/content/fifa23/img/players/173731.png',
+  'Bale': 'https://cdn.futbin.com/content/fifa23/img/players/173731.png',
   'Thibaut Courtois': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p192119.png?padding=0.7',
   'Courtois': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p192119.png?padding=0.7',
   'Alisson Becker': 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p212831.png?padding=0.7',

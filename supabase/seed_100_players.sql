@@ -124,6 +124,16 @@ SELECT v.* FROM (VALUES
   ('Lamine Yamal', 'Yamal', 'ATT', 'Spain', 84, 88, 80, 84, 88, 35, 55, 10, 96, 150, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7'),
   ('Julián Álvarez', 'J. Álvarez', 'ATT', 'Argentina', 84, 84, 84, 78, 83, 55, 76, 10, 89, 75, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7'),
   ('Luis Díaz', 'L. Díaz', 'ATT', 'Colombia', 84, 90, 80, 75, 87, 34, 74, 10, 92, 65, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7')
+  ('Xavi', 'Xavi', 'MID', 'Spain', 92, 75, 76, 95, 92, 74, 72, 10, 96, 65, 'https://cdn.futbin.com/content/fifa24/img/players/10535.png'),
+  ('Andrés Iniesta', 'Iniesta', 'MID', 'Spain', 92, 78, 75, 93, 94, 65, 68, 10, 96, 65, 'https://cdn.futbin.com/content/fifa23/img/players/41.png'),
+  ('Ronaldinho', 'Ronaldinho', 'ATT', 'Brazil', 93, 91, 89, 90, 95, 40, 81, 10, 97, 85, 'https://cdn.futbin.com/content/fifa24/img/players/28130.png'),
+  ('Gerard Piqué', 'Piqué', 'DEF', 'Spain', 89, 65, 61, 76, 71, 90, 85, 10, 93, 45, 'https://cdn.futbin.com/content/fifa23/img/players/152729.png'),
+  ('Sergio Busquets', 'Busquets', 'MID', 'Spain', 89, 45, 64, 86, 82, 88, 81, 10, 92, 45, 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p189511.png?padding=0.7'),
+  ('Zinedine Zidane', 'Zidane', 'MID', 'France', 94, 83, 89, 95, 94, 74, 85, 10, 98, 90, 'https://cdn.futbin.com/content/fifa24/img/players/1397.png'),
+  ('Iker Casillas', 'Casillas', 'GK', 'Spain', 91, 60, 25, 75, 50, 35, 80, 93, 96, 55, 'https://cdn.futbin.com/content/fifa24/img/players/5479.png'),
+  ('Karim Benzema', 'Benzema', 'ATT', 'France', 91, 80, 89, 84, 88, 42, 81, 10, 95, 60, 'https://cdn.futbin.com/content/fifa23/img/players/165153.png'),
+  ('Marcelo', 'Marcelo', 'DEF', 'Brazil', 89, 84, 74, 86, 89, 84, 80, 10, 94, 45, 'https://cdn.futbin.com/content/fifa23/img/players/176676.png'),
+  ('Gareth Bale', 'Bale', 'ATT', 'Wales', 90, 94, 89, 84, 86, 58, 83, 10, 95, 55, 'https://cdn.futbin.com/content/fifa23/img/players/173731.png'),
 ) AS v(name, short_name, position, nationality, overall, pace, shooting, passing, dribbling, defending, physical, goalkeeping, form, market_value_m, avatar_url)
 WHERE NOT EXISTS (
   SELECT 1 FROM public.players p WHERE p.name = v.name
@@ -230,3 +240,15 @@ UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p277643.png?padding=0.7', overall = 84 WHERE name = 'Lamine Yamal' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p246191.png?padding=0.7', overall = 84 WHERE name = 'Julián Álvarez' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p241084.png?padding=0.7', overall = 84 WHERE name = 'Luis Díaz' AND (avatar_url IS NULL OR avatar_url = '');
+
+-- 10 Barcelona & Real Madrid Legends Updates
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa24/img/players/10535.png', overall = 92 WHERE name = 'Xavi';
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa23/img/players/41.png', overall = 92 WHERE name = 'Andrés Iniesta';
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa24/img/players/28130.png', overall = 93 WHERE name = 'Ronaldinho';
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa23/img/players/152729.png', overall = 89 WHERE name = 'Gerard Piqué';
+UPDATE public.players SET avatar_url = 'https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p189511.png?padding=0.7', overall = 89 WHERE name = 'Sergio Busquets';
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa24/img/players/1397.png', overall = 94 WHERE name = 'Zinedine Zidane';
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa24/img/players/5479.png', overall = 91 WHERE name = 'Iker Casillas';
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa23/img/players/165153.png', overall = 91 WHERE name = 'Karim Benzema';
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa23/img/players/176676.png', overall = 89 WHERE name = 'Marcelo';
+UPDATE public.players SET avatar_url = 'https://cdn.futbin.com/content/fifa23/img/players/173731.png', overall = 90 WHERE name = 'Gareth Bale';
