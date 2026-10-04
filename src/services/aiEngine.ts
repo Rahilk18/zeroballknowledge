@@ -18,7 +18,7 @@ export interface AIPersonality {
   leniencyRate: number;
 }
 
-export const ABSOLUTE_MAX_AI_BID = 22;
+export const ABSOLUTE_MAX_AI_BID = 21;
 
 export const AI_BOTS: AIPersonality[] = [
   {
@@ -33,8 +33,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 2200,
     aggressionRate: 0.5,
     overpayThreshold: 1.05,
-    maxBidCap: 18,
-    leniencyRate: 0.60,
+    maxBidCap: 17,
+    leniencyRate: 0.55,
   },
   {
     id: 'ai-mark',
@@ -48,8 +48,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 1800,
     aggressionRate: 0.85,
     overpayThreshold: 1.15,
-    maxBidCap: 22,
-    leniencyRate: 0.40,
+    maxBidCap: 21,
+    leniencyRate: 0.35,
   },
   {
     id: 'ai-joseph',
@@ -63,8 +63,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 3200,
     aggressionRate: 0.35,
     overpayThreshold: 0.95,
-    maxBidCap: 16,
-    leniencyRate: 0.75,
+    maxBidCap: 15,
+    leniencyRate: 0.65,
   },
   {
     id: 'ai-ron',
@@ -78,8 +78,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 2800,
     aggressionRate: 0.65,
     overpayThreshold: 1.10,
-    maxBidCap: 19,
-    leniencyRate: 0.55,
+    maxBidCap: 18,
+    leniencyRate: 0.45,
   },
 ];
 
@@ -154,18 +154,6 @@ export function calculateAIMaxWillingBid(
   squad: Player[],
   ai: AIPersonality
 ): number {
-  const ovr = player.overall || 75;
-
-  // ONLY top rated cards (88+ OVR) are actively bid on by AI!
-  // All cards below 88 OVR are passed to let the user buy them for cheap.
-  if (ovr < 88) {
-    // If the team has zero goalkeepers, allow a modest bid up to €6M for a GK
-    if (player.position === 'GK' && squad.filter(p => p.position === 'GK').length === 0) {
-      return Math.min(6, currentBudget);
-    }
-    return 0; // 100% pass on all cards < 88 OVR!
-  }
-
   if (squad.length >= 10) return 0;
 
   // Reserve budget to guarantee reaching the minimum 7 players (€5M reserve per remaining slot)
@@ -175,33 +163,46 @@ export function calculateAIMaxWillingBid(
 
   if (maxSpendable < 5) return 0;
 
-  // Top rated cards valuation curve (88 to 94)
-  // Max willing bids stay strictly in the €10M - €22M range
-  let baseValue = 10;
+  const ovr = player.overall || 75;
+
+  // Realistic competitive valuation curve across player ratings:
+  // 92+ OVR (Messi, Ronaldo): €17M - €21M
+  // 90-91 OVR (Rodri, Mbappe, Haaland): €13.5M - €16.5M
+  // 86-89 OVR (Van Dijk, Saka, Odegaard): €10M - €13M
+  // 82-85 OVR (Solid starters): €7M - €9.5M
+  // 78-81 OVR (Squad depth): €5M - €7M
+  // < 78 OVR: €5M - €6M
+  let baseValue = 5;
   if (ovr >= 92) {
-    baseValue = 17 + (ovr - 92) * 1.5; // 92 OVR -> 17M, 94 OVR -> 20M
+    baseValue = 17 + (ovr - 92) * 1.5; // 92 -> 17M, 94 -> 20M
   } else if (ovr >= 90) {
-    baseValue = 13 + (ovr - 90) * 1.5; // 90 OVR -> 13M, 91 OVR -> 14.5M (Rodri ~ 14.5M!)
+    baseValue = 13.5 + (ovr - 90) * 1.5; // 90 -> 13.5M, 91 -> 15M (Rodri)
+  } else if (ovr >= 86) {
+    baseValue = 10 + (ovr - 86) * 0.9;  // 86 -> 10M, 89 -> 12.7M
+  } else if (ovr >= 82) {
+    baseValue = 7 + (ovr - 82) * 0.7;   // 82 -> 7M, 85 -> 9.1M
+  } else if (ovr >= 78) {
+    baseValue = 5.5 + (ovr - 78) * 0.35;// 78 -> 5.5M, 81 -> 6.5M
   } else {
-    baseValue = 9 + (ovr - 88) * 1.5;  // 88 OVR -> 9M, 89 OVR -> 10.5M
+    baseValue = 5;
   }
 
-  // Positional need multiplier (0.8 to 1.15)
+  // Positional need multiplier (urgent GK if 0 GKs, or balanced outfield)
   const needMultiplier = calculatePositionNeed(player.position, squad, ai.type);
 
-  // Personality adjustments
+  // Personality adjustments:
   let personalityMultiplier = 1.0;
   if (ai.type === 'aggressive') {
     personalityMultiplier = 1.08;
   } else if (ai.type === 'analytical') {
     personalityMultiplier = 0.92;
   } else if (ai.type === 'unpredictable') {
-    personalityMultiplier = 0.90 + Math.random() * 0.18;
+    personalityMultiplier = 0.92 + Math.random() * 0.16;
   }
 
   const rawVal = baseValue * needMultiplier * personalityMultiplier;
 
-  // Strict hard ceiling: never exceed botCap or ABSOLUTE_MAX_AI_BID (22M)
+  // Strict hard ceiling: never exceed botCap or ABSOLUTE_MAX_AI_BID (21M)
   const botCap = Math.min(ai.maxBidCap || ABSOLUTE_MAX_AI_BID, ABSOLUTE_MAX_AI_BID);
   const finalBidCap = Math.min(Math.round(rawVal), maxSpendable, currentBudget, botCap);
   return Math.max(0, finalBidCap);
@@ -247,30 +248,31 @@ export function getOrInitBotStance(
   const gkCount = squad.filter(p => p.position === 'GK').length;
   const posCount = squad.filter(p => p.position === pos).length;
 
-  let interest: 'PASSING' | 'CASUAL' | 'TARGETING' = 'PASSING';
+  let interest: 'PASSING' | 'CASUAL' | 'TARGETING' = 'TARGETING';
 
-  // RULE: ONLY top rated cards (88+ OVR) the AI bids!
-  // All cards below 88 OVR are 100% PASS so the user gets great deals for cheap.
-  if (ovr < 88) {
-    if (pos === 'GK' && gkCount === 0) {
-      interest = 'CASUAL'; // only if desperately needing a goalkeeper
-    } else {
-      interest = 'PASSING';
-    }
-  } else if (squad.length >= 10 || (pos === 'GK' && gkCount >= 1) || posCount >= 3) {
+  if (squad.length >= 10 || (pos === 'GK' && gkCount >= 1) || posCount >= 3) {
     interest = 'PASSING';
   } else {
-    // 88+ OVR top rated cards:
     const roll = Math.random();
-    if (ovr >= 92) {
-      if (roll < 0.25) interest = 'PASSING';
-      else if (roll < 0.60) interest = 'CASUAL';
+    if (ovr >= 90) {
+      // 90+ stars (Rodri, Mbappe, etc.): 90% interested! (65% targeting, 25% casual, only 10% pass)
+      if (roll < 0.10) interest = 'PASSING';
+      else if (roll < 0.35) interest = 'CASUAL';
+      else interest = 'TARGETING';
+    } else if (ovr >= 85) {
+      // 85-89 solid starters: 80% interested (50% targeting, 30% casual, 20% pass)
+      if (roll < 0.20) interest = 'PASSING';
+      else if (roll < 0.50) interest = 'CASUAL';
+      else interest = 'TARGETING';
+    } else if (ovr >= 80) {
+      // 80-84 mid-tier: 55% interested (35% casual, 20% targeting, 45% pass)
+      if (roll < 0.45) interest = 'PASSING';
+      else if (roll < 0.80) interest = 'CASUAL';
       else interest = 'TARGETING';
     } else {
-      // 88 - 91 OVR (like Rodri)
-      if (roll < 0.40) interest = 'PASSING';
-      else if (roll < 0.75) interest = 'CASUAL';
-      else interest = 'TARGETING';
+      // < 80 depth: 30% interested (70% pass -> easy bargains for user!)
+      if (roll < 0.70) interest = 'PASSING';
+      else interest = 'CASUAL';
     }
   }
 
@@ -280,8 +282,8 @@ export function getOrInitBotStance(
   if (interest === 'PASSING') {
     maxWilling = 0;
   } else if (interest === 'CASUAL') {
-    // Casual bidders drop out very early (€6M - €12M max)
-    const casualCeiling = Math.min(12, 6 + Math.round((ovr - 88) * 1.5));
+    // Casual bidders drop out early (€6M - €11M max)
+    const casualCeiling = Math.min(11, 5 + Math.round((ovr - 75) * 0.35));
     maxWilling = Math.min(calculatedMax, casualCeiling);
   }
 
@@ -322,13 +324,7 @@ export function evaluateAIBid(
   // Retrieve or initialize this bot's stance for the auction lot
   const stance = getOrInitBotStance(auctionId, ai, player, aiTeam.budget, aiSquad);
 
-  // 1. Strict cap: An AI bot can place AT MOST 2 BIDS per player auction!
-  // If it already placed 2 bids, it ALWAYS backs out!
-  if (stance.bidsPlaced >= 2) {
-    return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
-  }
-
-  // 2. If decided to pass or already conceded to the user
+  // If decided to pass or already conceded
   if (stance.interest === 'PASSING' || stance.concededToUser || stance.maxWilling <= 0) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
@@ -336,56 +332,57 @@ export function evaluateAIBid(
   const minRequiredBid = currentBid > 0 ? currentBid + 1 : (startingPrice || 5);
   const botCap = Math.min(ai.maxBidCap || ABSOLUTE_MAX_AI_BID, ABSOLUTE_MAX_AI_BID);
 
-  // Hard cap check: if min required bid exceeds 22M or bot cap, AI backs out immediately!
+  // If current required bid exceeds botCap or absolute ceiling, bot stops and backs out
   if (minRequiredBid > botCap || minRequiredBid > ABSOLUTE_MAX_AI_BID) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
 
-  // Current price is too expensive for this AI stance: back out!
+  // If current price exceeds this bot's valuation, bot stops and backs out!
   if (minRequiredBid > stance.maxWilling || minRequiredBid > aiTeam.budget) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
 
   const isUserLeading = Boolean(highestTeamId && !highestTeamId.startsWith('ai-'));
 
-  // BACK OUT LOGIC: Make sure the AI backs out frequently
+  // Natural back-out when approaching bot's limit or in bidding battle:
   if (isUserLeading) {
-    // A) If bot already counter-bid the user once: 85% chance to back out on user raise!
-    if (stance.bidsPlaced >= 1) {
-      if (Math.random() < 0.85) {
-        stance.concededToUser = true;
-        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
-      }
-    }
-
-    // B) If casual interest: 80% chance to back out immediately
-    if (stance.interest === 'CASUAL' && Math.random() < 0.80) {
+    // 1. If current bid is very close to bot's max valuation (within €1M), high chance to let user have it
+    const diffToMax = stance.maxWilling - minRequiredBid;
+    if (diffToMax <= 1 && Math.random() < 0.65) {
       stance.concededToUser = true;
       return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
     }
 
-    // C) Initial hesitation against user: 50% chance the bot never contests the user's bid
-    if (Math.random() < 0.50) {
+    // 2. If bot already bid 3+ times against user on this player, yield respectfully
+    if (stance.bidsPlaced >= 3 && Math.random() < 0.75) {
       stance.concededToUser = true;
       return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
     }
-  } else {
-    // If competing with another AI bot and already bid once: 70% chance to back out
-    if (stance.bidsPlaced >= 1 && Math.random() < 0.70) {
+
+    // 3. For lower-rated players (<= 82 OVR), give user high bargain chance (60% concession)
+    if ((player.overall || 75) <= 82 && Math.random() < 0.60) {
+      stance.concededToUser = true;
       return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
     }
   }
 
-  // Place next bid
+  // Calculate realistic, incremental bid (+1M or +2M)
   let bidToPlace = minRequiredBid;
+  // Mark or Ron sometimes place a +2M bid on elite stars (90+) to show authority, but never above maxWilling
+  if ((player.overall || 75) >= 90 && (ai.type === 'aggressive' || ai.type === 'unpredictable') && Math.random() < 0.25) {
+    const jump = minRequiredBid + 1;
+    if (jump <= stance.maxWilling && jump <= aiTeam.budget && jump <= botCap) {
+      bidToPlace = jump;
+    }
+  }
 
-  // Never exceed botCap, stance.maxWilling, or ABSOLUTE_MAX_AI_BID (22M)
+  // Safety clamps
   bidToPlace = Math.min(bidToPlace, stance.maxWilling, aiTeam.budget, botCap, ABSOLUTE_MAX_AI_BID);
   if (bidToPlace < minRequiredBid) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
 
-  // Record that this bot placed a bid
+  // Record that bot placed a bid
   stance.bidsPlaced += 1;
 
   // Realistic human delay
