@@ -162,8 +162,14 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   };
 
   const initAiAuction = () => {
-    const shuffled = [...INITIAL_PLAYERS].sort(() => Math.random() - 0.5);
-    aiPoolRef.current = shuffled;
+    // Sort players so higher-rated cards come first, with shuffle within each tier
+    const tier1 = INITIAL_PLAYERS.filter(p => (p.overall || 75) >= 90).sort(() => Math.random() - 0.5);
+    const tier2 = INITIAL_PLAYERS.filter(p => (p.overall || 75) >= 85 && (p.overall || 75) < 90).sort(() => Math.random() - 0.5);
+    const tier3 = INITIAL_PLAYERS.filter(p => (p.overall || 75) >= 80 && (p.overall || 75) < 85).sort(() => Math.random() - 0.5);
+    const tier4 = INITIAL_PLAYERS.filter(p => (p.overall || 75) < 80).sort(() => Math.random() - 0.5);
+
+    const orderedPool = [...tier1, ...tier2, ...tier3, ...tier4];
+    aiPoolRef.current = orderedPool;
     aiPoolIndexRef.current = 0;
 
     const initialSquads: Record<string, Player[]> = {};
@@ -176,7 +182,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     setTeamSquadCounts(initialCounts);
     setMySquad([]);
 
-    const firstPlayer = shuffled[0];
+    const firstPlayer = orderedPool[0];
     const endsAt = new Date(Date.now() + 15_000).toISOString();
     const firstAuction: Auction = {
       id: 'ai-lot-' + firstPlayer.id + '-' + Date.now(),
@@ -655,7 +661,11 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
         Object.values(aiSquadsRef.current).forEach(sq => sq.forEach(p => allAcquired.add(p.id)));
         const untaken = INITIAL_PLAYERS.filter(p => !allAcquired.has(p.id));
         if (untaken.length > 0) {
-          aiPoolRef.current = [...untaken].sort(() => Math.random() - 0.5);
+          const t1 = untaken.filter(p => (p.overall || 75) >= 90).sort(() => Math.random() - 0.5);
+          const t2 = untaken.filter(p => (p.overall || 75) >= 85 && (p.overall || 75) < 90).sort(() => Math.random() - 0.5);
+          const t3 = untaken.filter(p => (p.overall || 75) >= 80 && (p.overall || 75) < 85).sort(() => Math.random() - 0.5);
+          const t4 = untaken.filter(p => (p.overall || 75) < 80).sort(() => Math.random() - 0.5);
+          aiPoolRef.current = [...t1, ...t2, ...t3, ...t4];
           aiPoolIndexRef.current = 0;
           pool = aiPoolRef.current;
         } else {

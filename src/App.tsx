@@ -190,12 +190,12 @@ export function App() {
 
   // When room status transitions back to AUCTION, move room participants back to auction view
   useEffect(() => {
-    if (currentSession?.status === 'AUCTION') {
+    if (currentSession?.status === 'AUCTION' && currentSession?.gameMode !== 'ai') {
       if (activeTab === 'matches' || activeTab === 'lineup' || activeTab === 'simulation') {
         setActiveTab('auction');
       }
     }
-  }, [currentSession?.status, activeTab]);
+  }, [currentSession?.status, currentSession?.gameMode, activeTab]);
 
   // Keep activeMatchResult in sync with real-time simulations and navigate joined players to watch
   useEffect(() => {

@@ -56,6 +56,7 @@ interface SessionContextType {
   broadcastNavigation: (tab: string, opponentId?: string) => Promise<void>;
   setLatestMatchResult: (match: MatchResult | null) => void;
   setIsTournamentComplete: (complete: boolean) => void;
+  updateSessionStatus: (status: GameSession['status']) => Promise<void>;
   refreshSessionData: () => Promise<void>;
 }
 
@@ -982,6 +983,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateSessionStatus = async (status: GameSession['status']) => {
+    if (!currentSession) return;
+    setCurrentSession(prev => prev ? { ...prev, status } : null);
+    if (currentSession.gameMode !== 'ai') {
+      try {
+        await supabase
+          .from('game_sessions')
+          .update({ status })
+          .eq('id', currentSession.id);
+      } catch (e) {
+        console.error('Error updating game session status:', e);
+      }
+    }
+  };
+
   const refreshSessionData = async () => {
     if (currentSession && user && currentSession.gameMode !== 'ai') {
       await loadLobbyData(currentSession.id, user.id);
@@ -1113,6 +1129,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         broadcastNavigation,
         setLatestMatchResult,
         setIsTournamentComplete,
+        updateSessionStatus,
         refreshSessionData,
       }}
     >

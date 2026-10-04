@@ -110,8 +110,8 @@ export function calculatePositionNeed(
       // Must have at least 1 goalkeeper!
       return personality === 'analytical' ? 1.35 : 1.25;
     }
-    // Already has a goalkeeper: heavily deprioritize spending on a backup GK
-    return 0.15;
+    // Already has 1 goalkeeper: allow depth/backup at reasonable valuation
+    return 0.65;
   }
 
   // 2. Outfield positions
@@ -133,10 +133,13 @@ export function calculatePositionNeed(
     return personality === 'analytical' ? 1.25 : 1.2;
   }
   if (count === 1) {
-    return 1.05;
+    return 1.10;
   }
-  if (count >= 3) {
-    return 0.7;
+  if (count === 2) {
+    return 1.0;
+  }
+  if (count === 3) {
+    return 0.85;
   }
   if (count >= 4) {
     return 0.35;
@@ -262,54 +265,56 @@ export function getOrInitBotStance(
 
   let interest: 'PASSING' | 'CASUAL' | 'TARGETING' = 'TARGETING';
 
-  if (squad.length >= 10 || (pos === 'GK' && gkCount >= 1) || posCount >= 3) {
+  // Position quota check for 10-player squad:
+  // GK max 2 (1 starter, 1 backup)
+  // DEF max 4, MID max 4, ATT max 4
+  const isPosFull =
+    (pos === 'GK' && gkCount >= 2) ||
+    (pos === 'DEF' && posCount >= 4) ||
+    (pos === 'MID' && posCount >= 4) ||
+    (pos === 'ATT' && posCount >= 4);
+
+  if (squad.length >= 10 || isPosFull) {
     interest = 'PASSING';
   } else {
-    // Early lot patience: When squad has few players (< 5), AI waits for better cards later in the draft
-    // rather than buying every low-rated player in the first lots.
-    const isEarlyDraft = squad.length < 5;
-    const roll = Math.random();
-
-    if (isEarlyDraft && ovr < 80) {
-      // 85% chance to PASS on squad-depth cards early on to save budget for elite cards
-      if (roll < 0.85) {
-        interest = 'PASSING';
-      } else {
-        interest = 'CASUAL';
-      }
-    } else if (isEarlyDraft && ovr < 85) {
-      // 60% chance to PASS on 80-84 mid-tier cards early on
-      if (roll < 0.60) {
-        interest = 'PASSING';
-      } else if (roll < 0.88) {
-        interest = 'CASUAL';
-      } else {
-        interest = 'TARGETING';
-      }
-    } else if (ovr >= 92) {
-      // 92+ Superstars: 95% interested! (75% targeting, 20% casual, 5% pass)
-      if (roll < 0.05) interest = 'PASSING';
-      else if (roll < 0.25) interest = 'CASUAL';
-      else interest = 'TARGETING';
-    } else if (ovr >= 90) {
-      // 90-91 Marquee (Rodri, Mbappe, Haaland): 90% interested! (65% targeting, 25% casual, 10% pass)
-      if (roll < 0.10) interest = 'PASSING';
-      else if (roll < 0.35) interest = 'CASUAL';
-      else interest = 'TARGETING';
-    } else if (ovr >= 85) {
-      // 85-89 Solid starters: 80% interested (55% targeting, 25% casual, 20% pass)
-      if (roll < 0.20) interest = 'PASSING';
-      else if (roll < 0.45) interest = 'CASUAL';
-      else interest = 'TARGETING';
-    } else if (ovr >= 80) {
-      // 80-84 Mid-tier: 50% interested (mostly casual up to 7-9M, 50% pass)
-      if (roll < 0.50) interest = 'PASSING';
-      else if (roll < 0.85) interest = 'CASUAL';
-      else interest = 'TARGETING';
+    // If bot already has 1 GK, only bid on a second GK if it's elite (88+)
+    if (pos === 'GK' && gkCount === 1 && ovr < 88) {
+      interest = 'PASSING';
     } else {
-      // < 80 Squad depth: 25% interested (75% pass -> user gets plenty of bargains at €6M-€7M!)
-      if (roll < 0.75) interest = 'PASSING';
-      else interest = 'CASUAL';
+      const roll = Math.random();
+      if (ovr >= 92) {
+        // 92+ Superstars: ALWAYS interested (85% targeting, 15% casual)
+        if (roll < 0.15) interest = 'CASUAL';
+        else interest = 'TARGETING';
+      } else if (ovr >= 90) {
+        // 90-91 Marquee (Rodri, Mbappe, Haaland): 95% interested
+        if (roll < 0.05) interest = 'PASSING';
+        else if (roll < 0.25) interest = 'CASUAL';
+        else interest = 'TARGETING';
+      } else if (ovr >= 85) {
+        // 85-89 Solid starters: 85% interested
+        if (roll < 0.15) interest = 'PASSING';
+        else if (roll < 0.40) interest = 'CASUAL';
+        else interest = 'TARGETING';
+      } else if (ovr >= 80) {
+        // 80-84 Mid-tier: Prioritize high-rated cards first when squad still has open slots
+        if (squad.length < 5 && roll < 0.70) {
+          interest = 'PASSING';
+        } else if (roll < 0.40) {
+          interest = 'PASSING';
+        } else {
+          interest = 'CASUAL';
+        }
+      } else {
+        // < 80 Squad depth: Highly likely to wait until draft later stages
+        if (squad.length < 6 && roll < 0.85) {
+          interest = 'PASSING';
+        } else if (roll < 0.60) {
+          interest = 'PASSING';
+        } else {
+          interest = 'CASUAL';
+        }
+      }
     }
   }
 
@@ -420,13 +425,32 @@ export function evaluateAIBid(
     }
   }
 
-  // Calculate realistic, incremental bid (+1M or +2M)
+  // Calculate realistic, competitive bid increase:
   let bidToPlace = minRequiredBid;
-  // Mark or Ron sometimes place a +2M bid on elite stars (90+) to show authority, but never above maxWilling
-  if ((player.overall || 75) >= 90 && (ai.type === 'aggressive' || ai.type === 'unpredictable') && Math.random() < 0.25) {
-    const jump = minRequiredBid + 1;
-    if (jump <= stance.maxWilling && jump <= aiTeam.budget && jump <= botCap) {
-      bidToPlace = jump;
+  const ovr = player.overall || 75;
+  const gapToValuation = stance.maxWilling - minRequiredBid;
+
+  // When current bid is far below valuation, bot raises decisively (+2M to +4M):
+  if (gapToValuation >= 12 && ovr >= 85) {
+    // Significant gap on top players: raise by +2M to +4M
+    const raise = (ai.type === 'aggressive' || ai.type === 'unpredictable')
+      ? 2 + Math.floor(Math.random() * 3)
+      : 2 + Math.floor(Math.random() * 2);
+    const candidateBid = minRequiredBid + raise - 1;
+    if (candidateBid <= stance.maxWilling && candidateBid <= aiTeam.budget && candidateBid <= botCap) {
+      bidToPlace = candidateBid;
+    }
+  } else if (gapToValuation >= 5 && ovr >= 85) {
+    // Moderate gap on quality player: raise by +2M
+    const candidateBid = minRequiredBid + 1;
+    if (candidateBid <= stance.maxWilling && candidateBid <= aiTeam.budget && candidateBid <= botCap) {
+      bidToPlace = candidateBid;
+    }
+  } else if (ovr >= 90 && Math.random() < 0.40) {
+    // 90+ superstar auction duel: 40% chance of +2M jump
+    const candidateBid = minRequiredBid + 1;
+    if (candidateBid <= stance.maxWilling && candidateBid <= aiTeam.budget && candidateBid <= botCap) {
+      bidToPlace = candidateBid;
     }
   }
 

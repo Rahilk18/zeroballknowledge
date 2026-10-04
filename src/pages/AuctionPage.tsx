@@ -31,7 +31,7 @@ function OverallBadge({ value }: { value: number }) {
 
 export function AuctionPage({ setActiveTab }: any) {
   const { user } = useAuth();
-  const { currentSession, startAuction, broadcastNavigation, finalizeAiLineups } = useSession();
+  const { currentSession, startAuction, broadcastNavigation, finalizeAiLineups, updateSessionStatus } = useSession();
   const {
     currentAuction,
     currentPlayer,
@@ -172,28 +172,30 @@ export function AuctionPage({ setActiveTab }: any) {
   if (auctionComplete) {
     const handleContinueToMatches = async () => {
       sound.playVictorySound();
-      if (currentSession && currentSession.gameMode !== 'ai') {
-        try {
-          await supabase
-            .from('game_sessions')
-            .update({ status: 'TEAM_SETUP' })
-            .eq('id', currentSession.id);
-          broadcastNavigation('lineup');
-        } catch (e) {
-          console.error('Error updating game session status:', e);
-        }
-      } else if (currentSession?.gameMode === 'ai') {
+      if (currentSession?.gameMode === 'ai') {
         finalizeAiLineups();
+      }
+      if (typeof updateSessionStatus === 'function') {
+        await updateSessionStatus('TEAM_SETUP');
+      }
+      if (typeof broadcastNavigation === 'function') {
+        broadcastNavigation('lineup');
       }
       if (typeof setActiveTab === 'function') {
         setActiveTab('lineup');
       }
     };
 
-    const handleGoDirectToFixtures = () => {
+    const handleGoDirectToFixtures = async () => {
       sound.playVictorySound();
       if (currentSession?.gameMode === 'ai') {
         finalizeAiLineups();
+      }
+      if (typeof updateSessionStatus === 'function') {
+        await updateSessionStatus('MATCHES');
+      }
+      if (typeof broadcastNavigation === 'function') {
+        broadcastNavigation('league');
       }
       if (typeof setActiveTab === 'function') {
         setActiveTab('league');
