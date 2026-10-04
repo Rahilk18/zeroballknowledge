@@ -45,6 +45,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     broadcastNavigation,
     sessionPlayers,
     allTeams,
+    finalizeAiLineups,
   } = useSession();
 
   const [formation, setFormation] = useState<string>(currentTeam?.formation || '1-2-2-2');
@@ -59,7 +60,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
 
   // Synchronize squad IDs from squads table to guarantee all acquired players appear
   useEffect(() => {
-    if (!currentSession || !currentTeam?.id) {
+    if (!currentSession || !currentTeam?.id || currentSession.gameMode === 'ai') {
       const existingIds = [
         ...(currentTeam?.startingSeven || []),
         ...(currentTeam?.bench || [])
@@ -253,7 +254,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     setIsLockedIn(true);
     setSaveSuccessNotice('✓ Playing 7 locked in! Ready for matchday.');
 
-    if (currentSession && user) {
+    if (currentSession && user && currentSession.gameMode !== 'ai') {
       try {
         await supabase
           .from('session_players')
@@ -271,7 +272,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
   // Return to auction if clicked by mistake or more players are needed
   const handleReturnToAuction = async () => {
     sound.playClick();
-    if (currentSession && isHost) {
+    if (currentSession && isHost && currentSession.gameMode !== 'ai') {
       await supabase
         .from('game_sessions')
         .update({ status: 'AUCTION' })
@@ -286,6 +287,16 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     if (!currentSession || !isHost) return;
     setAdvancingToMatches(true);
     sound.playPowerUp();
+
+    if (currentSession.gameMode === 'ai') {
+      if (typeof finalizeAiLineups === 'function') {
+        finalizeAiLineups();
+      }
+      onUpdateLineup(starting, bench, formation);
+      setAdvancingToMatches(false);
+      setActiveTab('league');
+      return;
+    }
 
     // Check that all teams have minimum 7 players before allowing simulation
     const { data: squadRows } = await supabase

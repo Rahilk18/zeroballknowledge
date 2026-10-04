@@ -31,7 +31,7 @@ function OverallBadge({ value }: { value: number }) {
 
 export function AuctionPage({ setActiveTab }: any) {
   const { user } = useAuth();
-  const { currentSession, startAuction, broadcastNavigation } = useSession();
+  const { currentSession, startAuction, broadcastNavigation, finalizeAiLineups } = useSession();
   const {
     currentAuction,
     currentPlayer,
@@ -97,15 +97,15 @@ export function AuctionPage({ setActiveTab }: any) {
     const ovr = currentPlayer.overall || 75;
     const pos = currentPlayer.position;
     if (ovr >= 92) {
-      return `ZEROBALL AI: ${currentPlayer.name} is a legendary superstar ${pos}. Recommended bidding ceiling is €26M - €35M.`;
+      return `ZEROBALL AI: ${currentPlayer.name} is a legendary superstar ${pos}. Recommended bidding ceiling is €30M - €40M.`;
     } else if (ovr >= 90) {
-      return `ZEROBALL AI: ${currentPlayer.name} is a top marquee ${pos}. Recommended bidding ceiling is €17M - €25M.`;
+      return `ZEROBALL AI: ${currentPlayer.name} is a top marquee ${pos}. Recommended bidding ceiling is €19M - €30M.`;
     } else if (ovr >= 85) {
-      return `ZEROBALL AI: Solid starter ${pos}. Optimal target is €9M - €16M.`;
+      return `ZEROBALL AI: Solid starter ${pos}. Optimal target is €11M - €20M.`;
     } else if (ovr >= 80) {
-      return `ZEROBALL AI: Quality mid-tier ${pos}. Target range: €6M - €9M.`;
+      return `ZEROBALL AI: Quality mid-tier ${pos}. Target range: €7M - €9M.`;
     }
-    return `ZEROBALL AI: Squad depth signing. Value target: €5M - €7M.`;
+    return `ZEROBALL AI: Squad depth signing. Value target: €6M - €7M.`;
   }, [currentPlayer]);
 
   const handleBid = async (e: React.FormEvent) => {
@@ -172,15 +172,31 @@ export function AuctionPage({ setActiveTab }: any) {
   if (auctionComplete) {
     const handleContinueToMatches = async () => {
       sound.playVictorySound();
-      if (currentSession) {
-        await supabase
-          .from('game_sessions')
-          .update({ status: 'TEAM_SETUP' })
-          .eq('id', currentSession.id);
-        broadcastNavigation('lineup');
+      if (currentSession && currentSession.gameMode !== 'ai') {
+        try {
+          await supabase
+            .from('game_sessions')
+            .update({ status: 'TEAM_SETUP' })
+            .eq('id', currentSession.id);
+          broadcastNavigation('lineup');
+        } catch (e) {
+          console.error('Error updating game session status:', e);
+        }
+      } else if (currentSession?.gameMode === 'ai') {
+        finalizeAiLineups();
       }
       if (typeof setActiveTab === 'function') {
         setActiveTab('lineup');
+      }
+    };
+
+    const handleGoDirectToFixtures = () => {
+      sound.playVictorySound();
+      if (currentSession?.gameMode === 'ai') {
+        finalizeAiLineups();
+      }
+      if (typeof setActiveTab === 'function') {
+        setActiveTab('league');
       }
     };
 
@@ -250,13 +266,20 @@ export function AuctionPage({ setActiveTab }: any) {
           </div>
         </div>
 
-        {/* Action Button */}
+        {/* Action Buttons */}
         <div className="space-y-3">
           <button
             onClick={handleContinueToMatches}
             className="w-full py-4 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black text-sm uppercase tracking-wider rounded-2xl transition-all shadow-glow-cyan active:scale-98 flex items-center justify-center gap-2"
           >
             <span>CHOOSE YOUR PLAYING 7 →</span>
+          </button>
+
+          <button
+            onClick={handleGoDirectToFixtures}
+            className="w-full py-3.5 bg-[#0A0D1A] hover:bg-slate-800 border border-emerald-500/50 text-emerald-400 font-bold text-xs uppercase tracking-wider rounded-2xl transition flex items-center justify-center gap-2 active:scale-98"
+          >
+            <span>⚔️ GO TO FIXTURES & STANDINGS →</span>
           </button>
 
           {isHost && (

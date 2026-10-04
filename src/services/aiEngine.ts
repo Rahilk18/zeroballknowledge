@@ -18,7 +18,7 @@ export interface AIPersonality {
   leniencyRate: number;
 }
 
-export const ABSOLUTE_MAX_AI_BID = 35;
+export const ABSOLUTE_MAX_AI_BID = 40;
 
 export const AI_BOTS: AIPersonality[] = [
   {
@@ -33,7 +33,7 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 2200,
     aggressionRate: 0.5,
     overpayThreshold: 1.05,
-    maxBidCap: 30,
+    maxBidCap: 35,
     leniencyRate: 0.55,
   },
   {
@@ -48,7 +48,7 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 1800,
     aggressionRate: 0.85,
     overpayThreshold: 1.15,
-    maxBidCap: 35,
+    maxBidCap: 40,
     leniencyRate: 0.35,
   },
   {
@@ -63,7 +63,7 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 3200,
     aggressionRate: 0.35,
     overpayThreshold: 0.95,
-    maxBidCap: 26,
+    maxBidCap: 30,
     leniencyRate: 0.65,
   },
   {
@@ -78,7 +78,7 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 2800,
     aggressionRate: 0.65,
     overpayThreshold: 1.10,
-    maxBidCap: 32,
+    maxBidCap: 37,
     leniencyRate: 0.45,
   },
 ];
@@ -146,6 +146,22 @@ export function calculatePositionNeed(
 }
 
 /**
+ * Strict tier boundaries matching user specification:
+ * - 92+ OVR (Messi, Ronaldo): [€30M, €40M]
+ * - 90–91 OVR (Rodri, Mbappe, Haaland): [€19M, €30M]
+ * - 85–89 OVR (Saka, Van Dijk): [€11M, €20M]
+ * - 80–84 OVR (Mid-tier): [€7M, €9M]
+ * - < 80 OVR (Squad depth): [€6M, €7M]
+ */
+export function getTierBounds(ovr: number): { tierFloor: number; tierCeiling: number } {
+  if (ovr >= 92) return { tierFloor: 30, tierCeiling: 40 };
+  if (ovr >= 90) return { tierFloor: 19, tierCeiling: 30 };
+  if (ovr >= 85) return { tierFloor: 11, tierCeiling: 20 };
+  if (ovr >= 80) return { tierFloor: 7, tierCeiling: 9 };
+  return { tierFloor: 6, tierCeiling: 7 };
+}
+
+/**
  * Calculates the AI's maximum valuation for a footballer.
  */
 export function calculateAIMaxWillingBid(
@@ -164,42 +180,20 @@ export function calculateAIMaxWillingBid(
   if (maxSpendable < 5) return 0;
 
   const ovr = player.overall || 75;
+  const { tierFloor, tierCeiling } = getTierBounds(ovr);
 
-  // Calibrated to user specifications:
-  // 1. 92+ OVR (Messi, Ronaldo): €26M – €35M
-  // 2. 90 – 91 OVR (Rodri, Mbappe, Haaland): €17M – €25M
-  // 3. 85 – 89 OVR (Saka, Van Dijk): €9M – €16M
-  // 4. 80 – 84 OVR (Mid-tier): €6M – €9M
-  // 5. < 80 OVR (Squad depth): €5M – €7M
-  let baseValue = 5;
-  let tierCeiling = 7;
-  let tierFloor = 5;
-
+  // Calibrated strictly to user specifications
+  let baseValue = tierFloor;
   if (ovr >= 92) {
-    // 92+ OVR (Messi, Ronaldo): €26M – €35M
-    tierFloor = 26;
-    tierCeiling = 35;
-    baseValue = 26 + (ovr - 92) * 4.0;
+    baseValue = 30 + Math.min(10, (ovr - 92) * 3.5);
   } else if (ovr >= 90) {
-    // 90 – 91 OVR (Rodri, Mbappe, Haaland): €17M – €25M
-    tierFloor = 17;
-    tierCeiling = 25;
-    baseValue = 17 + (ovr - 90) * 4.0;
+    baseValue = 19 + (ovr - 90) * 5.0;
   } else if (ovr >= 85) {
-    // 85 – 89 OVR (Saka, Van Dijk): €9M – €16M
-    tierFloor = 9;
-    tierCeiling = 16;
-    baseValue = 9 + (ovr - 85) * 1.4;
+    baseValue = 11 + (ovr - 85) * 1.8;
   } else if (ovr >= 80) {
-    // 80 – 84 OVR (Mid-tier): €6M – €9M
-    tierFloor = 6;
-    tierCeiling = 9;
-    baseValue = 6 + (ovr - 80) * 0.6;
+    baseValue = 7 + (ovr - 80) * 0.45;
   } else {
-    // < 80 OVR (Squad depth): €5M – €7M
-    tierFloor = 5;
-    tierCeiling = 7;
-    baseValue = 5 + Math.max(0, ovr - 75) * 0.35;
+    baseValue = 6 + Math.max(0, ovr - 75) * 0.25;
   }
 
   // Positional need multiplier (urgent GK if 0 GKs, or balanced outfield)
@@ -220,7 +214,7 @@ export function calculateAIMaxWillingBid(
   // Strictly clamp within user-specified tier bounds:
   const clampedTierVal = Math.min(tierCeiling, Math.max(tierFloor, Math.round(rawVal)));
 
-  // Strict hard ceiling: never exceed botCap or ABSOLUTE_MAX_AI_BID (35M)
+  // Strict hard ceiling: never exceed botCap or ABSOLUTE_MAX_AI_BID (40M)
   const botCap = Math.min(ai.maxBidCap || ABSOLUTE_MAX_AI_BID, ABSOLUTE_MAX_AI_BID);
   const finalBidCap = Math.min(clampedTierVal, maxSpendable, currentBudget, botCap);
   return Math.max(0, finalBidCap);
@@ -271,8 +265,28 @@ export function getOrInitBotStance(
   if (squad.length >= 10 || (pos === 'GK' && gkCount >= 1) || posCount >= 3) {
     interest = 'PASSING';
   } else {
+    // Early lot patience: When squad has few players (< 5), AI waits for better cards later in the draft
+    // rather than buying every low-rated player in the first lots.
+    const isEarlyDraft = squad.length < 5;
     const roll = Math.random();
-    if (ovr >= 92) {
+
+    if (isEarlyDraft && ovr < 80) {
+      // 85% chance to PASS on squad-depth cards early on to save budget for elite cards
+      if (roll < 0.85) {
+        interest = 'PASSING';
+      } else {
+        interest = 'CASUAL';
+      }
+    } else if (isEarlyDraft && ovr < 85) {
+      // 60% chance to PASS on 80-84 mid-tier cards early on
+      if (roll < 0.60) {
+        interest = 'PASSING';
+      } else if (roll < 0.88) {
+        interest = 'CASUAL';
+      } else {
+        interest = 'TARGETING';
+      }
+    } else if (ovr >= 92) {
       // 92+ Superstars: 95% interested! (75% targeting, 20% casual, 5% pass)
       if (roll < 0.05) interest = 'PASSING';
       else if (roll < 0.25) interest = 'CASUAL';
@@ -288,26 +302,28 @@ export function getOrInitBotStance(
       else if (roll < 0.45) interest = 'CASUAL';
       else interest = 'TARGETING';
     } else if (ovr >= 80) {
-      // 80-84 Mid-tier: 50% interested (mostly casual up to 6-8M, 50% pass)
+      // 80-84 Mid-tier: 50% interested (mostly casual up to 7-9M, 50% pass)
       if (roll < 0.50) interest = 'PASSING';
       else if (roll < 0.85) interest = 'CASUAL';
       else interest = 'TARGETING';
     } else {
-      // < 80 Squad depth: 25% interested (75% pass -> user gets plenty of bargains at €5M-€7M!)
+      // < 80 Squad depth: 25% interested (75% pass -> user gets plenty of bargains at €6M-€7M!)
       if (roll < 0.75) interest = 'PASSING';
       else interest = 'CASUAL';
     }
   }
 
+  const { tierFloor, tierCeiling } = getTierBounds(ovr);
   const calculatedMax = calculateAIMaxWillingBid(player, currentBudget, squad, bot);
   let maxWilling = calculatedMax;
 
   if (interest === 'PASSING') {
     maxWilling = 0;
   } else if (interest === 'CASUAL') {
-    // Casual bidders drop out early
-    const casualCeiling = Math.min(18, 5 + Math.round((ovr - 75) * 0.7));
-    maxWilling = Math.min(calculatedMax, casualCeiling);
+    // Casual bidders drop out early in the tier range
+    const casualSpread = Math.max(1, Math.round((tierCeiling - tierFloor) * 0.45));
+    const casualCeiling = Math.max(tierFloor, Math.min(calculatedMax, tierFloor + casualSpread));
+    maxWilling = casualCeiling;
   }
 
   const stance: BotAuctionStance = {
@@ -367,25 +383,40 @@ export function evaluateAIBid(
 
   const isUserLeading = Boolean(highestTeamId && !highestTeamId.startsWith('ai-'));
 
-  // Natural back-out when approaching bot's limit or in bidding battle:
+  // Natural back-out & competitive duel logic:
   if (isUserLeading) {
-    // 1. If current bid is very close to bot's max valuation (within €1M–€2M), high chance to let user have it
-    const diffToMax = stance.maxWilling - minRequiredBid;
-    if (diffToMax <= 1 && Math.random() < 0.65) {
-      stance.concededToUser = true;
-      return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
-    }
+    const isEliteCard = (player.overall || 75) >= 88;
 
-    // 2. If bot already bid 3+ times against user on this player, yield respectfully
-    if (stance.bidsPlaced >= 3 && Math.random() < 0.75) {
-      stance.concededToUser = true;
-      return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
-    }
+    if (isEliteCard) {
+      // For top cards, stay competitive! Only concede if reached maximum willing bid or after a 4+ round duel
+      if (minRequiredBid >= stance.maxWilling) {
+        stance.concededToUser = true;
+        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+      }
+      if (stance.bidsPlaced >= 4 && Math.random() < 0.40) {
+        stance.concededToUser = true;
+        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+      }
+    } else {
+      // For mid-tier and squad depth (<= 87 OVR):
+      const diffToMax = stance.maxWilling - minRequiredBid;
 
-    // 3. For lower-rated players (<= 83 OVR), give user high bargain chance (60% concession)
-    if ((player.overall || 75) <= 83 && Math.random() < 0.60) {
-      stance.concededToUser = true;
-      return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+      if (diffToMax <= 0) {
+        stance.concededToUser = true;
+        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+      }
+
+      // If already bid 3+ times, yield respectfully
+      if (stance.bidsPlaced >= 3 && Math.random() < 0.50) {
+        stance.concededToUser = true;
+        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+      }
+
+      // For low-rated cards (< 80), allow user easy bargains (40% concession chance on lead)
+      if ((player.overall || 75) < 80 && Math.random() < 0.40) {
+        stance.concededToUser = true;
+        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+      }
     }
   }
 
