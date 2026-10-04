@@ -38,6 +38,14 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
 
   useEffect(() => {
     if (!currentSession) return;
+    if (currentSession.gameMode === 'ai') {
+      const counts: Record<string, number> = {};
+      (allTeams || []).forEach((t: any) => {
+        counts[t.id] = (t.startingSeven?.length || 0) + (t.bench?.length || 0);
+      });
+      setSquadCounts(counts);
+      return;
+    }
     supabase
       .from('squads')
       .select('team_id')
@@ -49,7 +57,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
         });
         setSquadCounts(counts);
       });
-  }, [currentSession]);
+  }, [currentSession, allTeams]);
 
   const incompleteTeams = currentSession
     ? (allTeams || []).filter(t => (squadCounts[t.id] || 0) < 7)

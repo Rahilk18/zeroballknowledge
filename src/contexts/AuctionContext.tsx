@@ -10,6 +10,8 @@ import {
   auctionFromRow, bidFromRow, playerFromRow, squadPlayerFromRow, teamFromRow
 } from '../services/sessionService';
 import { syncPlayersToSupabase } from '../services/playerSyncService';
+import { INITIAL_PLAYERS } from '../data/initialData';
+import { AI_BOTS, evaluateAIBid } from '../services/aiEngine';
 
 interface AuctionContextType {
   currentAuction: Auction | null;
@@ -23,6 +25,7 @@ interface AuctionContextType {
   teamSquadCounts: Record<string, number>;
   allTeamsHaveMinSquad: boolean;
   minSquadRequired: number;
+  aiThinking: string | null;
   placeBid: (amount: number) => Promise<{ error: string | null }>;
   nextPlayer: () => Promise<{ error: string | null }>;
   skipPlayer: () => Promise<{ error: string | null }>;
@@ -34,7 +37,14 @@ const AuctionContext = createContext<AuctionContextType | undefined>(undefined);
 
 export function AuctionProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const { currentSession, myTeam: sessionTeam, allTeams, refreshSessionData } = useSession();
+  const {
+    currentSession,
+    myTeam: sessionTeam,
+    allTeams,
+    refreshSessionData,
+    updateSessionTeamSquadAndBudget,
+    finalizeAiLineups,
+  } = useSession();
   const [currentAuction, setCurrentAuction] = useState<Auction | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
@@ -43,6 +53,11 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   const [timeLeft, setTimeLeft] = useState(0);
   const [auctionComplete, setAuctionComplete] = useState(false);
   const [teamSquadCounts, setTeamSquadCounts] = useState<Record<string, number>>({});
+  const [aiThinking, setAiThinking] = useState<string | null>(null);
+  const aiPoolRef = useRef<Player[]>([]);
+  const aiPoolIndexRef = useRef<number>(0);
+  const aiSquadsRef = useRef<Record<string, Player[]>>({});
+  const aiBidTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoNextTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -146,9 +161,150 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     setTeamSquadCounts(counts);
   };
 
+  const initAiAuction = () => {
+    const shuffled = [...INITIAL_PLAYERS].sort(() => Math.random() - 0.5);
+    aiPoolRef.current = shuffled;
+    aiPoolIndexRef.current = 0;
+
+    const initialSquads: Record<string, Player[]> = {};
+    const initialCounts: Record<string, number> = {};
+    (allTeams || []).forEach(t => {
+      initialSquads[t.id] = [];
+      initialCounts[t.id] = 0;
+    });
+    aiSquadsRef.current = initialSquads;
+    setTeamSquadCounts(initialCounts);
+    setMySquad([]);
+
+    const firstPlayer = shuffled[0];
+    const endsAt = new Date(Date.now() + 15_000).toISOString();
+    const firstAuction: Auction = {
+      id: 'ai-lot-' + firstPlayer.id + '-' + Date.now(),
+      sessionId: currentSession!.id,
+      playerId: firstPlayer.id,
+      startingPrice: 5,
+      currentBid: 0,
+      highestTeamId: undefined,
+      status: 'LIVE',
+      startedAt: new Date().toISOString(),
+      endsAt,
+      player: firstPlayer,
+    };
+
+    setCurrentPlayer(firstPlayer);
+    setCurrentAuction(firstAuction);
+    currentAuctionRef.current = firstAuction;
+    setBids([]);
+    setAuctionComplete(false);
+    startTimer(endsAt, firstAuction.id);
+    triggerAiEvaluation(firstAuction, firstPlayer, 0, null);
+  };
+
+  const triggerAiEvaluation = (
+    auction: Auction,
+    player: Player,
+    currentBid: number,
+    highestTeamId: string | null | undefined
+  ) => {
+    if (aiBidTimeoutRef.current) {
+      clearTimeout(aiBidTimeoutRef.current);
+      aiBidTimeoutRef.current = null;
+    }
+
+    const aiTeams = (allTeams || []).filter(t => t.id.startsWith('ai-') && t.id !== highestTeamId);
+    if (aiTeams.length === 0) return;
+
+    interface Candidate {
+      team: Team;
+      bot: (typeof AI_BOTS)[0];
+      decision: ReturnType<typeof evaluateAIBid>;
+    }
+
+    const candidates: Candidate[] = [];
+
+    for (const team of aiTeams) {
+      const bot = AI_BOTS.find(b => b.id === team.id);
+      if (!bot) continue;
+
+      const squad = aiSquadsRef.current[team.id] || [];
+      const decision = evaluateAIBid(
+        player,
+        currentBid,
+        auction.startingPrice || 5,
+        highestTeamId,
+        team,
+        squad,
+        bot
+      );
+
+      if (decision.shouldBid) {
+        candidates.push({ team, bot, decision });
+      }
+    }
+
+    if (candidates.length === 0) {
+      setAiThinking(null);
+      return;
+    }
+
+    candidates.sort((a, b) => a.decision.delayMs - b.decision.delayMs);
+    const chosen = candidates[0];
+
+    setAiThinking(chosen.decision.thinkingMessage);
+
+    aiBidTimeoutRef.current = setTimeout(() => {
+      aiBidTimeoutRef.current = null;
+      setAiThinking(null);
+
+      const liveAuction = currentAuctionRef.current;
+      if (!liveAuction || liveAuction.id !== auction.id || liveAuction.status !== 'LIVE') return;
+
+      const liveEffectiveBid = Math.max(liveAuction.currentBid || 0);
+      if (liveAuction.highestTeamId === chosen.team.id) return;
+      if (chosen.decision.bidAmount <= liveEffectiveBid) return;
+
+      const currentEndMs = liveAuction.endsAt ? new Date(liveAuction.endsAt).getTime() : Date.now();
+      const remainingMs = Math.max(0, currentEndMs - Date.now());
+      const newRemainingMs = Math.min(45_000, Math.max(10_000, remainingMs + 10_000));
+      const newEndsAt = new Date(Date.now() + newRemainingMs).toISOString();
+
+      const aiBid: Bid = {
+        id: 'bid-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+        auctionId: liveAuction.id,
+        teamId: chosen.team.id,
+        userId: chosen.team.id,
+        amount: chosen.decision.bidAmount,
+        createdAt: new Date().toISOString(),
+        team: chosen.team,
+      };
+
+      setBids(prev => [aiBid, ...prev]);
+
+      const updatedAuction = {
+        ...liveAuction,
+        currentBid: chosen.decision.bidAmount,
+        highestTeamId: chosen.team.id,
+        endsAt: newEndsAt,
+      };
+      setCurrentAuction(updatedAuction);
+      currentAuctionRef.current = updatedAuction;
+      startTimer(newEndsAt, liveAuction.id);
+
+      triggerAiEvaluation(updatedAuction, player, chosen.decision.bidAmount, chosen.team.id);
+    }, chosen.decision.delayMs);
+  };
+
   // Subscribe to auction updates when session is in AUCTION state
   useEffect(() => {
     if (!currentSession || currentSession.status !== 'AUCTION') return;
+    if (currentSession.gameMode === 'ai') {
+      initAiAuction();
+      return () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+        if (autoNextTimeoutRef.current) clearTimeout(autoNextTimeoutRef.current);
+        if (aiBidTimeoutRef.current) clearTimeout(aiBidTimeoutRef.current);
+      };
+    }
     loadCurrentAuction();
     loadMySquad();
     refreshMyTeam();
@@ -161,7 +317,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       if (autoNextTimeoutRef.current) clearTimeout(autoNextTimeoutRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSession?.id, currentSession?.status]);
+  }, [currentSession?.id, currentSession?.status, currentSession?.gameMode]);
 
   const loadCurrentAuction = async () => {
     if (!currentSession) return;
@@ -335,7 +491,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   };
 
   const placeBid = async (amount: number): Promise<{ error: string | null }> => {
-    if (!user || !currentAuction || !sessionTeam) return { error: 'Not ready.' };
+    if (!currentAuction || !sessionTeam) return { error: 'Not ready.' };
     if (currentAuction.status !== 'LIVE') return { error: 'Auction is not live.' };
 
     const effectiveCurrentBid = Math.max(
@@ -355,6 +511,49 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
     if (mySquad.length >= 10) {
       return { error: 'Your squad is full (10 players max).' };
     }
+
+    if (currentSession?.gameMode === 'ai') {
+      if (aiBidTimeoutRef.current) {
+        clearTimeout(aiBidTimeoutRef.current);
+        aiBidTimeoutRef.current = null;
+      }
+      setAiThinking(null);
+
+      const currentEndMs = currentAuction.endsAt ? new Date(currentAuction.endsAt).getTime() : Date.now();
+      const remainingMs = Math.max(0, currentEndMs - Date.now());
+      const newRemainingMs = Math.min(45_000, Math.max(10_000, remainingMs + 10_000));
+      const newEndsAt = new Date(Date.now() + newRemainingMs).toISOString();
+
+      const newBid: Bid = {
+        id: 'bid-' + Date.now(),
+        auctionId: currentAuction.id,
+        teamId: sessionTeam.id,
+        userId: user?.id || 'human-user',
+        amount,
+        createdAt: new Date().toISOString(),
+        team: sessionTeam,
+      };
+
+      setBids(prev => [newBid, ...prev]);
+
+      const updated = {
+        ...currentAuction,
+        currentBid: amount,
+        highestTeamId: sessionTeam.id,
+        endsAt: newEndsAt,
+      };
+      setCurrentAuction(updated);
+      currentAuctionRef.current = updated;
+      startTimer(newEndsAt, currentAuction.id);
+
+      if (currentPlayer) {
+        triggerAiEvaluation(updated, currentPlayer, amount, sessionTeam.id);
+      }
+
+      return { error: null };
+    }
+
+    if (!user) return { error: 'Not ready.' };
 
     // Increase remaining auction time by 10 seconds (+10,000ms), ensuring at least 10 seconds remaining
     const currentEndMs = currentAuction.endsAt ? new Date(currentAuction.endsAt).getTime() : Date.now();
@@ -399,6 +598,100 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
 
   const autoSellAndAdvance = async (auctionIdToResolve?: string): Promise<{ error: string | null }> => {
     if (!currentSession) return { error: 'No session.' };
+
+    if (currentSession.gameMode === 'ai') {
+      if (aiBidTimeoutRef.current) {
+        clearTimeout(aiBidTimeoutRef.current);
+        aiBidTimeoutRef.current = null;
+      }
+      setAiThinking(null);
+
+      const targetAuction = currentAuctionRef.current;
+      if (!targetAuction || targetAuction.status !== 'LIVE') return { error: null };
+
+      const effectiveBid = targetAuction.currentBid || 0;
+      const winningTeamId = targetAuction.highestTeamId;
+      const hasWinner = Boolean(winningTeamId && effectiveBid > 0);
+      const soldPlayer = currentPlayer;
+
+      if (hasWinner && winningTeamId && soldPlayer) {
+        if (sessionTeam && winningTeamId === sessionTeam.id) {
+          setMySquad(prev => [
+            ...prev,
+            {
+              id: 'sq-' + Date.now(),
+              sessionId: currentSession.id,
+              teamId: winningTeamId,
+              playerId: soldPlayer.id,
+              purchasePrice: effectiveBid,
+              player: soldPlayer,
+              acquiredAt: new Date().toISOString(),
+            }
+          ]);
+        }
+
+        aiSquadsRef.current[winningTeamId] = [
+          ...(aiSquadsRef.current[winningTeamId] || []),
+          soldPlayer
+        ];
+
+        updateSessionTeamSquadAndBudget(winningTeamId, soldPlayer, effectiveBid);
+
+        setTeamSquadCounts(prev => ({
+          ...prev,
+          [winningTeamId]: (prev[winningTeamId] || 0) + 1,
+        }));
+      }
+
+      setBids([]);
+
+      // Advance to next footballer in the pool
+      aiPoolIndexRef.current += 1;
+      let pool = aiPoolRef.current;
+      if (aiPoolIndexRef.current >= pool.length) {
+        const allAcquired = new Set<string>();
+        Object.values(aiSquadsRef.current).forEach(sq => sq.forEach(p => allAcquired.add(p.id)));
+        const untaken = INITIAL_PLAYERS.filter(p => !allAcquired.has(p.id));
+        if (untaken.length > 0) {
+          aiPoolRef.current = [...untaken].sort(() => Math.random() - 0.5);
+          aiPoolIndexRef.current = 0;
+          pool = aiPoolRef.current;
+        } else {
+          setAuctionComplete(true);
+          return { error: null };
+        }
+      }
+
+      const nextPlayerObj = pool[aiPoolIndexRef.current];
+      if (!nextPlayerObj) {
+        setAuctionComplete(true);
+        return { error: null };
+      }
+
+      const endsAt = new Date(Date.now() + 15_000).toISOString();
+      const nextAuction: Auction = {
+        id: 'ai-lot-' + nextPlayerObj.id + '-' + Date.now(),
+        sessionId: currentSession.id,
+        playerId: nextPlayerObj.id,
+        startingPrice: 5,
+        currentBid: 0,
+        highestTeamId: undefined,
+        status: 'LIVE',
+        startedAt: new Date().toISOString(),
+        endsAt,
+        player: nextPlayerObj,
+      };
+
+      setCurrentPlayer(nextPlayerObj);
+      setCurrentAuction(nextAuction);
+      currentAuctionRef.current = nextAuction;
+      setAuctionComplete(false);
+      startTimer(endsAt, nextAuction.id);
+      triggerAiEvaluation(nextAuction, nextPlayerObj, 0, null);
+
+      return { error: null };
+    }
+
     const targetId = auctionIdToResolve || currentAuctionRef.current?.id;
     if (!targetId) return { error: 'No auction active.' };
 
@@ -527,14 +820,26 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   };
 
   const nextPlayer = async (): Promise<{ error: string | null }> => {
-    if (!user || !currentSession) return { error: 'No session.' };
+    if (!currentSession) return { error: 'No session.' };
+    if (currentSession.gameMode === 'ai') {
+      return await autoSellAndAdvance();
+    }
+    if (!user) return { error: 'No session.' };
     const targetId = currentAuctionRef.current?.id;
     if (!targetId) return { error: 'No auction active.' };
     return await autoSellAndAdvance(targetId);
   };
 
   const skipPlayer = async (): Promise<{ error: string | null }> => {
-    if (!user || !currentSession) return { error: 'No session.' };
+    if (!currentSession) return { error: 'No session.' };
+    if (currentSession.gameMode === 'ai') {
+      if (currentAuctionRef.current) {
+        currentAuctionRef.current.highestTeamId = undefined;
+        currentAuctionRef.current.currentBid = 0;
+      }
+      return await autoSellAndAdvance();
+    }
+    if (!user) return { error: 'No session.' };
     if (currentSession.hostUserId !== user.id) return { error: 'Only the host can skip.' };
     const targetId = currentAuctionRef.current?.id;
     if (!targetId) return { error: 'No auction active.' };
@@ -671,6 +976,26 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
 
   const endAuctionManually = async (): Promise<{ error: string | null }> => {
     if (!currentSession) return { error: 'No active session.' };
+
+    if (currentSession.gameMode === 'ai') {
+      const incomplete = (allTeams || []).filter(t => (teamSquadCounts[t.id] || 0) < minSquadRequired);
+      if (incomplete.length > 0) {
+        const summary = incomplete
+          .map(t => `${t.name || t.teamName || 'Team'}: ${teamSquadCounts[t.id] || 0}/${minSquadRequired} players`)
+          .join(', ');
+        return {
+          error: `Cannot end auction: Every team must draft at least ${minSquadRequired} players before simulation! Deficit: ${summary}`,
+        };
+      }
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (aiBidTimeoutRef.current) clearTimeout(aiBidTimeoutRef.current);
+      finalizeAiLineups();
+      setAuctionComplete(true);
+      setCurrentAuction(null);
+      setCurrentPlayer(null);
+      return { error: null };
+    }
+
     if (currentSession.hostUserId !== user?.id) {
       return { error: 'Only the room host can conclude the draft auction.' };
     }
@@ -730,6 +1055,25 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
 
   const reopenAuction = async (): Promise<{ error: string | null }> => {
     if (!currentSession) return { error: 'No active session.' };
+
+    if (currentSession.gameMode === 'ai') {
+      setAuctionComplete(false);
+      const targetLot = currentAuctionRef.current;
+      if (targetLot) {
+        const endsAt = new Date(Date.now() + 15_000).toISOString();
+        const reopened = { ...targetLot, status: 'LIVE' as const, endsAt };
+        setCurrentAuction(reopened);
+        currentAuctionRef.current = reopened;
+        startTimer(endsAt, targetLot.id);
+        if (currentPlayer) {
+          triggerAiEvaluation(reopened, currentPlayer, reopened.currentBid || 0, reopened.highestTeamId);
+        }
+      } else {
+        autoSellAndAdvance();
+      }
+      return { error: null };
+    }
+
     if (currentSession.hostUserId !== user?.id) {
       return { error: 'Only the room host can reopen the auction.' };
     }
@@ -784,6 +1128,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
         teamSquadCounts,
         allTeamsHaveMinSquad,
         minSquadRequired,
+        aiThinking,
         placeBid,
         nextPlayer,
         skipPlayer,

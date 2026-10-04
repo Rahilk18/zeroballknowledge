@@ -212,6 +212,34 @@ export function App() {
     }
   }, [isTournamentComplete]);
 
+  // Auto-simulate AI vs AI matches in AI mode without forcing the human to watch
+  useEffect(() => {
+    if (!currentSession || currentSession.gameMode !== 'ai' || currentSession.status !== 'MATCHES') return;
+    if (!nextUnplayedFixture || !userTeam) return;
+
+    const isHumanMatch = nextUnplayedFixture.homeTeamId === userTeam.id || nextUnplayedFixture.awayTeamId === userTeam.id;
+    if (!isHumanMatch) {
+      const homeTeam = activeAllTeams.find(t => t.id === nextUnplayedFixture.homeTeamId);
+      const awayTeam = activeAllTeams.find(t => t.id === nextUnplayedFixture.awayTeamId);
+      if (homeTeam && awayTeam) {
+        const getTeamRoster = (team: Team): Player[] => {
+          const teamPlayerIds = new Set([...(team.startingSeven || []), ...(team.bench || [])].filter(Boolean));
+          const matched = combinedPlayers.filter(p => teamPlayerIds.has(p.id));
+          if (matched.length > 0) return matched;
+          return combinedPlayers.filter(p => (p as any).teamId === team.id || (p as any).currentClub === team.name);
+        };
+        const homeRoster = getTeamRoster(homeTeam);
+        const awayRoster = getTeamRoster(awayTeam);
+        const result = simulateMatch(
+          { team: homeTeam, players: homeRoster },
+          { team: awayTeam, players: awayRoster }
+        );
+        result.matchweek = effectiveMatches.length + 1;
+        broadcastSimulatedMatch(result);
+      }
+    }
+  }, [currentSession?.gameMode, currentSession?.status, nextUnplayedFixture, userTeam?.id, activeAllTeams, combinedPlayers, effectiveMatches.length]);
+
   // Launch Match Setup
   const handleStartMatchSetup = (opponentTeamId: string) => {
     setTargetOpponentId(opponentTeamId);

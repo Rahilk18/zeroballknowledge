@@ -3,8 +3,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
 import { fetchUserGameHistory, fetchUserTeams, UserGameHistoryItem, UserPastTeamItem } from '../services/userService';
 import type { ActiveTab } from '../types';
-import { Trophy, Swords, Shield, PlusCircle, LogIn, LogOut, History, Sparkles, ArrowRight, Award, Flame, Glasses, Zap, Radio } from 'lucide-react';
+import { Trophy, Swords, Shield, PlusCircle, LogIn, LogOut, History, Sparkles, ArrowRight, Award, Flame, Glasses, Zap, Radio, Bot, Check, Users } from 'lucide-react';
 import { FOOTBALL_GEARS } from '../data/gearData';
+import { AI_BOTS } from '../services/aiEngine';
 
 const BADGES = ['⚡', '🔥', '🦁', '🐉', '⭐', '🚀', '🏆', '🎯', '🦅', '💎', '🌟', '⚔️'];
 
@@ -13,7 +14,7 @@ interface DashboardProps {
   onStartMatch?: (opponentId: string) => void;
 }
 
-type DashboardModal = 'none' | 'create' | 'join';
+type DashboardModal = 'none' | 'create' | 'join' | 'ai';
 
 export function Dashboard({ setActiveTab }: DashboardProps) {
   const { user, profile } = useAuth();
@@ -21,6 +22,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
     currentSession, 
     myTeam, 
     createGame, 
+    createAiGame,
     joinGame, 
     leaveGame,
     endGame,
@@ -31,6 +33,12 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
   const [modal, setModal] = useState<DashboardModal>('none');
   const [error, setError] = useState('');
+
+  // AI Game setup state
+  const [aiOpponentCount, setAiOpponentCount] = useState<number>(2);
+  const [aiTeamName, setAiTeamName] = useState<string>('');
+  const [aiAbbreviation, setAiAbbreviation] = useState<string>('');
+  const [aiBadge, setAiBadge] = useState<string>('⚡');
 
   // Personal Game History & Past Teams (Strictly filtered by user.id)
   const [gameHistory, setGameHistory] = useState<UserGameHistoryItem[]>([]);
@@ -114,6 +122,20 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
     setModal('none');
     setActiveTab('lobby');
     if (user) loadUserData(user.id);
+  };
+
+  const handleStartAiGame = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    const tName = aiTeamName.trim() || (profile?.displayName ? `${profile.displayName} FC` : 'Apex FC');
+    const tAbbr = (aiAbbreviation || tName.slice(0, 3)).toUpperCase().slice(0, 3);
+    const { error: err } = await createAiGame(aiOpponentCount, tName, tAbbr, aiBadge);
+    if (err) {
+      setError(err);
+      return;
+    }
+    setModal('none');
+    setActiveTab('lobby');
   };
 
   // User-specific stats
@@ -274,9 +296,9 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
       </div>
 
       {/* 3. MULTIPLAYER BATTLE ROOM STATUS / ACTIONS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {currentSession ? (
-          <div className="md:col-span-2 bg-[#0E1324] border-2 border-[#FF1744]/50 rounded-3xl p-6 shadow-glow-cyan relative overflow-hidden">
+          <div className="md:col-span-3 bg-[#0E1324] border-2 border-[#FF1744]/50 rounded-3xl p-6 shadow-glow-cyan relative overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -320,23 +342,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
           </div>
         ) : (
           <>
-            {/* Create Room Button */}
-            <button
-              onClick={() => { setModal('create'); setError(''); setCreatedCode(''); setTeamName(''); setAbbreviation(''); }}
-              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-[#FF1744]/60 rounded-3xl p-6 text-left transition-all shadow-xl hover:-translate-y-0.5 border border-[#FF1744]/25 hover:shadow-glow-cyan"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-[#FF1744]/10 border border-[#FF1744]/30 flex items-center justify-center text-2xl mb-4 text-[#FF1744] shadow-glow-cyan">
-                <PlusCircle className="w-6 h-6" />
-              </div>
-              <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-cyan">
-                HOST BATTLE ROOM
-              </h2>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Host a multiplayer room for up to 8 managers. Customize the $150M starting budget, set timer, and summon the football legends pool.
-              </p>
-            </button>
-
-            {/* Join Room Button */}
+            {/* 1. Join Room Button */}
             <button
               onClick={() => { setModal('join'); setError(''); setJoinCode(''); setJoinTeamName(''); setJoinAbbr(''); }}
               className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-purple-500/60 rounded-3xl p-6 text-left transition-all hover:-translate-y-0.5 shadow-xl border border-purple-500/25 hover:shadow-glow-purple"
@@ -345,10 +351,50 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                 <Radio className="w-6 h-6" />
               </div>
               <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-purple">
-                JOIN ARENA ROOM
+                JOIN A ROOM
               </h2>
               <p className="text-slate-400 text-xs leading-relaxed">
                 Enter a 6-letter room code from your friends or discord lobby. Draft your superstar lineup and battle in the live season.
+              </p>
+            </button>
+
+            {/* 2. Create Room Button */}
+            <button
+              onClick={() => { setModal('create'); setError(''); setCreatedCode(''); setTeamName(''); setAbbreviation(''); }}
+              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-[#FF1744]/60 rounded-3xl p-6 text-left transition-all shadow-xl hover:-translate-y-0.5 border border-[#FF1744]/25 hover:shadow-glow-cyan"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-[#FF1744]/10 border border-[#FF1744]/30 flex items-center justify-center text-2xl mb-4 text-[#FF1744] shadow-glow-cyan">
+                <PlusCircle className="w-6 h-6" />
+              </div>
+              <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-cyan">
+                CREATE A ROOM
+              </h2>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Host a multiplayer room for up to 8 managers. Customize the $130M starting budget, set timer, and summon the football legends pool.
+              </p>
+            </button>
+
+            {/* 3. Play vs AI Button */}
+            <button
+              onClick={() => {
+                setModal('ai');
+                setError('');
+                setAiOpponentCount(2);
+                if (!aiTeamName) {
+                  setAiTeamName(profile?.displayName ? `${profile.displayName} FC` : 'Apex FC');
+                  setAiAbbreviation('APX');
+                }
+              }}
+              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-emerald-500/60 rounded-3xl p-6 text-left transition-all hover:-translate-y-0.5 shadow-xl border border-emerald-500/25 hover:shadow-glow-emerald"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-2xl mb-4 text-emerald-300 shadow-glow-emerald">
+                <Bot className="w-6 h-6" />
+              </div>
+              <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-emerald">
+                PLAY VS AI
+              </h2>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Play a complete ZeroBallKnowledge match solo against intelligent AI managers (Steve, Mark, Joseph, Ron).
               </p>
             </button>
           </>
@@ -710,6 +756,182 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                   className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-rose-700 hover:from-purple-500 hover:to-rose-600 text-white font-black rounded-xl text-sm transition shadow-glow-purple disabled:opacity-50 mt-2 uppercase tracking-wider"
                 >
                   {loadingSession ? 'CONNECTING...' : '🎯 ENTER ROOM'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PLAY VS AI MODAL */}
+      {modal === 'ai' && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-3xl w-full max-w-lg shadow-glow-cyan overflow-hidden animate-fadeIn my-8">
+            <div className="flex items-center justify-between p-6 border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-xl text-[#FF1744] shadow-glow-cyan">
+                  <Bot className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+                    PLAY VS AI
+                  </h2>
+                  <p className="text-slate-400 text-xs mt-0.5">
+                    Play a full ZeroBallKnowledge match with AI opponents.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setModal('none')}
+                className="text-slate-400 hover:text-white transition text-lg p-1.5 rounded-lg hover:bg-slate-800"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {error && (
+                <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
+                  {error}
+                </div>
+              )}
+
+              {/* 1. SELECT NUMBER OF AI OPPONENTS */}
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-2 tracking-wider">
+                  CHOOSE NUMBER OF AI OPPONENTS
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {[
+                    { count: 1, label: '1 AI', players: '2 PLAYERS' },
+                    { count: 2, label: '2 AI', players: '3 PLAYERS' },
+                    { count: 3, label: '3 AI', players: '4 PLAYERS' },
+                    { count: 4, label: '4 AI', players: '5 PLAYERS' },
+                  ].map(opt => {
+                    const isSelected = aiOpponentCount === opt.count;
+                    return (
+                      <button
+                        key={opt.count}
+                        type="button"
+                        onClick={() => setAiOpponentCount(opt.count)}
+                        className={`p-3 rounded-2xl border transition-all text-center flex flex-col items-center justify-center gap-1 ${
+                          isSelected
+                            ? 'bg-[#FF1744]/20 border-[#FF1744] shadow-glow-cyan scale-[1.02]'
+                            : 'bg-[#0A0A14] border-slate-800 hover:border-slate-700 text-slate-400'
+                        }`}
+                      >
+                        <span className={`text-base font-black font-display uppercase ${isSelected ? 'text-[#FF1744] text-glow-cyan' : 'text-white'}`}>
+                          {opt.label}
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
+                          {opt.players}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. VISUAL PARTICIPANTS ROSTER */}
+              <div className="bg-[#0A0A14] border border-slate-800 rounded-2xl p-3.5 space-y-2">
+                <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  <span className="flex items-center gap-1.5 text-white">
+                    <Users className="w-3.5 h-3.5 text-[#FF1744]" />
+                    ROOM ROSTER ({aiOpponentCount + 1} PARTICIPANTS)
+                  </span>
+                  <span className="text-slate-500 font-mono">1 HUMAN + {aiOpponentCount} AI</span>
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {/* Human player */}
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 text-xs shadow-glow-cyan">
+                    <span className="text-base">{aiBadge}</span>
+                    <div>
+                      <span className="font-black text-white">{aiTeamName.trim() || 'YOU'}</span>
+                      <span className="text-[9px] font-mono text-[#FF1744] ml-1.5 font-bold uppercase">(YOU)</span>
+                    </div>
+                  </div>
+
+                  {/* AI opponents in strict order: Steve, Mark, Joseph, Ron */}
+                  {AI_BOTS.slice(0, aiOpponentCount).map(bot => (
+                    <div
+                      key={bot.id}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs"
+                    >
+                      <span className="text-base">{bot.badgeIcon}</span>
+                      <div>
+                        <span className="font-bold text-white uppercase">{bot.name}</span>
+                        <span className="text-[9px] font-mono text-slate-400 ml-1.5">[{bot.shortCode}]</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. YOUR CLUB DETAILS */}
+              <form onSubmit={handleStartAiGame} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
+                      Your Club Name
+                    </label>
+                    <input
+                      type="text"
+                      value={aiTeamName}
+                      onChange={e => {
+                        setAiTeamName(e.target.value);
+                        if (!aiAbbreviation) {
+                          setAiAbbreviation(e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase());
+                        }
+                      }}
+                      placeholder="e.g. Apex FC"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-semibold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
+                      Club Code (3 letters)
+                    </label>
+                    <input
+                      type="text"
+                      value={aiAbbreviation}
+                      onChange={e => setAiAbbreviation(e.target.value.toUpperCase().slice(0, 3))}
+                      placeholder="e.g. APX"
+                      maxLength={3}
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono uppercase tracking-widest text-center"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">
+                    Club Crest Badge
+                  </label>
+                  <div className="grid grid-cols-6 gap-2">
+                    {BADGES.map(b => (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => setAiBadge(b)}
+                        className={`aspect-square flex items-center justify-center text-lg rounded-xl border transition ${
+                          aiBadge === b
+                            ? 'border-[#FF1744] bg-[#FF1744]/20 shadow-glow-cyan'
+                            : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
+                        }`}
+                      >
+                        {b}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loadingSession}
+                  className="w-full py-4 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-2xl text-sm transition shadow-glow-cyan disabled:opacity-50 mt-2 uppercase tracking-wider flex items-center justify-center gap-2 active:scale-98"
+                >
+                  <Bot className="w-5 h-5" />
+                  <span>{loadingSession ? 'INITIALIZING AI ARENA...' : 'START AI ROOM'}</span>
                 </button>
               </form>
             </div>

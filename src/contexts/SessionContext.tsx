@@ -22,6 +22,7 @@ import {
   TournamentFixture
 } from '../utils/tournament';
 import { syncPlayersToSupabase } from '../services/playerSyncService';
+import { AI_BOTS, selectAiStartingSeven } from '../services/aiEngine';
 
 interface SessionContextType {
   currentSession: GameSession | null;
@@ -37,8 +38,10 @@ interface SessionContextType {
   latestMatchResult: MatchResult | null;
   loadingSession: boolean;
   inactivityNotice: string | null;
+  isAiMode: boolean;
   clearInactivityNotice: () => void;
   createGame: (teamName: string, abbreviation: string, badgeIcon: string) => Promise<{ sessionCode: string | null; error: string | null }>;
+  createAiGame: (aiCount: number, teamName: string, abbreviation: string, badgeIcon: string) => Promise<{ sessionCode: string | null; error: string | null }>;
   joinGame: (code: string, teamName: string, abbreviation: string, badgeIcon: string) => Promise<{ error: string | null }>;
   leaveGame: () => Promise<void>;
   endGame: () => Promise<{ error: string | null }>;
@@ -47,6 +50,8 @@ interface SessionContextType {
   recordActivity: () => void;
   broadcastSimulatedMatch: (result: MatchResult) => Promise<void>;
   updateLineup: (teamId: string, startingSeven: string[], bench: string[], formation?: string) => Promise<void>;
+  updateSessionTeamSquadAndBudget: (teamId: string, player: Player, price: number) => void;
+  finalizeAiLineups: () => void;
   remoteNavigation: { tab: string; opponentId?: string; timestamp: number } | null;
   broadcastNavigation: (tab: string, opponentId?: string) => Promise<void>;
   setLatestMatchResult: (match: MatchResult | null) => void;
@@ -84,8 +89,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const allTeamsRef = useRef<Team[]>([]);
   const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes inactivity timeout
 
+  useEffect(() => {
+    allTeamsRef.current = allTeams;
+  }, [allTeams]);
+
   // When user logs in, load any active session they belong to
   useEffect(() => {
+    if (currentSession?.gameMode === 'ai') return;
     if (user) {
       loadActiveSession(user.id);
     } else {
@@ -247,6 +257,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const subscribeToSession = (sessionId: string) => {
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+    if (sessionId.startsWith('ai-session-') || currentSession?.gameMode === 'ai') {
+      return;
     }
     const channel = supabase
       .channel(`session:${sessionId}`, { config: { broadcast: { self: true } } })
@@ -463,6 +477,134 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const createAiGame = async (
+    aiCount: number,
+    teamName: string,
+    abbreviation: string,
+    badgeIcon: string
+  ): Promise<{ sessionCode: string | null; error: string | null }> => {
+    setLoadingSession(true);
+    try {
+      const code = 'AI-' + generateCode().slice(0, 4);
+      const safeAiCount = Math.min(4, Math.max(1, aiCount));
+      const selectedBots = AI_BOTS.slice(0, safeAiCount);
+      const sessionId = 'ai-session-' + Date.now();
+
+      const humanTeamId = 'team-human';
+      const safeTeamName = teamName.trim() || 'My FC';
+      const safeAbbr = (abbreviation || safeTeamName.slice(0, 3) || 'YOU').toUpperCase().slice(0, 3);
+      const safeBadge = badgeIcon || '⚡';
+
+      const humanTeam: Team = {
+        id: humanTeamId,
+        sessionId: sessionId,
+        userId: user?.id || 'human-user',
+        name: safeTeamName,
+        teamName: safeTeamName,
+        shortCode: safeAbbr,
+        abbreviation: safeAbbr,
+        manager: profile?.displayName || user?.email?.split('@')[0] || 'Manager',
+        budget: 130,
+        badgeIcon: safeBadge,
+        badge: safeBadge,
+        startingSeven: [],
+        bench: [],
+        formation: '1-2-2-2',
+        createdAt: new Date().toISOString(),
+      };
+
+      const aiTeams: Team[] = selectedBots.map(bot => ({
+        id: bot.id,
+        sessionId: sessionId,
+        userId: bot.id,
+        name: bot.teamName,
+        teamName: bot.teamName,
+        shortCode: bot.shortCode,
+        abbreviation: bot.shortCode,
+        manager: bot.name,
+        budget: 130,
+        badgeIcon: bot.badgeIcon,
+        badge: bot.badgeIcon,
+        startingSeven: [],
+        bench: [],
+        formation: '1-2-2-2',
+        createdAt: new Date().toISOString(),
+      }));
+
+      const session: GameSession = {
+        id: sessionId,
+        sessionCode: code,
+        hostUserId: user?.id || 'human-user',
+        status: 'LOBBY',
+        maxPlayers: selectedBots.length + 1,
+        startingBudget: 130,
+        squadSize: 10,
+        seasonLength: 38,
+        createdAt: new Date().toISOString(),
+        gameMode: 'ai',
+      };
+
+      const humanMember: LobbyMember = {
+        userId: user?.id || 'human-user',
+        joinedAt: new Date().toISOString(),
+        isReady: true,
+        profile: profile ?? {
+          id: user?.id || 'human-user',
+          userId: user?.id || 'human-user',
+          username: user?.email ? user.email.split('@')[0] : 'You',
+          displayName: user?.email ? user.email.split('@')[0] : 'You',
+          email: user?.email || '',
+          totalPoints: 0,
+          gamesPlayed: 0,
+          wins: 0,
+          draws: 0,
+          losses: 0,
+          goals: 0,
+          createdAt: new Date().toISOString(),
+        }
+      };
+
+      const aiMembers: LobbyMember[] = selectedBots.map(bot => ({
+        userId: bot.id,
+        joinedAt: new Date().toISOString(),
+        isReady: true,
+        profile: {
+          id: bot.id,
+          userId: bot.id,
+          username: bot.name,
+          displayName: bot.name,
+          email: `${bot.name.toLowerCase()}@ai.zeroball`,
+          totalPoints: 0,
+          gamesPlayed: 0,
+          wins: 0,
+          draws: 0,
+          losses: 0,
+          goals: 0,
+          createdAt: new Date().toISOString(),
+        }
+      }));
+
+      const allRoomTeams = [humanTeam, ...aiTeams];
+      setCurrentSession(session);
+      setMyTeam(humanTeam);
+      setAllTeams(allRoomTeams);
+      setLobbyMembers([humanMember, ...aiMembers]);
+      setSessionPlayers([]);
+      setSessionMatches([]);
+      setSessionStandings(computeTournamentStandings(allRoomTeams, []));
+      setTournamentFixtures(generateTournamentFixtures(allRoomTeams));
+      setIsTournamentComplete(false);
+      setTournamentWinner(null);
+      setLatestMatchResult(null);
+
+      return { sessionCode: code, error: null };
+    } catch (err: any) {
+      return { sessionCode: null, error: err.message || 'Error creating AI session.' };
+    } finally {
+      setLoadingSession(false);
+    }
+  };
+
   const joinGame = async (
     code: string,
     teamName: string,
@@ -540,7 +682,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   const leaveGame = async () => {
-    if (!user || !currentSession) return;
+    if (!currentSession) return;
+    if (currentSession.gameMode === 'ai') {
+      clearSession();
+      return;
+    }
+    if (!user) return;
     try {
       if (currentSession.hostUserId === user.id) {
         await supabase
@@ -562,7 +709,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   const endGame = async (): Promise<{ error: string | null }> => {
-    if (!user || !currentSession) return { error: 'No active session.' };
+    if (!currentSession) return { error: 'No active session.' };
+    if (currentSession.gameMode === 'ai') {
+      clearSession();
+      return { error: null };
+    }
+    if (!user) return { error: 'No active session.' };
     try {
       const { error } = await supabase
         .from('game_sessions')
@@ -577,7 +729,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   const startAuction = async (): Promise<{ error: string | null }> => {
-    if (!user || !currentSession) return { error: 'No active session.' };
+    if (!currentSession) return { error: 'No active session.' };
+    if (currentSession.gameMode === 'ai') {
+      setCurrentSession({ ...currentSession, status: 'AUCTION', startedAt: new Date().toISOString() });
+      return { error: null };
+    }
+    if (!user) return { error: 'No active session.' };
     if (currentSession.hostUserId !== user.id) return { error: 'Only the host can start the auction.' };
 
     // Auto-sync all 110+ catalog players to Supabase before starting auction
@@ -660,6 +817,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const broadcastSimulatedMatch = async (result: MatchResult) => {
     if (!currentSession) return;
+    if (currentSession.gameMode === 'ai') {
+      const updatedMatches = [...sessionMatches.filter(m => m.id !== result.id), result];
+      const updatedStandings = computeTournamentStandings(allTeams, updatedMatches);
+      const fixtures = tournamentFixtures.length > 0 ? tournamentFixtures : generateTournamentFixtures(allTeams);
+      const isComplete = fixtures.length > 0 && updatedMatches.length >= fixtures.length;
+      const champ = isComplete ? updatedStandings[0] : null;
+
+      setSessionMatches(updatedMatches);
+      setSessionStandings(updatedStandings);
+      setLatestMatchResult(result);
+      if (isComplete && champ) {
+        setIsTournamentComplete(true);
+        setTournamentWinner(champ);
+      }
+      return;
+    }
     try {
       // 1. Save match to Supabase
       await saveMatchToSupabase(result, currentSession.id);
@@ -728,6 +901,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       } : null);
     }
 
+    if (currentSession?.gameMode === 'ai') return;
+
     try {
       channelRef.current?.send({
         type: 'broadcast',
@@ -744,7 +919,55 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateSessionTeamSquadAndBudget = (teamId: string, player: Player, price: number) => {
+    setSessionPlayers((prev) => {
+      if (prev.some(p => p.id === player.id)) return prev;
+      return [...prev, player];
+    });
+
+    setAllTeams((prev) => prev.map(t => {
+      if (t.id !== teamId) return t;
+      const newBudget = Math.max(0, t.budget - price);
+      const newBench = [...(t.bench || []), player.id];
+      return {
+        ...t,
+        budget: newBudget,
+        bench: newBench,
+      };
+    }));
+
+    if (myTeam && myTeam.id === teamId) {
+      setMyTeam((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          budget: Math.max(0, prev.budget - price),
+          bench: [...(prev.bench || []), player.id],
+        };
+      });
+    }
+  };
+
+  const finalizeAiLineups = () => {
+    setAllTeams((prev) => prev.map(t => {
+      if (!t.id.startsWith('ai-')) return t;
+      const teamPlayerIds = new Set([...(t.bench || []), ...(t.startingSeven || [])]);
+      const teamPlayers = sessionPlayers.filter(p => teamPlayerIds.has(p.id));
+      const { startingSeven, bench, formation } = selectAiStartingSeven(teamPlayers);
+      return {
+        ...t,
+        startingSeven,
+        bench,
+        formation,
+      };
+    }));
+  };
+
   const broadcastNavigation = async (tab: string, opponentId?: string) => {
+    if (currentSession?.gameMode === 'ai') {
+      setRemoteNavigation({ tab, opponentId, timestamp: Date.now() });
+      return;
+    }
     try {
       channelRef.current?.send({
         type: 'broadcast',
@@ -760,14 +983,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshSessionData = async () => {
-    if (currentSession && user) {
+    if (currentSession && user && currentSession.gameMode !== 'ai') {
       await loadLobbyData(currentSession.id, user.id);
     }
   };
 
   // Polling fallback during matches so joined mobile players stay 100% in sync
   useEffect(() => {
-    if (!currentSession || currentSession.status !== 'MATCHES') return;
+    if (!currentSession || currentSession.status !== 'MATCHES' || currentSession.gameMode === 'ai') return;
 
     const interval = setInterval(async () => {
       const currentTeams = allTeamsRef.current;
@@ -791,11 +1014,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [currentSession?.id, currentSession?.status]);
+  }, [currentSession?.id, currentSession?.status, currentSession?.gameMode]);
 
   // 5-minute Room Inactivity Watchdog
   useEffect(() => {
-    if (!currentSession || currentSession.status === 'COMPLETED') return;
+    if (!currentSession || currentSession.status === 'COMPLETED' || currentSession.gameMode === 'ai') return;
 
     lastActivityRef.current = Date.now();
 
@@ -854,7 +1077,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       events.forEach(evt => window.removeEventListener(evt, handleActivity));
       clearInterval(checkInterval);
     };
-  }, [currentSession?.id, currentSession?.hostUserId, currentSession?.status, user?.id]);
+  }, [currentSession?.id, currentSession?.hostUserId, currentSession?.status, currentSession?.gameMode, user?.id]);
 
   return (
     <SessionContext.Provider
@@ -872,8 +1095,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         latestMatchResult,
         loadingSession,
         inactivityNotice,
+        isAiMode: Boolean(currentSession?.gameMode === 'ai'),
         clearInactivityNotice,
         createGame,
+        createAiGame,
         joinGame,
         leaveGame,
         endGame,
@@ -882,6 +1107,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         recordActivity,
         broadcastSimulatedMatch,
         updateLineup,
+        updateSessionTeamSquadAndBudget,
+        finalizeAiLineups,
         remoteNavigation,
         broadcastNavigation,
         setLatestMatchResult,

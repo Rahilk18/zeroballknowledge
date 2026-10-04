@@ -246,6 +246,7 @@ export interface GameSession {
   createdAt: string;
   startedAt?: string;
   endedAt?: string;
+  gameMode?: 'multiplayer' | 'ai';
 }
 
 export interface GameSessionRow {

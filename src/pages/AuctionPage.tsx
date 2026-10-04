@@ -49,6 +49,7 @@ export function AuctionPage({ setActiveTab }: any) {
     skipPlayer,
     endAuctionManually,
     reopenAuction,
+    aiThinking,
   } = useAuction();
 
   const [bidAmount, setBidAmount] = useState('');
@@ -586,6 +587,13 @@ export function AuctionPage({ setActiveTab }: any) {
             {myTeamIsHighest && (
               <div className="p-3 bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-2xl text-[#FF1744] text-xs font-black uppercase tracking-wider text-center shadow-glow-cyan">
                 🏆 YOU ARE CURRENTLY THE HIGHEST BIDDER!
+              </div>
+            )}
+
+            {aiThinking && (
+              <div className="flex items-center justify-center gap-2 py-2 px-3 bg-purple-500/10 border border-purple-500/30 rounded-xl text-purple-300 text-xs font-bold animate-pulse">
+                <Brain className="w-3.5 h-3.5 text-purple-400" />
+                <span>{aiThinking}</span>
               </div>
             )}
 
