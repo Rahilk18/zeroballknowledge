@@ -14,7 +14,11 @@ export interface AIPersonality {
   maxDelayMs: number;
   aggressionRate: number;
   overpayThreshold: number;
+  maxBidCap: number;
+  leniencyRate: number;
 }
+
+export const ABSOLUTE_MAX_AI_BID = 27;
 
 export const AI_BOTS: AIPersonality[] = [
   {
@@ -29,6 +33,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 2200,
     aggressionRate: 0.5,
     overpayThreshold: 1.05,
+    maxBidCap: 24,
+    leniencyRate: 0.55,
   },
   {
     id: 'ai-mark',
@@ -41,7 +47,9 @@ export const AI_BOTS: AIPersonality[] = [
     minDelayMs: 600,
     maxDelayMs: 1800,
     aggressionRate: 0.85,
-    overpayThreshold: 1.25,
+    overpayThreshold: 1.15,
+    maxBidCap: 27,
+    leniencyRate: 0.35,
   },
   {
     id: 'ai-joseph',
@@ -55,6 +63,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 3200,
     aggressionRate: 0.35,
     overpayThreshold: 0.95,
+    maxBidCap: 20,
+    leniencyRate: 0.70,
   },
   {
     id: 'ai-ron',
@@ -67,7 +77,9 @@ export const AI_BOTS: AIPersonality[] = [
     minDelayMs: 800,
     maxDelayMs: 2800,
     aggressionRate: 0.65,
-    overpayThreshold: 1.15,
+    overpayThreshold: 1.10,
+    maxBidCap: 25,
+    leniencyRate: 0.50,
   },
 ];
 
@@ -96,7 +108,7 @@ export function calculatePositionNeed(
   if (position === 'GK') {
     if (gkCount === 0) {
       // Must have at least 1 goalkeeper!
-      return personality === 'analytical' ? 1.85 : 1.6;
+      return personality === 'analytical' ? 1.35 : 1.25;
     }
     // Already has a goalkeeper: heavily deprioritize spending on a backup GK
     return 0.15;
@@ -118,16 +130,16 @@ export function calculatePositionNeed(
   }
 
   if (count === 0) {
-    return personality === 'analytical' ? 1.45 : 1.35;
+    return personality === 'analytical' ? 1.25 : 1.2;
   }
   if (count === 1) {
-    return 1.15;
+    return 1.05;
   }
   if (count >= 3) {
-    return 0.75;
+    return 0.7;
   }
   if (count >= 4) {
-    return 0.4;
+    return 0.35;
   }
 
   return 1.0;
@@ -144,26 +156,27 @@ export function calculateAIMaxWillingBid(
 ): number {
   if (squad.length >= 10) return 0;
 
-  // Reserve budget to guarantee reaching the minimum 7 players
+  // Reserve budget to guarantee reaching the minimum 7 players (€5M reserve per remaining slot)
   const neededToMinSquad = Math.max(0, 7 - squad.length - 1);
-  const reserveForOthers = neededToMinSquad * 4; // €4M reserve per remaining slot
+  const reserveForOthers = neededToMinSquad * 5;
   const maxSpendable = Math.max(0, currentBudget - reserveForOthers);
 
   if (maxSpendable < 5) return 0;
 
   // Base valuation curve based on overall rating (75 to 94)
+  // Tuned for a 130M budget so bids stay strictly in the €5M - €27M range
   const ovr = player.overall || 75;
-  let baseValue = 10;
+  let baseValue = 5;
   if (ovr >= 92) {
-    baseValue = 65 + (ovr - 92) * 12; // 65M - 89M
+    baseValue = 20 + (ovr - 92) * 1.5; // 92 OVR -> 20M, 94 OVR -> 23M
   } else if (ovr >= 89) {
-    baseValue = 48 + (ovr - 89) * 5;  // 48M - 63M
+    baseValue = 16 + (ovr - 89) * 1.2; // 89 OVR -> 16M, 91 OVR -> 18.4M
   } else if (ovr >= 86) {
-    baseValue = 34 + (ovr - 86) * 4;  // 34M - 46M
+    baseValue = 12 + (ovr - 86) * 1.0; // 86 OVR -> 12M, 88 OVR -> 14M
   } else if (ovr >= 82) {
-    baseValue = 22 + (ovr - 82) * 3;  // 22M - 34M
+    baseValue = 8 + (ovr - 82) * 0.8;  // 82 OVR -> 8M, 85 OVR -> 10.4M
   } else {
-    baseValue = 10 + (ovr - 75) * 1.5; // 10M - 20M
+    baseValue = 5 + Math.max(0, ovr - 75) * 0.4; // 75 OVR -> 5M, 81 OVR -> 7.4M
   }
 
   // Positional need multiplier
@@ -172,21 +185,126 @@ export function calculateAIMaxWillingBid(
   // Personality adjustments
   let personalityMultiplier = ai.overpayThreshold;
   if (ai.type === 'aggressive') {
-    // Mark goes crazy for 88+ players
-    if (ovr >= 88) personalityMultiplier += 0.15;
+    // Mark pushes up toward his cap on 88+ stars
+    if (ovr >= 88) personalityMultiplier += 0.08;
   } else if (ai.type === 'analytical') {
     // Joseph is frugal and looks for bargains
-    personalityMultiplier = ovr >= 90 ? 0.95 : 1.05;
+    personalityMultiplier = ovr >= 90 ? 0.95 : 1.02;
   } else if (ai.type === 'unpredictable') {
-    // Ron varies between 0.85 and 1.25
-    personalityMultiplier = 0.85 + Math.random() * 0.4;
+    // Ron varies between 0.85 and 1.10
+    personalityMultiplier = 0.85 + Math.random() * 0.25;
   }
 
   const rawVal = baseValue * needMultiplier * personalityMultiplier;
 
-  // Never exceed spendable budget
-  const finalBidCap = Math.min(Math.round(rawVal), maxSpendable, currentBudget);
+  // Cap strictly at AI personality max cap and absolute max cap of 27M
+  const botCap = ai.maxBidCap || ABSOLUTE_MAX_AI_BID;
+  const hardCeiling = Math.min(botCap, ABSOLUTE_MAX_AI_BID);
+
+  // Never exceed spendable budget or hard ceiling
+  const finalBidCap = Math.min(Math.round(rawVal), maxSpendable, currentBudget, hardCeiling);
   return Math.max(0, finalBidCap);
+}
+
+export interface BotAuctionStance {
+  interest: 'PASSING' | 'CASUAL' | 'TARGETING';
+  maxWilling: number;
+  concededToUser: boolean;
+  bidsPlaced: number;
+}
+
+const botStancesByAuction = new Map<string, Map<string, BotAuctionStance>>();
+
+export function resetAiStancesForAuction(auctionId: string) {
+  botStancesByAuction.delete(auctionId);
+}
+
+export function getOrInitBotStance(
+  auctionId: string,
+  bot: AIPersonality,
+  player: Player,
+  currentBudget: number,
+  squad: Player[]
+): BotAuctionStance {
+  // Prune map if getting too large
+  if (botStancesByAuction.size > 8) {
+    const oldestKey = botStancesByAuction.keys().next().value;
+    if (oldestKey) botStancesByAuction.delete(oldestKey);
+  }
+
+  if (!botStancesByAuction.has(auctionId)) {
+    botStancesByAuction.set(auctionId, new Map());
+  }
+
+  const auctionMap = botStancesByAuction.get(auctionId)!;
+  if (auctionMap.has(bot.id)) {
+    return auctionMap.get(bot.id)!;
+  }
+
+  const ovr = player.overall || 75;
+  const pos = player.position;
+  const gkCount = squad.filter(p => p.position === 'GK').length;
+  const posCount = squad.filter(p => p.position === pos).length;
+
+  let interest: 'PASSING' | 'CASUAL' | 'TARGETING' = 'CASUAL';
+
+  if (squad.length >= 10) {
+    interest = 'PASSING';
+  } else if (pos === 'GK' && gkCount >= 1) {
+    interest = 'PASSING';
+  } else if (posCount >= 4) {
+    interest = 'PASSING';
+  } else {
+    const roll = Math.random();
+    if (ovr < 82) {
+      if (roll < 0.50) interest = 'PASSING';
+      else if (roll < 0.85) interest = 'CASUAL';
+      else interest = 'TARGETING';
+    } else if (ovr <= 87) {
+      if (roll < 0.35) interest = 'PASSING';
+      else if (roll < 0.70) interest = 'CASUAL';
+      else interest = 'TARGETING';
+    } else if (ovr <= 90) {
+      if (roll < 0.20) interest = 'PASSING';
+      else if (roll < 0.55) interest = 'CASUAL';
+      else interest = 'TARGETING';
+    } else {
+      if (bot.type === 'analytical') {
+        if (roll < 0.30) interest = 'PASSING';
+        else if (roll < 0.65) interest = 'CASUAL';
+        else interest = 'TARGETING';
+      } else if (bot.type === 'aggressive') {
+        if (roll < 0.10) interest = 'PASSING';
+        else if (roll < 0.30) interest = 'CASUAL';
+        else interest = 'TARGETING';
+      } else {
+        if (roll < 0.15) interest = 'PASSING';
+        else if (roll < 0.45) interest = 'CASUAL';
+        else interest = 'TARGETING';
+      }
+    }
+  }
+
+  const calculatedMax = calculateAIMaxWillingBid(player, currentBudget, squad, bot);
+  let maxWilling = calculatedMax;
+
+  if (interest === 'PASSING') {
+    maxWilling = 0;
+  } else if (interest === 'CASUAL') {
+    // Casual bidders drop out early (€6M - €14M depending on rating)
+    const casualCeiling = Math.min(14, 6 + Math.round((ovr - 75) * 0.45));
+    maxWilling = Math.min(calculatedMax, casualCeiling);
+  }
+
+  const stance: BotAuctionStance = {
+    interest,
+    maxWilling,
+    concededToUser: false,
+    bidsPlaced: 0,
+  };
+
+  auctionMap.set(bot.id, stance);
+  return stance;
 }
 
 /**
@@ -199,7 +317,8 @@ export function evaluateAIBid(
   highestTeamId: string | null | undefined,
   aiTeam: Team,
   aiSquad: Player[],
-  ai: AIPersonality
+  ai: AIPersonality,
+  auctionId: string = 'default'
 ): AIDecision {
   // If this AI is already the highest bidder, never bid against itself
   if (highestTeamId && highestTeamId === aiTeam.id) {
@@ -211,30 +330,80 @@ export function evaluateAIBid(
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
 
-  const maxWilling = calculateAIMaxWillingBid(player, aiTeam.budget, aiSquad, ai);
-  const minRequiredBid = currentBid > 0 ? currentBid + 1 : (startingPrice || 5);
+  // Retrieve or initialize this bot's stance for the auction lot
+  const stance = getOrInitBotStance(auctionId, ai, player, aiTeam.budget, aiSquad);
 
-  // Current price is too expensive
-  if (minRequiredBid > maxWilling || minRequiredBid > aiTeam.budget) {
+  // If decided to pass or already conceded to the user
+  if (stance.interest === 'PASSING' || stance.concededToUser || stance.maxWilling <= 0) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
 
-  // Human-like hesitation / pass probability
-  // AI won't blindly contest every single auction
-  const posNeed = calculatePositionNeed(player.position, aiSquad, ai.type);
-  if (posNeed < 0.5 && Math.random() < 0.7) {
+  const minRequiredBid = currentBid > 0 ? currentBid + 1 : (startingPrice || 5);
+  const botCap = Math.min(ai.maxBidCap || ABSOLUTE_MAX_AI_BID, ABSOLUTE_MAX_AI_BID);
+
+  // Hard cap check: if min required bid exceeds 27M or bot cap, AI will not bid
+  if (minRequiredBid > botCap || minRequiredBid > ABSOLUTE_MAX_AI_BID) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+  }
+
+  // Current price is too expensive for this AI stance
+  if (minRequiredBid > stance.maxWilling || minRequiredBid > aiTeam.budget) {
+    return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+  }
+
+  const isUserLeading = Boolean(highestTeamId && !highestTeamId.startsWith('ai-'));
+
+  // LENIENCY SYSTEM: Allow user to buy players for cheap and avoid endless bidding wars
+  if (isUserLeading) {
+    // 1. If casual interest, 75% chance to concede to the user immediately
+    if (stance.interest === 'CASUAL' && Math.random() < 0.75) {
+      stance.concededToUser = true;
+      return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+    }
+
+    // 2. If bot already counter-bid the user once or twice, high chance to concede
+    if (stance.bidsPlaced >= 1) {
+      const dropChance = stance.bidsPlaced === 1 ? 0.55 : 0.85;
+      if (Math.random() < dropChance) {
+        stance.concededToUser = true;
+        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+      }
+    }
+
+    // 3. Low-bid bargain leniency: if current bid is cheap (<= 12M), roll to let user get the player cheap!
+    if (currentBid <= 12) {
+      const bargainChance = (player.overall || 75) <= 86 ? 0.60 : (ai.leniencyRate || 0.50);
+      if (Math.random() < bargainChance) {
+        stance.concededToUser = true;
+        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+      }
+    }
+
+    // 4. General leniency roll based on personality
+    if (Math.random() < (ai.leniencyRate || 0.40) * 0.7) {
+      stance.concededToUser = true;
+      return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+    }
   }
 
   // Realistic bid increment
   let bidToPlace = minRequiredBid;
-  // Mark or Ron sometimes jump by +2 or +3 on high-value targets to assert dominance
-  if ((ai.type === 'aggressive' || ai.type === 'unpredictable') && Math.random() < 0.25) {
-    const jump = minRequiredBid + Math.floor(Math.random() * 2) + 1;
-    if (jump <= maxWilling && jump <= aiTeam.budget) {
+  // Mark or Ron sometimes jump by +1 on high-value targets if competing with another AI
+  if (!isUserLeading && (ai.type === 'aggressive' || ai.type === 'unpredictable') && Math.random() < 0.2) {
+    const jump = minRequiredBid + 1;
+    if (jump <= stance.maxWilling && jump <= aiTeam.budget && jump <= botCap) {
       bidToPlace = jump;
     }
   }
+
+  // Double safety: guarantee bidToPlace never exceeds 27M or botCap
+  bidToPlace = Math.min(bidToPlace, stance.maxWilling, aiTeam.budget, botCap, ABSOLUTE_MAX_AI_BID);
+  if (bidToPlace < minRequiredBid) {
+    return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+  }
+
+  // Track that this bot placed a bid in this auction lot
+  stance.bidsPlaced += 1;
 
   // Realistic human delay
   const baseDelay = ai.minDelayMs + Math.random() * (ai.maxDelayMs - ai.minDelayMs);
