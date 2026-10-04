@@ -97,12 +97,12 @@ export function AuctionPage({ setActiveTab }: any) {
     const ovr = currentPlayer.overall || 75;
     const pos = currentPlayer.position;
     if (ovr >= 90) {
-      return `ZEROBALL AI: ${currentPlayer.name} is a generational elite ${pos}. Recommended bidding ceiling is up to €${Math.min(myTeam?.budget || 100, Math.round(ovr * 0.95))}M.`;
+      return `ZEROBALL AI: ${currentPlayer.name} is a top marquee ${pos}. Recommended bidding ceiling is €14M - €20M.`;
     } else if (ovr >= 85) {
-      return `ZEROBALL AI: Solid core ${pos} with great squad synergy. Optimal value target is €${Math.round(ovr * 0.55)}M.`;
+      return `ZEROBALL AI: Solid core ${pos}. Recommended target is €8M - €12M.`;
     }
-    return `ZEROBALL AI: High-efficiency depth signing. Preserve budget for marquee attackers.`;
-  }, [currentPlayer, myTeam?.budget]);
+    return `ZEROBALL AI: High-efficiency depth signing. Bargain target: €5M - €7M.`;
+  }, [currentPlayer]);
 
   const handleBid = async (e: React.FormEvent) => {
     e.preventDefault();

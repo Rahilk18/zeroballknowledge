@@ -18,7 +18,7 @@ export interface AIPersonality {
   leniencyRate: number;
 }
 
-export const ABSOLUTE_MAX_AI_BID = 27;
+export const ABSOLUTE_MAX_AI_BID = 22;
 
 export const AI_BOTS: AIPersonality[] = [
   {
@@ -33,8 +33,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 2200,
     aggressionRate: 0.5,
     overpayThreshold: 1.05,
-    maxBidCap: 24,
-    leniencyRate: 0.55,
+    maxBidCap: 18,
+    leniencyRate: 0.60,
   },
   {
     id: 'ai-mark',
@@ -48,8 +48,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 1800,
     aggressionRate: 0.85,
     overpayThreshold: 1.15,
-    maxBidCap: 27,
-    leniencyRate: 0.35,
+    maxBidCap: 22,
+    leniencyRate: 0.40,
   },
   {
     id: 'ai-joseph',
@@ -63,8 +63,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 3200,
     aggressionRate: 0.35,
     overpayThreshold: 0.95,
-    maxBidCap: 20,
-    leniencyRate: 0.70,
+    maxBidCap: 16,
+    leniencyRate: 0.75,
   },
   {
     id: 'ai-ron',
@@ -78,8 +78,8 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 2800,
     aggressionRate: 0.65,
     overpayThreshold: 1.10,
-    maxBidCap: 25,
-    leniencyRate: 0.50,
+    maxBidCap: 19,
+    leniencyRate: 0.55,
   },
 ];
 
@@ -154,6 +154,18 @@ export function calculateAIMaxWillingBid(
   squad: Player[],
   ai: AIPersonality
 ): number {
+  const ovr = player.overall || 75;
+
+  // ONLY top rated cards (88+ OVR) are actively bid on by AI!
+  // All cards below 88 OVR are passed to let the user buy them for cheap.
+  if (ovr < 88) {
+    // If the team has zero goalkeepers, allow a modest bid up to €6M for a GK
+    if (player.position === 'GK' && squad.filter(p => p.position === 'GK').length === 0) {
+      return Math.min(6, currentBudget);
+    }
+    return 0; // 100% pass on all cards < 88 OVR!
+  }
+
   if (squad.length >= 10) return 0;
 
   // Reserve budget to guarantee reaching the minimum 7 players (€5M reserve per remaining slot)
@@ -163,46 +175,35 @@ export function calculateAIMaxWillingBid(
 
   if (maxSpendable < 5) return 0;
 
-  // Base valuation curve based on overall rating (75 to 94)
-  // Tuned for a 130M budget so bids stay strictly in the €5M - €27M range
-  const ovr = player.overall || 75;
-  let baseValue = 5;
+  // Top rated cards valuation curve (88 to 94)
+  // Max willing bids stay strictly in the €10M - €22M range
+  let baseValue = 10;
   if (ovr >= 92) {
-    baseValue = 20 + (ovr - 92) * 1.5; // 92 OVR -> 20M, 94 OVR -> 23M
-  } else if (ovr >= 89) {
-    baseValue = 16 + (ovr - 89) * 1.2; // 89 OVR -> 16M, 91 OVR -> 18.4M
-  } else if (ovr >= 86) {
-    baseValue = 12 + (ovr - 86) * 1.0; // 86 OVR -> 12M, 88 OVR -> 14M
-  } else if (ovr >= 82) {
-    baseValue = 8 + (ovr - 82) * 0.8;  // 82 OVR -> 8M, 85 OVR -> 10.4M
+    baseValue = 17 + (ovr - 92) * 1.5; // 92 OVR -> 17M, 94 OVR -> 20M
+  } else if (ovr >= 90) {
+    baseValue = 13 + (ovr - 90) * 1.5; // 90 OVR -> 13M, 91 OVR -> 14.5M (Rodri ~ 14.5M!)
   } else {
-    baseValue = 5 + Math.max(0, ovr - 75) * 0.4; // 75 OVR -> 5M, 81 OVR -> 7.4M
+    baseValue = 9 + (ovr - 88) * 1.5;  // 88 OVR -> 9M, 89 OVR -> 10.5M
   }
 
-  // Positional need multiplier
+  // Positional need multiplier (0.8 to 1.15)
   const needMultiplier = calculatePositionNeed(player.position, squad, ai.type);
 
   // Personality adjustments
-  let personalityMultiplier = ai.overpayThreshold;
+  let personalityMultiplier = 1.0;
   if (ai.type === 'aggressive') {
-    // Mark pushes up toward his cap on 88+ stars
-    if (ovr >= 88) personalityMultiplier += 0.08;
+    personalityMultiplier = 1.08;
   } else if (ai.type === 'analytical') {
-    // Joseph is frugal and looks for bargains
-    personalityMultiplier = ovr >= 90 ? 0.95 : 1.02;
+    personalityMultiplier = 0.92;
   } else if (ai.type === 'unpredictable') {
-    // Ron varies between 0.85 and 1.10
-    personalityMultiplier = 0.85 + Math.random() * 0.25;
+    personalityMultiplier = 0.90 + Math.random() * 0.18;
   }
 
   const rawVal = baseValue * needMultiplier * personalityMultiplier;
 
-  // Cap strictly at AI personality max cap and absolute max cap of 27M
-  const botCap = ai.maxBidCap || ABSOLUTE_MAX_AI_BID;
-  const hardCeiling = Math.min(botCap, ABSOLUTE_MAX_AI_BID);
-
-  // Never exceed spendable budget or hard ceiling
-  const finalBidCap = Math.min(Math.round(rawVal), maxSpendable, currentBudget, hardCeiling);
+  // Strict hard ceiling: never exceed botCap or ABSOLUTE_MAX_AI_BID (22M)
+  const botCap = Math.min(ai.maxBidCap || ABSOLUTE_MAX_AI_BID, ABSOLUTE_MAX_AI_BID);
+  const finalBidCap = Math.min(Math.round(rawVal), maxSpendable, currentBudget, botCap);
   return Math.max(0, finalBidCap);
 }
 
@@ -246,42 +247,30 @@ export function getOrInitBotStance(
   const gkCount = squad.filter(p => p.position === 'GK').length;
   const posCount = squad.filter(p => p.position === pos).length;
 
-  let interest: 'PASSING' | 'CASUAL' | 'TARGETING' = 'CASUAL';
+  let interest: 'PASSING' | 'CASUAL' | 'TARGETING' = 'PASSING';
 
-  if (squad.length >= 10) {
-    interest = 'PASSING';
-  } else if (pos === 'GK' && gkCount >= 1) {
-    interest = 'PASSING';
-  } else if (posCount >= 4) {
+  // RULE: ONLY top rated cards (88+ OVR) the AI bids!
+  // All cards below 88 OVR are 100% PASS so the user gets great deals for cheap.
+  if (ovr < 88) {
+    if (pos === 'GK' && gkCount === 0) {
+      interest = 'CASUAL'; // only if desperately needing a goalkeeper
+    } else {
+      interest = 'PASSING';
+    }
+  } else if (squad.length >= 10 || (pos === 'GK' && gkCount >= 1) || posCount >= 3) {
     interest = 'PASSING';
   } else {
+    // 88+ OVR top rated cards:
     const roll = Math.random();
-    if (ovr < 82) {
-      if (roll < 0.50) interest = 'PASSING';
-      else if (roll < 0.85) interest = 'CASUAL';
-      else interest = 'TARGETING';
-    } else if (ovr <= 87) {
-      if (roll < 0.35) interest = 'PASSING';
-      else if (roll < 0.70) interest = 'CASUAL';
-      else interest = 'TARGETING';
-    } else if (ovr <= 90) {
-      if (roll < 0.20) interest = 'PASSING';
-      else if (roll < 0.55) interest = 'CASUAL';
+    if (ovr >= 92) {
+      if (roll < 0.25) interest = 'PASSING';
+      else if (roll < 0.60) interest = 'CASUAL';
       else interest = 'TARGETING';
     } else {
-      if (bot.type === 'analytical') {
-        if (roll < 0.30) interest = 'PASSING';
-        else if (roll < 0.65) interest = 'CASUAL';
-        else interest = 'TARGETING';
-      } else if (bot.type === 'aggressive') {
-        if (roll < 0.10) interest = 'PASSING';
-        else if (roll < 0.30) interest = 'CASUAL';
-        else interest = 'TARGETING';
-      } else {
-        if (roll < 0.15) interest = 'PASSING';
-        else if (roll < 0.45) interest = 'CASUAL';
-        else interest = 'TARGETING';
-      }
+      // 88 - 91 OVR (like Rodri)
+      if (roll < 0.40) interest = 'PASSING';
+      else if (roll < 0.75) interest = 'CASUAL';
+      else interest = 'TARGETING';
     }
   }
 
@@ -291,8 +280,8 @@ export function getOrInitBotStance(
   if (interest === 'PASSING') {
     maxWilling = 0;
   } else if (interest === 'CASUAL') {
-    // Casual bidders drop out early (€6M - €14M depending on rating)
-    const casualCeiling = Math.min(14, 6 + Math.round((ovr - 75) * 0.45));
+    // Casual bidders drop out very early (€6M - €12M max)
+    const casualCeiling = Math.min(12, 6 + Math.round((ovr - 88) * 1.5));
     maxWilling = Math.min(calculatedMax, casualCeiling);
   }
 
@@ -333,7 +322,13 @@ export function evaluateAIBid(
   // Retrieve or initialize this bot's stance for the auction lot
   const stance = getOrInitBotStance(auctionId, ai, player, aiTeam.budget, aiSquad);
 
-  // If decided to pass or already conceded to the user
+  // 1. Strict cap: An AI bot can place AT MOST 2 BIDS per player auction!
+  // If it already placed 2 bids, it ALWAYS backs out!
+  if (stance.bidsPlaced >= 2) {
+    return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+  }
+
+  // 2. If decided to pass or already conceded to the user
   if (stance.interest === 'PASSING' || stance.concededToUser || stance.maxWilling <= 0) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
@@ -341,68 +336,56 @@ export function evaluateAIBid(
   const minRequiredBid = currentBid > 0 ? currentBid + 1 : (startingPrice || 5);
   const botCap = Math.min(ai.maxBidCap || ABSOLUTE_MAX_AI_BID, ABSOLUTE_MAX_AI_BID);
 
-  // Hard cap check: if min required bid exceeds 27M or bot cap, AI will not bid
+  // Hard cap check: if min required bid exceeds 22M or bot cap, AI backs out immediately!
   if (minRequiredBid > botCap || minRequiredBid > ABSOLUTE_MAX_AI_BID) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
 
-  // Current price is too expensive for this AI stance
+  // Current price is too expensive for this AI stance: back out!
   if (minRequiredBid > stance.maxWilling || minRequiredBid > aiTeam.budget) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
 
   const isUserLeading = Boolean(highestTeamId && !highestTeamId.startsWith('ai-'));
 
-  // LENIENCY SYSTEM: Allow user to buy players for cheap and avoid endless bidding wars
+  // BACK OUT LOGIC: Make sure the AI backs out frequently
   if (isUserLeading) {
-    // 1. If casual interest, 75% chance to concede to the user immediately
-    if (stance.interest === 'CASUAL' && Math.random() < 0.75) {
-      stance.concededToUser = true;
-      return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
-    }
-
-    // 2. If bot already counter-bid the user once or twice, high chance to concede
+    // A) If bot already counter-bid the user once: 85% chance to back out on user raise!
     if (stance.bidsPlaced >= 1) {
-      const dropChance = stance.bidsPlaced === 1 ? 0.55 : 0.85;
-      if (Math.random() < dropChance) {
+      if (Math.random() < 0.85) {
         stance.concededToUser = true;
         return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
       }
     }
 
-    // 3. Low-bid bargain leniency: if current bid is cheap (<= 12M), roll to let user get the player cheap!
-    if (currentBid <= 12) {
-      const bargainChance = (player.overall || 75) <= 86 ? 0.60 : (ai.leniencyRate || 0.50);
-      if (Math.random() < bargainChance) {
-        stance.concededToUser = true;
-        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
-      }
-    }
-
-    // 4. General leniency roll based on personality
-    if (Math.random() < (ai.leniencyRate || 0.40) * 0.7) {
+    // B) If casual interest: 80% chance to back out immediately
+    if (stance.interest === 'CASUAL' && Math.random() < 0.80) {
       stance.concededToUser = true;
+      return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+    }
+
+    // C) Initial hesitation against user: 50% chance the bot never contests the user's bid
+    if (Math.random() < 0.50) {
+      stance.concededToUser = true;
+      return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
+    }
+  } else {
+    // If competing with another AI bot and already bid once: 70% chance to back out
+    if (stance.bidsPlaced >= 1 && Math.random() < 0.70) {
       return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
     }
   }
 
-  // Realistic bid increment
+  // Place next bid
   let bidToPlace = minRequiredBid;
-  // Mark or Ron sometimes jump by +1 on high-value targets if competing with another AI
-  if (!isUserLeading && (ai.type === 'aggressive' || ai.type === 'unpredictable') && Math.random() < 0.2) {
-    const jump = minRequiredBid + 1;
-    if (jump <= stance.maxWilling && jump <= aiTeam.budget && jump <= botCap) {
-      bidToPlace = jump;
-    }
-  }
 
-  // Double safety: guarantee bidToPlace never exceeds 27M or botCap
+  // Never exceed botCap, stance.maxWilling, or ABSOLUTE_MAX_AI_BID (22M)
   bidToPlace = Math.min(bidToPlace, stance.maxWilling, aiTeam.budget, botCap, ABSOLUTE_MAX_AI_BID);
   if (bidToPlace < minRequiredBid) {
     return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
   }
 
-  // Track that this bot placed a bid in this auction lot
+  // Record that this bot placed a bid
   stance.bidsPlaced += 1;
 
   // Realistic human delay
