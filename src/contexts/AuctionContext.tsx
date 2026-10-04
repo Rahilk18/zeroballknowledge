@@ -11,7 +11,7 @@ import {
 } from '../services/sessionService';
 import { syncPlayersToSupabase } from '../services/playerSyncService';
 import { INITIAL_PLAYERS } from '../data/initialData';
-import { AI_BOTS, evaluateAIBid } from '../services/aiEngine';
+import { AI_BOTS, evaluateAIBid, ABSOLUTE_MAX_AI_BID } from '../services/aiEngine';
 
 interface AuctionContextType {
   currentAuction: Auction | null;
@@ -238,7 +238,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
         auction.id
       );
 
-      if (decision.shouldBid && decision.bidAmount <= 21) {
+      if (decision.shouldBid && decision.bidAmount <= ABSOLUTE_MAX_AI_BID) {
         candidates.push({ team, bot, decision });
       }
     }
@@ -263,7 +263,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       const liveEffectiveBid = Math.max(liveAuction.currentBid || 0);
       if (liveAuction.highestTeamId === chosen.team.id) return;
       if (chosen.decision.bidAmount <= liveEffectiveBid) return;
-      if (chosen.decision.bidAmount > 21) return;
+      if (chosen.decision.bidAmount > ABSOLUTE_MAX_AI_BID) return;
 
       const currentEndMs = liveAuction.endsAt ? new Date(liveAuction.endsAt).getTime() : Date.now();
       const remainingMs = Math.max(0, currentEndMs - Date.now());

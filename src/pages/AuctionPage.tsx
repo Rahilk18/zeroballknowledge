@@ -96,12 +96,16 @@ export function AuctionPage({ setActiveTab }: any) {
     if (!currentPlayer) return '';
     const ovr = currentPlayer.overall || 75;
     const pos = currentPlayer.position;
-    if (ovr >= 90) {
-      return `ZEROBALL AI: ${currentPlayer.name} is a top marquee ${pos}. Recommended bidding ceiling is €14M - €20M.`;
+    if (ovr >= 92) {
+      return `ZEROBALL AI: ${currentPlayer.name} is a legendary superstar ${pos}. Recommended bidding ceiling is €26M - €35M.`;
+    } else if (ovr >= 90) {
+      return `ZEROBALL AI: ${currentPlayer.name} is a top marquee ${pos}. Recommended bidding ceiling is €17M - €25M.`;
     } else if (ovr >= 85) {
-      return `ZEROBALL AI: Solid core ${pos}. Recommended target is €8M - €12M.`;
+      return `ZEROBALL AI: Solid starter ${pos}. Optimal target is €9M - €16M.`;
+    } else if (ovr >= 80) {
+      return `ZEROBALL AI: Quality mid-tier ${pos}. Target range: €6M - €9M.`;
     }
-    return `ZEROBALL AI: High-efficiency depth signing. Bargain target: €5M - €7M.`;
+    return `ZEROBALL AI: Squad depth signing. Value target: €5M - €7M.`;
   }, [currentPlayer]);
 
   const handleBid = async (e: React.FormEvent) => {
