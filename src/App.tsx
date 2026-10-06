@@ -27,7 +27,7 @@ import SeasonCompleteModal from './components/SeasonCompleteModal';
 import { saveMatchToSupabase } from './services/sessionService';
 import { useSession } from './contexts/SessionContext';
 import { useAuth } from './contexts/AuthContext';
-import { computeTournamentStandings, generateTournamentFixtures } from './utils/tournament';
+import { computeTournamentStandings, generateTournamentFixtures, getHeadToHeadRecord } from './utils/tournament';
 import { syncPlayersToSupabase } from './services/playerSyncService';
 
 export function App() {
@@ -234,9 +234,12 @@ export function App() {
         };
         const homeRoster = getTeamRoster(homeTeam);
         const awayRoster = getTeamRoster(awayTeam);
+        const h2h = getHeadToHeadRecord(homeTeam.id, awayTeam.id, effectiveMatches);
+        const isDecider = nextUnplayedFixture.isDecider ?? (nextUnplayedFixture.leg === 3 && h2h.teamAWins === h2h.teamBWins);
         const result = simulateMatch(
           { team: homeTeam, players: homeRoster },
-          { team: awayTeam, players: awayRoster }
+          { team: awayTeam, players: awayRoster },
+          { isDecider }
         );
         result.matchweek = effectiveMatches.length + 1;
         broadcastSimulatedMatch(result);
@@ -303,9 +306,13 @@ export function App() {
       const homeRoster = getTeamRoster(homeTeam);
       const awayRoster = getTeamRoster(awayTeam);
 
+      const h2h = getHeadToHeadRecord(homeTeam.id, awayTeam.id, effectiveMatches);
+      const isDecider = nextUnplayedFixture?.isDecider ?? (h2h.isDecider || (nextUnplayedFixture?.leg === 3 && h2h.teamAWins === h2h.teamBWins));
+
       const result = simulateMatch(
         { team: homeTeam, players: homeRoster },
-        { team: awayTeam, players: awayRoster }
+        { team: awayTeam, players: awayRoster },
+        { isDecider }
       );
 
       result.matchweek = effectiveMatches.length + 1;

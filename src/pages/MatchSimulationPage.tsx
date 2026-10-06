@@ -65,6 +65,8 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
     }
   }, [currentHomeScore, currentAwayScore]);
 
+  const maxMinute = matchResult.wentToExtraTime ? 120 : 90;
+
   // Timer loop
   useEffect(() => {
     if (!isPlaying || isFinished) return;
@@ -73,24 +75,27 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
     const timer = setInterval(() => {
       setCurrentMinute((prev) => {
-        if (prev >= 90) {
+        if (prev >= maxMinute) {
           clearInterval(timer);
           setIsFinished(true);
           setIsPlaying(false);
           sound.playVictorySound();
-          return 90;
+          return maxMinute;
         }
         return prev + 1;
       });
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [isPlaying, isFinished, speedMultiplier]);
+  }, [isPlaying, isFinished, speedMultiplier, maxMinute]);
 
   // When finished, fire confetti if home won
   useEffect(() => {
     if (isFinished && !confettiFired.current) {
-      if (matchResult.homeScore > matchResult.awayScore) {
+      const homeWon = matchResult.wentToPenalties && matchResult.penaltyScore
+        ? matchResult.penaltyScore.home > matchResult.penaltyScore.away
+        : matchResult.homeScore > matchResult.awayScore;
+      if (homeWon) {
         confetti({
           particleCount: 80,
           spread: 70,
@@ -99,11 +104,11 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
         confettiFired.current = true;
       }
     }
-  }, [isFinished, matchResult.homeScore, matchResult.awayScore]);
+  }, [isFinished, matchResult.homeScore, matchResult.awayScore, matchResult.wentToPenalties, matchResult.penaltyScore]);
 
   const handleInstantSkip = () => {
     sound.playClick();
-    setCurrentMinute(90);
+    setCurrentMinute(maxMinute);
     setIsFinished(true);
     setIsPlaying(false);
     sound.playVictorySound();
@@ -132,7 +137,17 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           <div className="flex items-center gap-2">
             <span className={`w-2.5 h-2.5 rounded-full ${isFinished ? 'bg-slate-500' : 'bg-[#FF1744] animate-ping'}`} />
             <span className="text-xs font-black uppercase tracking-widest text-[#FF1744] font-display text-glow-cyan">
-              {isFinished ? 'FULL TIME BATTLE END' : currentMinute < 45 ? '1ST HALF IN PROGRESS' : '2ND HALF CLASH'}
+              {isFinished
+                ? (matchResult.wentToPenalties
+                    ? 'FULL TIME (PENALTIES DECIDED)'
+                    : matchResult.wentToExtraTime
+                    ? 'AFTER EXTRA TIME (120\')'
+                    : 'FULL TIME BATTLE END')
+                : currentMinute > 90
+                ? 'EXTRA TIME IN PROGRESS'
+                : currentMinute < 45
+                ? '1ST HALF IN PROGRESS'
+                : '2ND HALF CLASH'}
             </span>
           </div>
 
@@ -198,6 +213,17 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
             <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mt-1">
               {isFinished ? 'FINAL SCORE' : 'LIVE MATCH'}
             </span>
+            {matchResult.wentToPenalties && (isFinished || currentMinute >= 120) && matchResult.penaltyScore && (
+              <div className="mt-1.5 px-3 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[11px] font-black animate-pulse flex items-center gap-1.5 shadow-glow-amber">
+                <span>🎯 PENALTIES:</span>
+                <span>{matchResult.penaltyScore.home} - {matchResult.penaltyScore.away}</span>
+              </div>
+            )}
+            {!matchResult.wentToPenalties && matchResult.wentToExtraTime && (isFinished || currentMinute >= 90) && (
+              <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider mt-1">
+                (AET • 120 MINS)
+              </span>
+            )}
           </div>
 
           {/* Away Team */}
@@ -218,13 +244,14 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800 relative">
             <div
               className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-green-400 transition-all duration-200"
-              style={{ width: `${(currentMinute / 90) * 100}%` }}
+              style={{ width: `${Math.min(100, (currentMinute / maxMinute) * 100)}%` }}
             />
           </div>
           <div className="flex justify-between text-[10px] font-bold text-slate-500 mt-1">
             <span>0' Kickoff</span>
             <span>45' Halftime</span>
             <span>90' Full Time</span>
+            {matchResult.wentToExtraTime && <span className="text-purple-400">120' ET</span>}
           </div>
         </div>
 
@@ -380,6 +407,73 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
             </div>
           </div>
 
+          {/* Penalty Shootout Summary in Overview */}
+          {matchResult.wentToPenalties && matchResult.penaltyShootout && (isFinished || currentMinute >= 120) && (
+            <div className="bg-[#0e1720] border-2 border-amber-500/50 rounded-3xl p-5 shadow-glow-amber space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🎯</span>
+                  <h4 className="text-sm font-black uppercase tracking-wider text-amber-300">
+                    Penalty Shootout Breakdown
+                  </h4>
+                </div>
+                {matchResult.penaltyScore && (
+                  <span className="px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono font-black text-xs">
+                    {matchResult.penaltyScore.home} - {matchResult.penaltyScore.away}
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Home Penalties */}
+                <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                  <span className="text-xs font-black uppercase text-emerald-400 block mb-2">
+                    {matchResult.homeTeamName} Takers
+                  </span>
+                  <div className="space-y-1.5">
+                    {matchResult.penaltyShootout.homeShots.map((shot, sIdx) => (
+                      <div key={sIdx} className="flex items-center justify-between text-xs">
+                        <span className="text-slate-200 font-semibold">
+                          R{shot.round}. {shot.playerName}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded font-black text-[10px] ${
+                          shot.scored
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                            : 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+                        }`}>
+                          {shot.scored ? '✓ SCORED' : '✗ MISSED'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Away Penalties */}
+                <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                  <span className="text-xs font-black uppercase text-blue-400 block mb-2">
+                    {matchResult.awayTeamName} Takers
+                  </span>
+                  <div className="space-y-1.5">
+                    {matchResult.penaltyShootout.awayShots.map((shot, sIdx) => (
+                      <div key={sIdx} className="flex items-center justify-between text-xs">
+                        <span className="text-slate-200 font-semibold">
+                          R{shot.round}. {shot.playerName}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded font-black text-[10px] ${
+                          shot.scored
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                            : 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+                        }`}>
+                          {shot.scored ? '✓ SCORED' : '✗ MISSED'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Key Match Quick Stats Bar */}
           <div className="bg-[#0e1720] border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
             <h4 className="text-xs font-black uppercase tracking-wider text-slate-300">
@@ -422,15 +516,21 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                 const isGoal = evt.type === 'goal';
                 const isCard = evt.type === 'yellow_card' || evt.type === 'red_card';
                 const isSave = evt.type === 'save';
+                const isET = evt.type === 'EXTRA_TIME_START';
+                const isPenStart = evt.type === 'PENALTIES_START';
+                const isPenScored = evt.type === 'PENALTY_SCORED';
+                const isPenSaved = evt.type === 'PENALTY_SAVED';
 
                 return (
                   <div
                     key={evt.id}
                     className={`flex items-start gap-3 p-3.5 rounded-2xl border transition-all animate-fadeIn ${
-                      isGoal
+                      isGoal || isPenScored
                         ? 'bg-emerald-950/40 border-emerald-500/50 shadow-md shadow-emerald-500/10'
-                        : isCard
+                        : isCard || isPenSaved
                         ? 'bg-amber-950/30 border-amber-500/40'
+                        : isET || isPenStart
+                        ? 'bg-purple-950/40 border-purple-500/50 shadow-md shadow-purple-500/10'
                         : 'bg-slate-900/60 border-slate-800'
                     }`}
                   >
@@ -446,21 +546,49 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                       {isGoal && '⚽'}
                       {isCard && '🟨'}
                       {isSave && '🧤'}
-                      {!isGoal && !isCard && !isSave && '⚡'}
+                      {isET && '⏱️'}
+                      {isPenStart && '🎯'}
+                      {isPenScored && '⚽'}
+                      {isPenSaved && '🧤'}
+                      {!isGoal && !isCard && !isSave && !isET && !isPenStart && !isPenScored && !isPenSaved && '⚡'}
                     </div>
 
                     {/* Event Details */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-extrabold text-white text-xs sm:text-sm">
-                          {evt.playerName}
-                        </span>
-                        <span className="text-[10px] uppercase font-bold text-slate-400 px-1.5 py-0.2 rounded bg-slate-800">
-                          {evt.teamName}
-                        </span>
+                        {evt.playerName && (
+                          <span className="font-extrabold text-white text-xs sm:text-sm">
+                            {evt.playerName}
+                          </span>
+                        )}
+                        {evt.teamName && (
+                          <span className="text-[10px] uppercase font-bold text-slate-400 px-1.5 py-0.2 rounded bg-slate-800">
+                            {evt.teamName}
+                          </span>
+                        )}
                         {isGoal && (
                           <span className="text-[10px] font-black uppercase text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-500/30">
                             GOAL!
+                          </span>
+                        )}
+                        {isPenScored && (
+                          <span className="text-[10px] font-black uppercase text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                            PENALTY SCORED
+                          </span>
+                        )}
+                        {isPenSaved && (
+                          <span className="text-[10px] font-black uppercase text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30">
+                            PENALTY SAVED/MISSED
+                          </span>
+                        )}
+                        {isET && (
+                          <span className="text-[10px] font-black uppercase text-purple-400 bg-purple-500/20 px-2 py-0.5 rounded-md border border-purple-500/30">
+                            EXTRA TIME
+                          </span>
+                        )}
+                        {isPenStart && (
+                          <span className="text-[10px] font-black uppercase text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30">
+                            SHOOTOUT
                           </span>
                         )}
                       </div>
@@ -479,7 +607,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
               {isFinished && (
                 <div className="flex items-center justify-center p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs font-black text-slate-300 uppercase tracking-wider">
-                  🏁 90' FULL TIME — MATCH CONCLUDED
+                  🏁 {matchResult.wentToPenalties ? '120\' (PENALTIES DECIDED)' : matchResult.wentToExtraTime ? '120\' AFTER EXTRA TIME' : '90\' FULL TIME'} — MATCH CONCLUDED
                 </div>
               )}
             </div>

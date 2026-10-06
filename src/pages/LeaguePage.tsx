@@ -92,9 +92,16 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
               ⚡
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">
-                Next Match (Leg {nextFixture.leg} of 3)
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">
+                  Next Match (Leg {nextFixture.leg} of 3)
+                </span>
+                {nextFixture.isDecider && (
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
+                    🔥 Decider (ET & Penalties if tied)
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2 mt-0.5 text-sm sm:text-base font-black text-white">
                 <span>{nextFixture.homeBadge} {nextFixture.homeTeamName}</span>
                 <span className="text-xs text-slate-400 uppercase font-bold">vs</span>
@@ -350,14 +357,32 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
                   <span className="font-extrabold text-white">{m.homeTeamName}</span>
                 </div>
 
-                <div className="px-3 py-1 rounded-xl bg-slate-950 border border-slate-800 font-black text-sm text-emerald-400 tracking-wider">
-                  {m.homeScore} - {m.awayScore}
+                <div className="flex flex-col items-center">
+                  <div className="px-3 py-1 rounded-xl bg-slate-950 border border-slate-800 font-black text-sm text-emerald-400 tracking-wider">
+                    {m.homeScore} - {m.awayScore}
+                  </div>
+                  {m.wentToPenalties && m.penaltyScore && (
+                    <span className="text-[10px] text-amber-300 font-bold mt-0.5 font-mono">
+                      ({m.penaltyScore.home}-{m.penaltyScore.away} pen)
+                    </span>
+                  )}
+                  {!m.wentToPenalties && m.wentToExtraTime && (
+                    <span className="text-[10px] text-purple-400 font-bold mt-0.5 font-mono">
+                      (AET)
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
                   <span className="font-extrabold text-white">{m.awayTeamName}</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold hidden sm:inline">
-                    FT
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold hidden sm:inline ${
+                    m.wentToPenalties
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                      : m.wentToExtraTime
+                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                      : 'bg-slate-800 text-slate-400'
+                  }`}>
+                    {m.wentToPenalties ? 'PEN' : m.wentToExtraTime ? 'AET' : 'FT'}
                   </span>
                 </div>
               </div>

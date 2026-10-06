@@ -44,8 +44,41 @@ export function getStatBarColor(val: number): string {
   return 'bg-rose-500';
 }
 
-export function calculateTeamOverall(players: { overall: number }[]): number {
-  if (players.length === 0) return 75;
-  const sum = players.reduce((acc, p) => acc + p.overall, 0);
-  return Math.round(sum / players.length);
+export function calculateTeamOverall(players: { overall: number; position?: string; form?: number }[]): number {
+  if (!players || players.length === 0) return 40;
+
+  // In 7-a-side football, if a team has fewer than 7 starters, unfilled spots severely penalize team strength
+  const fullRoster = [...players];
+  const missingCount = Math.max(0, 7 - fullRoster.length);
+  const trialistRating = 34;
+
+  const effectiveRatings = [
+    ...fullRoster.map(p => {
+      // Dynamic form modifier: subtle momentum fluctuation (+/- 1.5)
+      const formMod = p.form ? (p.form - 80) * 0.08 : 0;
+      return p.overall + formMod;
+    }),
+    ...Array(missingCount).fill(trialistRating)
+  ];
+
+  const totalEffective = effectiveRatings.slice(0, 7);
+  const baseAvg = totalEffective.reduce((a, b) => a + b, 0) / totalEffective.length;
+
+  // Star player impact: EA FC/FIFA-style superstar weight where players above base average pull the team up
+  let starBonus = 0;
+  totalEffective.forEach(r => {
+    if (r > baseAvg) {
+      starBonus += (r - baseAvg) * 0.18;
+    }
+  });
+
+  // Positional synergy: Real Goalkeeper presence check
+  let posMod = 0;
+  const hasGk = players.some(p => p.position === 'GK');
+  if (players.length >= 7 && !hasGk) {
+    posMod -= 5; // Serious handicap without a dedicated goalkeeper
+  }
+
+  const finalRating = Math.round(baseAvg + Math.min(4.5, starBonus) + posMod);
+  return Math.min(99, Math.max(30, finalRating));
 }

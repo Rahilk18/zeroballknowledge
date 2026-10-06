@@ -1,4 +1,5 @@
 import { Player, Team, MatchResult, MatchEvent, TeamMatchStats, PlayerMatchRating } from '../types';
+import { calculateTeamOverall } from '../utils/formatters';
 
 export interface SimulationTeam {
   team: Team;
@@ -122,7 +123,11 @@ function ensureStartingSeven(team: Team, availablePlayers: Player[]): StarterSel
 
 export function simulateMatch(
   homeSimTeam: SimulationTeam,
-  awaySimTeam: SimulationTeam
+  awaySimTeam: SimulationTeam,
+  options?: {
+    isDecider?: boolean;
+    matchweek?: number;
+  }
 ): MatchResult {
   const { team: homeTeam, players: homePlayers } = homeSimTeam;
   const { team: awayTeam, players: awayPlayers } = awaySimTeam;
@@ -133,6 +138,11 @@ export function simulateMatch(
 
   const homeStarting = homeSelection.starters;
   const awayStarting = awaySelection.starters;
+
+  // Dynamic realistic Team Overall calculation using enhanced algorithm
+  const homeOverall = calculateTeamOverall(homeStarting);
+  const awayOverall = calculateTeamOverall(awayStarting);
+  const ovrDiff = homeOverall - awayOverall;
 
   // Compute unit ratings
   const getUnitRating = (players: Player[], pos: string, defaultAttr: keyof Player) => {
@@ -206,25 +216,25 @@ export function simulateMatch(
   }
 
   // Home advantage
-  const homeAdvantage = 2.0;
+  const homeAdvantage = 1.6;
 
-  // Calculate possession based on midfield battle and squad size
-  const midDiff = (homeMidRating + homeAdvantage) - awayMidRating;
-  let basePossession = 50 + midDiff * 0.75 + (Math.random() * 6 - 3);
+  // Calculate possession based on midfield battle, team composure, and rating disparity
+  const midDiff = (homeMidRating - awayMidRating) * 1.1 + (ovrDiff * 0.45) + homeAdvantage;
+  let basePossession = 50 + midDiff * 0.95 + (Math.random() * 4 - 2);
 
   // If a team has <= 4 players, hard cap their possession to maximum 22-26%
   if (homeSelection.realCount <= 4 && awaySelection.realCount > 4) {
-    basePossession = Math.min(24, basePossession);
+    basePossession = Math.min(22, basePossession);
   } else if (awaySelection.realCount <= 4 && homeSelection.realCount > 4) {
-    basePossession = Math.max(76, basePossession);
+    basePossession = Math.max(78, basePossession);
   }
 
-  const homePossession = Math.round(Math.min(82, Math.max(18, basePossession)));
+  const homePossession = Math.round(Math.min(80, Math.max(20, basePossession)));
   const awayPossession = 100 - homePossession;
 
-  // Expected chances: Teams with great squads generate many chances, depleted teams generate 1-3
-  let homeChancesCount = Math.round(5 + (homePossession / 100) * 7 + (homeAttRating - awayDefRating) * 0.16 + (Math.random() * 3 - 1.5));
-  let awayChancesCount = Math.round(5 + (awayPossession / 100) * 7 + (awayAttRating - homeDefRating) * 0.16 + (Math.random() * 3 - 1.5));
+  // Expected chances: Higher overall teams generate noticeably more dangerous chances
+  let homeChancesCount = Math.round(5 + (homePossession / 100) * 8 + (homeAttRating - awayDefRating) * 0.22 + (ovrDiff * 0.15) + (Math.random() * 2 - 1));
+  let awayChancesCount = Math.round(5 + (awayPossession / 100) * 8 + (awayAttRating - homeDefRating) * 0.22 - (ovrDiff * 0.15) + (Math.random() * 2 - 1));
 
   // If team has no GK or <= 4 players, opponent gets extra scoring opportunities
   if (!homeSelection.hasRealGK || homeSelection.realCount <= 4) {
@@ -331,22 +341,23 @@ export function simulateMatch(
     const defendingHasRealGk = isHomeAttack ? awaySelection.hasRealGK : homeSelection.hasRealGK;
     const attackingRealCount = isHomeAttack ? homeSelection.realCount : awaySelection.realCount;
 
-    const attackPower = isHomeAttack ? (homeAttRating * 0.6 + homeMidRating * 0.4) : (awayAttRating * 0.6 + awayMidRating * 0.4);
+    const attackPower = isHomeAttack ? (homeAttRating * 0.65 + homeMidRating * 0.35) : (awayAttRating * 0.65 + awayMidRating * 0.35);
     const defensePower = isHomeAttack ? (awayDefRating * 0.6 + awayGkRating * 0.4) : (homeDefRating * 0.6 + homeGkRating * 0.4);
+    const ratingAdvantage = isHomeAttack ? ovrDiff : -ovrDiff;
 
-    // Goal probability per chance:
-    // If the defending team has NO REAL GOALKEEPER, odds of scoring shoot up to 72%!
+    // Goal probability per chance: higher team rating and attack power significantly boost clinical conversion
     let goalOdds = !defendingHasRealGk
-      ? 0.72
-      : Math.min(0.55, Math.max(0.12, 0.22 + (attackPower - defensePower) * 0.014));
+      ? 0.76
+      : Math.min(0.60, Math.max(0.09, 0.24 + (attackPower - defensePower) * 0.020 + ratingAdvantage * 0.012));
 
     // If attacking team is severely understaffed (<= 4 players), their finishing odds plummet
     if (attackingRealCount <= 4) {
-      goalOdds = 0.08;
+      goalOdds = 0.06;
     }
 
-    // Save odds: If no real GK, save odds drop to 5%!
-    const saveOdds = !defendingHasRealGk ? 0.05 : 0.30;
+    // Goalkeeper save probability: scales dynamically with goalkeeper rating (world-class GKs save much more!)
+    const defendingGkRating = isHomeAttack ? awayGkRating : homeGkRating;
+    let saveOdds = !defendingHasRealGk ? 0.04 : Math.min(0.56, Math.max(0.18, 0.22 + (defendingGkRating - 75) * 0.018));
     const cardOdds = 0.08;
 
     const roll = Math.random();
@@ -461,6 +472,223 @@ export function simulateMatch(
     }
   });
 
+  let wentToExtraTime = false;
+  let wentToPenalties = false;
+  let regularTimeScore: { home: number; away: number } | undefined = undefined;
+  let penaltyScore: { home: number; away: number } | undefined = undefined;
+  let penaltyShootout: MatchResult['penaltyShootout'] = undefined;
+
+  // DECIDER TIEBREAK: If this match is a decider (e.g. Leg 3 where both teams have won 1 game each, or series is tied) and it ends in a draw:
+  if (options?.isDecider && homeScore === awayScore) {
+    wentToExtraTime = true;
+    regularTimeScore = { home: homeScore, away: awayScore };
+
+    events.push({
+      id: `evt-90-extra-time-start`,
+      minute: 90,
+      type: 'EXTRA_TIME_START',
+      description: `⏱️ EXTRA TIME! Deadlock at full time (${homeScore} - ${awayScore}) in this tournament decider! 30 minutes of extra time underway.`
+    });
+
+    // Extra time minutes (91' - 120')
+    const extraTimeMinutes = [95, 103, 111, 117];
+    extraTimeMinutes.forEach(minute => {
+      const isHomeAttack = Math.random() < (homePossession / 100);
+      const attackingTeam = isHomeAttack ? homeTeam : awayTeam;
+      const defendingTeam = isHomeAttack ? awayTeam : homeTeam;
+      const attackingPlayers = isHomeAttack ? homeStarting : awayStarting;
+      const opposingGk = isHomeAttack ? awayGk : homeGk;
+      const defendingHasRealGk = isHomeAttack ? awaySelection.hasRealGK : homeSelection.hasRealGK;
+      const defendingGkRating = isHomeAttack ? awayGkRating : homeGkRating;
+
+      const attackPower = isHomeAttack ? (homeAttRating * 0.65 + homeMidRating * 0.35) : (awayAttRating * 0.65 + awayMidRating * 0.35);
+      const defensePower = isHomeAttack ? (awayDefRating * 0.6 + awayGkRating * 0.4) : (homeDefRating * 0.6 + homeGkRating * 0.4);
+      const ratingAdvantage = isHomeAttack ? ovrDiff : -ovrDiff;
+
+      let goalOdds = !defendingHasRealGk
+        ? 0.70
+        : Math.min(0.52, Math.max(0.08, 0.20 + (attackPower - defensePower) * 0.018 + ratingAdvantage * 0.010));
+
+      let saveOdds = !defendingHasRealGk ? 0.04 : Math.min(0.55, Math.max(0.18, 0.22 + (defendingGkRating - 75) * 0.018));
+
+      const roll = Math.random();
+      if (roll < goalOdds) {
+        const scorer = pickScorer(attackingPlayers);
+        const assister = pickAssister(attackingPlayers, scorer.id);
+        if (isHomeAttack) {
+          homeScore++;
+          homeShots++;
+          homeShotsOnTarget++;
+        } else {
+          awayScore++;
+          awayShots++;
+          awayShotsOnTarget++;
+        }
+
+        ensureTracker(scorer.id);
+        playerStatsTracker[scorer.id].goals++;
+        playerStatsTracker[scorer.id].shots++;
+        if (assister) {
+          ensureTracker(assister.id);
+          playerStatsTracker[assister.id].assists++;
+        }
+
+        events.push({
+          id: `evt-${minute}-${scorer.id}`,
+          minute,
+          type: 'goal',
+          teamId: attackingTeam.id,
+          teamName: attackingTeam.name,
+          playerId: scorer.id,
+          playerName: scorer.name,
+          assistPlayerId: assister?.id,
+          assistPlayerName: assister?.shortName,
+          scoreAfter: { home: homeScore, away: awayScore },
+          description: `⚽ EXTRA TIME GOAL! ${scorer.name} strikes for ${attackingTeam.name} in the ${minute}' minute! What drama in this decider!`
+        });
+      } else if (roll < goalOdds + saveOdds) {
+        if (isHomeAttack) {
+          homeShots++;
+          homeShotsOnTarget++;
+          awaySaves++;
+        } else {
+          awayShots++;
+          awayShotsOnTarget++;
+          homeSaves++;
+        }
+        ensureTracker(opposingGk.id);
+        playerStatsTracker[opposingGk.id].saves++;
+        events.push({
+          id: `evt-${minute}-${opposingGk.id}`,
+          minute,
+          type: 'save',
+          teamId: defendingTeam.id,
+          teamName: defendingTeam.name,
+          playerId: opposingGk.id,
+          playerName: opposingGk.name,
+          description: `🧤 Heroic extra time diving stop by ${opposingGk.shortName} to preserve the decider deadlock!`
+        });
+      }
+    });
+
+    // If STILL tied after extra time (120'), go to PENALTY SHOOTOUT!
+    if (homeScore === awayScore) {
+      wentToPenalties = true;
+
+      events.push({
+        id: `evt-120-penalties-start`,
+        minute: 120,
+        type: 'PENALTIES_START',
+        description: `🎯 PENALTY SHOOTOUT! Unbelievable: ${homeScore} - ${awayScore} after 120 minutes! The series decider will now be decided from the spot!`
+      });
+
+      const getTakers = (starters: Player[]): Player[] => {
+        const outfield = starters.filter(p => p.position !== 'GK');
+        const sorted = outfield.sort((a, b) => (b.shooting || b.overall) - (a.shooting || a.overall));
+        return sorted.length >= 5 ? sorted : starters;
+      };
+
+      const homeTakers = getTakers(homeStarting);
+      const awayTakers = getTakers(awayStarting);
+
+      let homePenScore = 0;
+      let awayPenScore = 0;
+      const homeShotsList: { playerId: string; playerName: string; scored: boolean; round: number }[] = [];
+      const awayShotsList: { playerId: string; playerName: string; scored: boolean; round: number }[] = [];
+
+      // 5 Regular Rounds
+      for (let round = 1; round <= 5; round++) {
+        const hTaker = homeTakers[(round - 1) % homeTakers.length] || homeStarting[0];
+        const aTaker = awayTakers[(round - 1) % awayTakers.length] || awayStarting[0];
+
+        // Home shot vs Away GK
+        const hShootSkill = hTaker.shooting || hTaker.overall || 75;
+        const hScoreProb = Math.min(0.88, Math.max(0.60, 0.74 + (hShootSkill - 80) * 0.015 - (awayGkRating - 80) * 0.012));
+        const hScored = Math.random() < hScoreProb;
+        if (hScored) homePenScore++;
+        homeShotsList.push({ playerId: hTaker.id, playerName: hTaker.name, scored: hScored, round });
+
+        events.push({
+          id: `evt-pen-h-${round}-${hTaker.id}`,
+          minute: 120,
+          type: hScored ? 'PENALTY_SCORED' : 'PENALTY_SAVED',
+          teamId: homeTeam.id,
+          teamName: homeTeam.name,
+          playerId: hTaker.id,
+          playerName: hTaker.name,
+          description: hScored
+            ? `⚽ PENALTY SCORED (Round ${round}): ${hTaker.name} puts it away for ${homeTeam.name}! [Shootout: ${homePenScore}-${awayPenScore}]`
+            : `❌ PENALTY SAVED (Round ${round}): ${awayGk.name} dives and saves ${hTaker.name}'s penalty! [Shootout: ${homePenScore}-${awayPenScore}]`
+        });
+
+        // Away shot vs Home GK
+        const aShootSkill = aTaker.shooting || aTaker.overall || 75;
+        const aScoreProb = Math.min(0.88, Math.max(0.60, 0.74 + (aShootSkill - 80) * 0.015 - (homeGkRating - 80) * 0.012));
+        const aScored = Math.random() < aScoreProb;
+        if (aScored) awayPenScore++;
+        awayShotsList.push({ playerId: aTaker.id, playerName: aTaker.name, scored: aScored, round });
+
+        events.push({
+          id: `evt-pen-a-${round}-${aTaker.id}`,
+          minute: 120,
+          type: aScored ? 'PENALTY_SCORED' : 'PENALTY_SAVED',
+          teamId: awayTeam.id,
+          teamName: awayTeam.name,
+          playerId: aTaker.id,
+          playerName: aTaker.name,
+          description: aScored
+            ? `⚽ PENALTY SCORED (Round ${round}): ${aTaker.name} converts for ${awayTeam.name}! [Shootout: ${homePenScore}-${awayPenScore}]`
+            : `❌ PENALTY SAVED (Round ${round}): ${homeGk.name} brilliantly stops ${aTaker.name}'s spot kick! [Shootout: ${homePenScore}-${awayPenScore}]`
+        });
+      }
+
+      // Sudden death if tied after 5 rounds!
+      let suddenDeathRound = 6;
+      while (homePenScore === awayPenScore && suddenDeathRound <= 12) {
+        const hTaker = homeTakers[(suddenDeathRound - 1) % homeTakers.length] || homeStarting[0];
+        const aTaker = awayTakers[(suddenDeathRound - 1) % awayTakers.length] || awayStarting[0];
+
+        const hScoreProb = 0.72 + (hTaker.overall - 80) * 0.012 - (awayGkRating - 80) * 0.010;
+        const aScoreProb = 0.72 + (aTaker.overall - 80) * 0.012 - (homeGkRating - 80) * 0.010;
+
+        const hScored = Math.random() < Math.min(0.85, Math.max(0.55, hScoreProb));
+        const aScored = Math.random() < Math.min(0.85, Math.max(0.55, aScoreProb));
+
+        if (hScored) homePenScore++;
+        if (aScored) awayPenScore++;
+
+        homeShotsList.push({ playerId: hTaker.id, playerName: hTaker.name, scored: hScored, round: suddenDeathRound });
+        awayShotsList.push({ playerId: aTaker.id, playerName: aTaker.name, scored: aScored, round: suddenDeathRound });
+
+        events.push({
+          id: `evt-pen-sd-${suddenDeathRound}`,
+          minute: 120,
+          type: (hScored && !aScored) || (!hScored && aScored) ? 'PENALTY_SCORED' : 'PENALTY_SAVED',
+          description: `⚡ Sudden Death Round ${suddenDeathRound}: ${homeTeam.name} ${hScored ? '✓' : '✗'} - ${awayTeam.name} ${aScored ? '✓' : '✗'} [Shootout: ${homePenScore}-${awayPenScore}]`
+        });
+
+        suddenDeathRound++;
+      }
+
+      // If still tied after 12 rounds, force decisive winner based on star goalkeeper/overall
+      if (homePenScore === awayPenScore) {
+        if (homeOverall >= awayOverall) homePenScore++;
+        else awayPenScore++;
+      }
+
+      penaltyScore = { home: homePenScore, away: awayPenScore };
+      penaltyShootout = { homeShots: homeShotsList, awayShots: awayShotsList };
+
+      const shootoutWinner = homePenScore > awayPenScore ? homeTeam.name : awayTeam.name;
+      events.push({
+        id: `evt-120-penalties-winner`,
+        minute: 120,
+        type: 'FULLTIME',
+        description: `🏆 ${shootoutWinner} WINS ON PENALTIES! (${homePenScore} - ${awayPenScore}) to claim victory in the decider!`
+      });
+    }
+  }
+
   // Ensure shots logic integrity
   if (homeShots < homeShotsOnTarget) homeShots = homeShotsOnTarget + Math.floor(Math.random() * 3 + 2);
   if (awayShots < awayShotsOnTarget) awayShots = awayShotsOnTarget + Math.floor(Math.random() * 3 + 2);
@@ -571,6 +799,12 @@ export function simulateMatch(
       reason: potmReason
     },
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    completed: true
+    completed: true,
+    wentToExtraTime,
+    wentToPenalties,
+    isDecider: options?.isDecider,
+    regularTimeScore,
+    penaltyScore,
+    penaltyShootout,
   };
 }

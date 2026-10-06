@@ -444,7 +444,12 @@ export type EventType =
   | 'OFFSIDE'
   | 'HALFTIME'
   | 'FULLTIME'
-  | 'NEAR_MISS';
+  | 'NEAR_MISS'
+  | 'PENALTY_SCORED'
+  | 'PENALTY_SAVED'
+  | 'PENALTY_MISSED'
+  | 'EXTRA_TIME_START'
+  | 'PENALTIES_START';
 
 export interface MatchEvent {
   id?: string;
@@ -520,6 +525,21 @@ export interface MatchResult {
   played?: boolean;
   date?: string;
   completed?: boolean;
+  wentToExtraTime?: boolean;
+  wentToPenalties?: boolean;
+  isDecider?: boolean;
+  regularTimeScore?: {
+    home: number;
+    away: number;
+  };
+  penaltyScore?: {
+    home: number;
+    away: number;
+  };
+  penaltyShootout?: {
+    homeShots: { playerId: string; playerName: string; scored: boolean; round: number }[];
+    awayShots: { playerId: string; playerName: string; scored: boolean; round: number }[];
+  };
 }
 
 // ---- Fixture (Scheduled / Played Match) ----

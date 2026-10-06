@@ -11,6 +11,54 @@ export interface TournamentFixture {
   homeBadge: string;
   awayBadge: string;
   leg: number; // 1, 2, or 3
+  isDecider?: boolean;
+}
+
+/**
+ * Checks the head-to-head match history between two teams.
+ * Determines if leg 3 is an official decider tiebreak.
+ */
+export function getHeadToHeadRecord(
+  teamAId: string,
+  teamBId: string,
+  matches: MatchResult[]
+): {
+  teamAWins: number;
+  teamBWins: number;
+  draws: number;
+  totalPlayed: number;
+  isDecider: boolean;
+} {
+  let teamAWins = 0;
+  let teamBWins = 0;
+  let draws = 0;
+
+  (matches || []).forEach(m => {
+    const isAvsB = m.homeTeamId === teamAId && m.awayTeamId === teamBId;
+    const isBvsA = m.homeTeamId === teamBId && m.awayTeamId === teamAId;
+    if (!isAvsB && !isBvsA) return;
+
+    if (m.wentToPenalties && m.penaltyScore) {
+      const aPen = isAvsB ? m.penaltyScore.home : m.penaltyScore.away;
+      const bPen = isAvsB ? m.penaltyScore.away : m.penaltyScore.home;
+      if (aPen > bPen) teamAWins++;
+      else if (bPen > aPen) teamBWins++;
+      return;
+    }
+
+    const aScore = isAvsB ? m.homeScore : m.awayScore;
+    const bScore = isAvsB ? m.awayScore : m.homeScore;
+
+    if (aScore > bScore) teamAWins++;
+    else if (bScore > aScore) teamBWins++;
+    else draws++;
+  });
+
+  const totalPlayed = teamAWins + teamBWins + draws;
+  // Match 3 is a decider if both teams have played at least 2 matches and neither has won both (tied series e.g. 1-1)
+  const isDecider = totalPlayed >= 2 && teamAWins === teamBWins;
+
+  return { teamAWins, teamBWins, draws, totalPlayed, isDecider };
 }
 
 /**
@@ -19,7 +67,7 @@ export interface TournamentFixture {
  * For 2 teams (A & B): 3 matches:
  *  - Leg 1: A vs B
  *  - Leg 2: B vs A
- *  - Leg 3: A vs B
+ *  - Leg 3: A vs B (Decider)
  */
 export function generateTournamentFixtures(teams: Team[]): TournamentFixture[] {
   if (!teams || teams.length < 2) {
@@ -39,7 +87,7 @@ export function generateTournamentFixtures(teams: Team[]): TournamentFixture[] {
 
   // 3 legs for each pair
   // Leg 1: Team A (Home) vs Team B (Away)
-  pairs.forEach(([teamA, teamB], pairIdx) => {
+  pairs.forEach(([teamA, teamB]) => {
     fixtures.push({
       id: `fixture-${matchIndex + 1}`,
       round: 1,
@@ -51,11 +99,12 @@ export function generateTournamentFixtures(teams: Team[]): TournamentFixture[] {
       awayTeamName: teamB.name || teamB.teamName || 'Team B',
       homeBadge: teamA.badgeIcon || teamA.badge || '⚽',
       awayBadge: teamB.badgeIcon || teamB.badge || '⚽',
+      isDecider: false,
     });
   });
 
   // Leg 2: Team B (Home) vs Team A (Away)
-  pairs.forEach(([teamA, teamB], pairIdx) => {
+  pairs.forEach(([teamA, teamB]) => {
     fixtures.push({
       id: `fixture-${matchIndex + 1}`,
       round: 2,
@@ -67,11 +116,12 @@ export function generateTournamentFixtures(teams: Team[]): TournamentFixture[] {
       awayTeamName: teamA.name || teamA.teamName || 'Team A',
       homeBadge: teamB.badgeIcon || teamB.badge || '⚽',
       awayBadge: teamA.badgeIcon || teamA.badge || '⚽',
+      isDecider: false,
     });
   });
 
-  // Leg 3: Team A (Home) vs Team B (Away) (Decider)
-  pairs.forEach(([teamA, teamB], pairIdx) => {
+  // Leg 3: Team A (Home) vs Team B (Away) (Rubber Match / Decider)
+  pairs.forEach(([teamA, teamB]) => {
     fixtures.push({
       id: `fixture-${matchIndex + 1}`,
       round: 3,
@@ -83,6 +133,7 @@ export function generateTournamentFixtures(teams: Team[]): TournamentFixture[] {
       awayTeamName: teamB.name || teamB.teamName || 'Team B',
       homeBadge: teamA.badgeIcon || teamA.badge || '⚽',
       awayBadge: teamB.badgeIcon || teamB.badge || '⚽',
+      isDecider: true,
     });
   });
 
@@ -135,7 +186,16 @@ export function computeTournamentStandings(
       home.goalsAgainst += m.awayScore;
       home.goalDifference = home.goalsFor - home.goalsAgainst;
 
-      if (m.homeScore > m.awayScore) {
+      if (m.wentToPenalties && m.penaltyScore) {
+        if (m.penaltyScore.home > m.penaltyScore.away) {
+          home.won += 1;
+          home.points += 3;
+          home.recentForm.unshift('W');
+        } else {
+          home.lost += 1;
+          home.recentForm.unshift('L');
+        }
+      } else if (m.homeScore > m.awayScore) {
         home.won += 1;
         home.points += 3;
         home.recentForm.unshift('W');
@@ -156,7 +216,16 @@ export function computeTournamentStandings(
       away.goalsAgainst += m.homeScore;
       away.goalDifference = away.goalsFor - away.goalsAgainst;
 
-      if (m.awayScore > m.homeScore) {
+      if (m.wentToPenalties && m.penaltyScore) {
+        if (m.penaltyScore.away > m.penaltyScore.home) {
+          away.won += 1;
+          away.points += 3;
+          away.recentForm.unshift('W');
+        } else {
+          away.lost += 1;
+          away.recentForm.unshift('L');
+        }
+      } else if (m.awayScore > m.homeScore) {
         away.won += 1;
         away.points += 3;
         away.recentForm.unshift('W');
