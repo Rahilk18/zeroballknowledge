@@ -18,7 +18,7 @@ export interface AIPersonality {
   leniencyRate: number;
 }
 
-export const ABSOLUTE_MAX_AI_BID = 40;
+export const ABSOLUTE_MAX_AI_BID = 30;
 
 export const AI_BOTS: AIPersonality[] = [
   {
@@ -33,7 +33,7 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 2200,
     aggressionRate: 0.5,
     overpayThreshold: 1.05,
-    maxBidCap: 35,
+    maxBidCap: 28,
     leniencyRate: 0.55,
   },
   {
@@ -47,8 +47,8 @@ export const AI_BOTS: AIPersonality[] = [
     minDelayMs: 600,
     maxDelayMs: 1800,
     aggressionRate: 0.85,
-    overpayThreshold: 1.15,
-    maxBidCap: 40,
+    overpayThreshold: 1.10,
+    maxBidCap: 30,
     leniencyRate: 0.35,
   },
   {
@@ -63,7 +63,7 @@ export const AI_BOTS: AIPersonality[] = [
     maxDelayMs: 3200,
     aggressionRate: 0.35,
     overpayThreshold: 0.95,
-    maxBidCap: 30,
+    maxBidCap: 26,
     leniencyRate: 0.65,
   },
   {
@@ -77,8 +77,8 @@ export const AI_BOTS: AIPersonality[] = [
     minDelayMs: 800,
     maxDelayMs: 2800,
     aggressionRate: 0.65,
-    overpayThreshold: 1.10,
-    maxBidCap: 37,
+    overpayThreshold: 1.05,
+    maxBidCap: 29,
     leniencyRate: 0.45,
   },
 ];
@@ -150,22 +150,23 @@ export function calculatePositionNeed(
 
 /**
  * Strict tier boundaries matching user specification:
- * - 92+ OVR (Messi, Ronaldo): [€30M, €40M]
- * - 90–91 OVR (Rodri, Mbappe, Haaland): [€19M, €30M]
- * - 85–89 OVR (Saka, Van Dijk): [€11M, €20M]
+ * - 92+ OVR (Messi, Ronaldo): max like €30M [€24M, €30M]
+ * - 90–91 OVR (Rodri, Mbappe, Haaland): 25-30 million [€19M, €27M]
+ * - 85–89 OVR (Saka, Van Dijk): [€11M, €17M]
  * - 80–84 OVR (Mid-tier): [€7M, €9M]
- * - < 80 OVR (Squad depth): [€6M, €7M]
+ * - < 80 OVR (Squad depth): [€5M, €7M]
  */
 export function getTierBounds(ovr: number): { tierFloor: number; tierCeiling: number } {
-  if (ovr >= 92) return { tierFloor: 30, tierCeiling: 40 };
-  if (ovr >= 90) return { tierFloor: 19, tierCeiling: 30 };
-  if (ovr >= 85) return { tierFloor: 11, tierCeiling: 20 };
+  if (ovr >= 92) return { tierFloor: 24, tierCeiling: 30 };
+  if (ovr >= 90) return { tierFloor: 19, tierCeiling: 27 };
+  if (ovr >= 85) return { tierFloor: 11, tierCeiling: 17 };
   if (ovr >= 80) return { tierFloor: 7, tierCeiling: 9 };
-  return { tierFloor: 6, tierCeiling: 7 };
+  return { tierFloor: 5, tierCeiling: 7 };
 }
 
 /**
- * Calculates the AI's maximum valuation for a footballer.
+ * Calculates the AI's maximum valuation for a footballer with strict purse preservation
+ * to guarantee that bots have sufficient funds to complete at least 7 players.
  */
 export function calculateAIMaxWillingBid(
   player: Player,
@@ -175,28 +176,31 @@ export function calculateAIMaxWillingBid(
 ): number {
   if (squad.length >= 10) return 0;
 
-  // Reserve budget to guarantee reaching the minimum 7 players (€4M reserve per remaining slot)
-  const neededToMinSquad = Math.max(0, 7 - squad.length - 1);
-  const reserveForOthers = neededToMinSquad * 4;
-  const maxSpendable = Math.max(0, currentBudget - reserveForOthers);
+  // 1. Guaranteed Purse Reserve to complete at least 7 players:
+  // Slots remaining to reach minimum 7 players (excluding this card):
+  const neededAfterThis = Math.max(0, 7 - squad.length - 1);
+  // Each remaining slot must have a safe reserve of at least €7.5M (starting bid is 5M)
+  const safeReserveForFutureSlots = neededAfterThis * 7.5;
+  const maxSpendable = Math.max(0, currentBudget - safeReserveForFutureSlots);
 
+  // If bot doesn't even have 5M left after reserving for remaining squad, it cannot bid
   if (maxSpendable < 5) return 0;
 
   const ovr = player.overall || 75;
   const { tierFloor, tierCeiling } = getTierBounds(ovr);
 
-  // Calibrated strictly to user specifications
+  // Calibrated strictly to user specifications (max 30M for 92+ Ronaldo/Messi, 25-27M for 90-91)
   let baseValue = tierFloor;
   if (ovr >= 92) {
-    baseValue = 30 + Math.min(10, (ovr - 92) * 3.5);
+    baseValue = 25 + Math.min(5, (ovr - 92) * 2.5);
   } else if (ovr >= 90) {
-    baseValue = 19 + (ovr - 90) * 5.0;
+    baseValue = 20 + (ovr - 90) * 3.5;
   } else if (ovr >= 85) {
-    baseValue = 11 + (ovr - 85) * 1.8;
+    baseValue = 11 + (ovr - 85) * 1.4;
   } else if (ovr >= 80) {
     baseValue = 7 + (ovr - 80) * 0.45;
   } else {
-    baseValue = 6 + Math.max(0, ovr - 75) * 0.25;
+    baseValue = 5 + Math.max(0, ovr - 75) * 0.35;
   }
 
   // Positional need multiplier (urgent GK if 0 GKs, or balanced outfield)
@@ -205,21 +209,43 @@ export function calculateAIMaxWillingBid(
   // Personality adjustments:
   let personalityMultiplier = 1.0;
   if (ai.type === 'aggressive') {
-    personalityMultiplier = 1.06; // Mark pushes slightly higher toward upper end
+    personalityMultiplier = 1.04; // Mark pushes slightly higher but capped strictly at 30
   } else if (ai.type === 'analytical') {
     personalityMultiplier = 0.94; // Joseph is thrifty near lower end
   } else if (ai.type === 'unpredictable') {
-    personalityMultiplier = 0.94 + Math.random() * 0.12;
+    personalityMultiplier = 0.95 + Math.random() * 0.08;
   }
 
-  const rawVal = baseValue * needMultiplier * personalityMultiplier;
+  // 2. Superstar saturation limit:
+  // If bot already bought 1 superstar (90+), scale down willingness on further 90+ superstars to preserve purse
+  const superstarCount = squad.filter(p => (p.overall || 75) >= 90).length;
+  let superstarModifier = 1.0;
+  if (ovr >= 90) {
+    if (superstarCount === 1) {
+      superstarModifier = 0.88;
+    } else if (superstarCount >= 2) {
+      superstarModifier = 0.72;
+    }
+  }
+
+  const rawVal = baseValue * needMultiplier * personalityMultiplier * superstarModifier;
 
   // Strictly clamp within user-specified tier bounds:
   const clampedTierVal = Math.min(tierCeiling, Math.max(tierFloor, Math.round(rawVal)));
 
-  // Strict hard ceiling: never exceed botCap or ABSOLUTE_MAX_AI_BID (40M)
+  // 3. Pacing cap based on remaining slots to complete 7 players:
+  // Prevents a bot from overspending on one card when it still needs to fill multiple slots
+  const remainingSlotsToSeven = Math.max(1, 7 - squad.length);
+  const avgBudgetPerRemainingSlot = currentBudget / remainingSlotsToSeven;
+  
+  let pacingLimit = tierCeiling;
+  if (squad.length < 7 && remainingSlotsToSeven > 1) {
+    pacingLimit = Math.max(tierFloor, Math.round(avgBudgetPerRemainingSlot * 1.65));
+  }
+
+  // Strict hard ceiling: never exceed botCap or ABSOLUTE_MAX_AI_BID (30M)
   const botCap = Math.min(ai.maxBidCap || ABSOLUTE_MAX_AI_BID, ABSOLUTE_MAX_AI_BID);
-  const finalBidCap = Math.min(clampedTierVal, maxSpendable, currentBudget, botCap);
+  const finalBidCap = Math.min(clampedTierVal, maxSpendable, currentBudget, botCap, pacingLimit);
   return Math.max(0, finalBidCap);
 }
 
@@ -282,38 +308,50 @@ export function getOrInitBotStance(
       interest = 'PASSING';
     } else {
       const roll = Math.random();
-      if (ovr >= 92) {
-        // 92+ Superstars: ALWAYS interested (85% targeting, 15% casual)
-        if (roll < 0.15) interest = 'CASUAL';
-        else interest = 'TARGETING';
+      const slotsRemaining = Math.max(1, 7 - squad.length);
+      const budgetPerSlot = currentBudget / slotsRemaining;
+      const superstarsOwned = squad.filter(p => (p.overall || 75) >= 90).length;
+
+      // Tight Budget Guard: If budget per remaining slot is tight (< €9.5M),
+      // pass on expensive superstars to preserve purse for affordable starters and depth!
+      if (budgetPerSlot < 9.5 && squad.length < 7) {
+        if (ovr >= 87) {
+          interest = 'PASSING';
+        } else if (ovr >= 80) {
+          // Mid-tier cards are exactly what we need
+          interest = roll < 0.25 ? 'CASUAL' : 'TARGETING';
+        } else {
+          // Depth cards ensure reaching 7 players
+          interest = roll < 0.35 ? 'CASUAL' : 'TARGETING';
+        }
+      } else if (ovr >= 92) {
+        // 92+ Superstars (Messi, Ronaldo - max 30M):
+        if (superstarsOwned >= 2 && squad.length < 7) {
+          // Already have 2 superstars, save purse for remaining slots!
+          interest = 'PASSING';
+        } else if (superstarsOwned === 1) {
+          interest = roll < 0.60 ? 'PASSING' : 'CASUAL';
+        } else {
+          interest = roll < 0.20 ? 'CASUAL' : 'TARGETING';
+        }
       } else if (ovr >= 90) {
-        // 90-91 Marquee (Rodri, Mbappe, Haaland): 95% interested
-        if (roll < 0.05) interest = 'PASSING';
-        else if (roll < 0.25) interest = 'CASUAL';
-        else interest = 'TARGETING';
+        // 90-91 Marquee (Rodri, Mbappe, Haaland - 25-27M):
+        if (superstarsOwned >= 2 && squad.length < 7) {
+          interest = 'PASSING';
+        } else if (superstarsOwned === 1) {
+          interest = roll < 0.50 ? 'PASSING' : 'CASUAL';
+        } else {
+          interest = roll < 0.15 ? 'PASSING' : roll < 0.40 ? 'CASUAL' : 'TARGETING';
+        }
       } else if (ovr >= 85) {
-        // 85-89 Solid starters: 85% interested
-        if (roll < 0.15) interest = 'PASSING';
-        else if (roll < 0.40) interest = 'CASUAL';
-        else interest = 'TARGETING';
+        // 85-89 Solid starters:
+        interest = roll < 0.15 ? 'PASSING' : roll < 0.40 ? 'CASUAL' : 'TARGETING';
       } else if (ovr >= 80) {
-        // 80-84 Mid-tier: Prioritize high-rated cards first when squad still has open slots
-        if (squad.length < 5 && roll < 0.70) {
-          interest = 'PASSING';
-        } else if (roll < 0.40) {
-          interest = 'PASSING';
-        } else {
-          interest = 'CASUAL';
-        }
+        // 80-84 Mid-tier:
+        interest = roll < 0.25 ? 'PASSING' : roll < 0.60 ? 'CASUAL' : 'TARGETING';
       } else {
-        // < 80 Squad depth: Highly likely to wait until draft later stages
-        if (squad.length < 6 && roll < 0.85) {
-          interest = 'PASSING';
-        } else if (roll < 0.60) {
-          interest = 'PASSING';
-        } else {
-          interest = 'CASUAL';
-        }
+        // < 80 Squad depth:
+        interest = roll < 0.35 ? 'PASSING' : 'CASUAL';
       }
     }
   }
@@ -430,24 +468,8 @@ export function evaluateAIBid(
   const ovr = player.overall || 75;
   const gapToValuation = stance.maxWilling - minRequiredBid;
 
-  // When current bid is far below valuation, bot raises decisively (+2M to +4M):
-  if (gapToValuation >= 12 && ovr >= 85) {
-    // Significant gap on top players: raise by +2M to +4M
-    const raise = (ai.type === 'aggressive' || ai.type === 'unpredictable')
-      ? 2 + Math.floor(Math.random() * 3)
-      : 2 + Math.floor(Math.random() * 2);
-    const candidateBid = minRequiredBid + raise - 1;
-    if (candidateBid <= stance.maxWilling && candidateBid <= aiTeam.budget && candidateBid <= botCap) {
-      bidToPlace = candidateBid;
-    }
-  } else if (gapToValuation >= 5 && ovr >= 85) {
-    // Moderate gap on quality player: raise by +2M
-    const candidateBid = minRequiredBid + 1;
-    if (candidateBid <= stance.maxWilling && candidateBid <= aiTeam.budget && candidateBid <= botCap) {
-      bidToPlace = candidateBid;
-    }
-  } else if (ovr >= 90 && Math.random() < 0.40) {
-    // 90+ superstar auction duel: 40% chance of +2M jump
+  // Realistic bidding increments (mostly +1M, occasional +2M on elite cards when large gap):
+  if (gapToValuation >= 8 && ovr >= 85 && Math.random() < 0.30) {
     const candidateBid = minRequiredBid + 1;
     if (candidateBid <= stance.maxWilling && candidateBid <= aiTeam.budget && candidateBid <= botCap) {
       bidToPlace = candidateBid;
