@@ -135,6 +135,77 @@ class SoundSynthesizer {
     } catch (e) {}
   }
 
+  // Realistic football kick / shot thud
+  playKick() {
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(160, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(45, this.ctx.currentTime + 0.09);
+
+      gain.gain.setValueAtTime(0.28, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.11);
+    } catch (e) {}
+  }
+
+  // Goalkeeper save / parry deflection sound
+  playSave() {
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(260, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.14);
+
+      gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.16);
+    } catch (e) {}
+  }
+
+  // Referee whistle (two rapid high frequency chirps)
+  playWhistle() {
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+      [0, 0.12].forEach((offset) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(2400, this.ctx!.currentTime + offset);
+        osc.frequency.exponentialRampToValueAtTime(2800, this.ctx!.currentTime + offset + 0.06);
+
+        gain.gain.setValueAtTime(0.18, this.ctx!.currentTime + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx!.currentTime + offset + 0.09);
+
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+
+        osc.start(this.ctx!.currentTime + offset);
+        osc.stop(this.ctx!.currentTime + offset + 0.1);
+      });
+    } catch (e) {}
+  }
+
   // Toggle ambient cyber synthesizer music
   toggleMusic(): boolean {
     try {

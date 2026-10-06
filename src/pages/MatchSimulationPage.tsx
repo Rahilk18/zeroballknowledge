@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { getPositionBadgeColor } from '../utils/formatters';
 import { sound } from '../utils/audioSynth';
+import { MatchPitchVisualizer } from '../components/MatchPitchVisualizer';
 
 interface MatchSimulationPageProps {
   matchResult: MatchResult;
@@ -38,7 +39,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   const [isPlaying, setIsPlaying] = useState(true);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(2); // 1x, 2x, 4x
   const [isFinished, setIsFinished] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'stats' | 'players'>('overview');
+  const [activeTab, setActiveTab] = useState<'pitch' | 'overview' | 'events' | 'stats' | 'players'>('pitch');
 
   // Trigger win confetti once
   const confettiFired = useRef(false);
@@ -259,11 +260,22 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
       </div>
 
-      {/* Tabs: Overview / Events / Stats / Players */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+      {/* Tabs: Pitch / Overview / Events / Stats / Players */}
+      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+        <button
+          onClick={() => setActiveTab('pitch')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap ${
+            activeTab === 'pitch'
+              ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/60 text-emerald-300 shadow-sm shadow-emerald-500/10'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>2D Live Pitch</span>
+        </button>
         <button
           onClick={() => setActiveTab('overview')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
             activeTab === 'overview'
               ? 'bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 shadow-sm'
               : 'text-slate-400 hover:text-white'
@@ -273,7 +285,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('events')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
             activeTab === 'events'
               ? 'bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 shadow-sm'
               : 'text-slate-400 hover:text-white'
@@ -283,7 +295,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('stats')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
             activeTab === 'stats'
               ? 'bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 shadow-sm'
               : 'text-slate-400 hover:text-white'
@@ -293,7 +305,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('players')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
             activeTab === 'players'
               ? 'bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 shadow-sm'
               : 'text-slate-400 hover:text-white'
@@ -302,6 +314,19 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           Players
         </button>
       </div>
+
+      {/* TAB 0: 2D PITCH VISUALIZER */}
+      {activeTab === 'pitch' && (
+        <div className="animate-fadeIn">
+          <MatchPitchVisualizer
+            matchResult={matchResult}
+            currentMinute={currentMinute}
+            isPlaying={isPlaying}
+            speedMultiplier={speedMultiplier}
+            allPlayers={_allPlayers}
+          />
+        </div>
+      )}
 
       {/* TAB 1: OVERVIEW */}
       {activeTab === 'overview' && (
