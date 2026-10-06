@@ -179,8 +179,8 @@ export function calculateAIMaxWillingBid(
   // 1. Guaranteed Purse Reserve to complete at least 7 players:
   // Slots remaining to reach minimum 7 players (excluding this card):
   const neededAfterThis = Math.max(0, 7 - squad.length - 1);
-  // Each remaining slot must have a safe reserve of at least €7.5M (starting bid is 5M)
-  const safeReserveForFutureSlots = neededAfterThis * 7.5;
+  // Each remaining slot must have a safe reserve of at least €5.5M (starting bid is 5M)
+  const safeReserveForFutureSlots = neededAfterThis * 5.5;
   const maxSpendable = Math.max(0, currentBudget - safeReserveForFutureSlots);
 
   // If bot doesn't even have 5M left after reserving for remaining squad, it cannot bid
@@ -192,11 +192,11 @@ export function calculateAIMaxWillingBid(
   // Calibrated strictly to user specifications (max 30M for 92+ Ronaldo/Messi, 25-27M for 90-91)
   let baseValue = tierFloor;
   if (ovr >= 92) {
-    baseValue = 25 + Math.min(5, (ovr - 92) * 2.5);
+    baseValue = 26 + Math.min(4, (ovr - 92) * 2.0);
   } else if (ovr >= 90) {
-    baseValue = 20 + (ovr - 90) * 3.5;
+    baseValue = 21 + (ovr - 90) * 3.0;
   } else if (ovr >= 85) {
-    baseValue = 11 + (ovr - 85) * 1.4;
+    baseValue = 12 + (ovr - 85) * 1.2;
   } else if (ovr >= 80) {
     baseValue = 7 + (ovr - 80) * 0.45;
   } else {
@@ -211,41 +211,19 @@ export function calculateAIMaxWillingBid(
   if (ai.type === 'aggressive') {
     personalityMultiplier = 1.04; // Mark pushes slightly higher but capped strictly at 30
   } else if (ai.type === 'analytical') {
-    personalityMultiplier = 0.94; // Joseph is thrifty near lower end
+    personalityMultiplier = 0.95; // Joseph is thrifty near lower end
   } else if (ai.type === 'unpredictable') {
-    personalityMultiplier = 0.95 + Math.random() * 0.08;
+    personalityMultiplier = 0.96 + Math.random() * 0.08;
   }
 
-  // 2. Superstar saturation limit:
-  // If bot already bought 1 superstar (90+), scale down willingness on further 90+ superstars to preserve purse
-  const superstarCount = squad.filter(p => (p.overall || 75) >= 90).length;
-  let superstarModifier = 1.0;
-  if (ovr >= 90) {
-    if (superstarCount === 1) {
-      superstarModifier = 0.88;
-    } else if (superstarCount >= 2) {
-      superstarModifier = 0.72;
-    }
-  }
-
-  const rawVal = baseValue * needMultiplier * personalityMultiplier * superstarModifier;
+  const rawVal = baseValue * needMultiplier * personalityMultiplier;
 
   // Strictly clamp within user-specified tier bounds:
   const clampedTierVal = Math.min(tierCeiling, Math.max(tierFloor, Math.round(rawVal)));
 
-  // 3. Pacing cap based on remaining slots to complete 7 players:
-  // Prevents a bot from overspending on one card when it still needs to fill multiple slots
-  const remainingSlotsToSeven = Math.max(1, 7 - squad.length);
-  const avgBudgetPerRemainingSlot = currentBudget / remainingSlotsToSeven;
-  
-  let pacingLimit = tierCeiling;
-  if (squad.length < 7 && remainingSlotsToSeven > 1) {
-    pacingLimit = Math.max(tierFloor, Math.round(avgBudgetPerRemainingSlot * 1.65));
-  }
-
   // Strict hard ceiling: never exceed botCap or ABSOLUTE_MAX_AI_BID (30M)
   const botCap = Math.min(ai.maxBidCap || ABSOLUTE_MAX_AI_BID, ABSOLUTE_MAX_AI_BID);
-  const finalBidCap = Math.min(clampedTierVal, maxSpendable, currentBudget, botCap, pacingLimit);
+  const finalBidCap = Math.min(clampedTierVal, maxSpendable, currentBudget, botCap);
   return Math.max(0, finalBidCap);
 }
 
@@ -291,68 +269,40 @@ export function getOrInitBotStance(
 
   let interest: 'PASSING' | 'CASUAL' | 'TARGETING' = 'TARGETING';
 
-  // Position quota check for 10-player squad:
+  // Position quota check for balanced 7-a-side team building:
   // GK max 2 (1 starter, 1 backup)
-  // DEF max 4, MID max 4, ATT max 4
+  // DEF max 3 (2 starters, 1 backup)
+  // MID max 3 (2 starters, 1 backup)
+  // ATT max 3 (2 starters, 1 backup)
   const isPosFull =
     (pos === 'GK' && gkCount >= 2) ||
-    (pos === 'DEF' && posCount >= 4) ||
-    (pos === 'MID' && posCount >= 4) ||
-    (pos === 'ATT' && posCount >= 4);
+    (pos === 'DEF' && posCount >= 3) ||
+    (pos === 'MID' && posCount >= 3) ||
+    (pos === 'ATT' && posCount >= 3);
 
   if (squad.length >= 10 || isPosFull) {
     interest = 'PASSING';
+  } else if (pos === 'GK' && gkCount === 1 && ovr < 87) {
+    // Already has a starting goalkeeper; only bid on a backup GK if elite
+    interest = 'PASSING';
   } else {
-    // If bot already has 1 GK, only bid on a second GK if it's elite (88+)
-    if (pos === 'GK' && gkCount === 1 && ovr < 88) {
-      interest = 'PASSING';
-    } else {
+    // Actively go for high-rated players to build a strong, competitive team!
+    if (ovr >= 90) {
+      // 90+ Superstars (Ronaldo, Messi, Mbappé, Haaland, Rodri, De Bruyne):
+      // Prime targets for building a formidable team
+      interest = 'TARGETING';
+    } else if (ovr >= 85) {
+      // 85-89 Solid core starters:
+      // Vital starters for defense, midfield, attack, or keeper
+      interest = 'TARGETING';
+    } else if (ovr >= 80) {
+      // 80-84 Quality mid-tier:
       const roll = Math.random();
-      const slotsRemaining = Math.max(1, 7 - squad.length);
-      const budgetPerSlot = currentBudget / slotsRemaining;
-      const superstarsOwned = squad.filter(p => (p.overall || 75) >= 90).length;
-
-      // Tight Budget Guard: If budget per remaining slot is tight (< €9.5M),
-      // pass on expensive superstars to preserve purse for affordable starters and depth!
-      if (budgetPerSlot < 9.5 && squad.length < 7) {
-        if (ovr >= 87) {
-          interest = 'PASSING';
-        } else if (ovr >= 80) {
-          // Mid-tier cards are exactly what we need
-          interest = roll < 0.25 ? 'CASUAL' : 'TARGETING';
-        } else {
-          // Depth cards ensure reaching 7 players
-          interest = roll < 0.35 ? 'CASUAL' : 'TARGETING';
-        }
-      } else if (ovr >= 92) {
-        // 92+ Superstars (Messi, Ronaldo - max 30M):
-        if (superstarsOwned >= 2 && squad.length < 7) {
-          // Already have 2 superstars, save purse for remaining slots!
-          interest = 'PASSING';
-        } else if (superstarsOwned === 1) {
-          interest = roll < 0.60 ? 'PASSING' : 'CASUAL';
-        } else {
-          interest = roll < 0.20 ? 'CASUAL' : 'TARGETING';
-        }
-      } else if (ovr >= 90) {
-        // 90-91 Marquee (Rodri, Mbappe, Haaland - 25-27M):
-        if (superstarsOwned >= 2 && squad.length < 7) {
-          interest = 'PASSING';
-        } else if (superstarsOwned === 1) {
-          interest = roll < 0.50 ? 'PASSING' : 'CASUAL';
-        } else {
-          interest = roll < 0.15 ? 'PASSING' : roll < 0.40 ? 'CASUAL' : 'TARGETING';
-        }
-      } else if (ovr >= 85) {
-        // 85-89 Solid starters:
-        interest = roll < 0.15 ? 'PASSING' : roll < 0.40 ? 'CASUAL' : 'TARGETING';
-      } else if (ovr >= 80) {
-        // 80-84 Mid-tier:
-        interest = roll < 0.25 ? 'PASSING' : roll < 0.60 ? 'CASUAL' : 'TARGETING';
-      } else {
-        // < 80 Squad depth:
-        interest = roll < 0.35 ? 'PASSING' : 'CASUAL';
-      }
+      interest = roll < 0.15 ? 'PASSING' : roll < 0.40 ? 'CASUAL' : 'TARGETING';
+    } else {
+      // < 80 Squad depth:
+      const roll = Math.random();
+      interest = roll < 0.25 ? 'PASSING' : 'CASUAL';
     }
   }
 
@@ -363,8 +313,8 @@ export function getOrInitBotStance(
   if (interest === 'PASSING') {
     maxWilling = 0;
   } else if (interest === 'CASUAL') {
-    // Casual bidders drop out early in the tier range
-    const casualSpread = Math.max(1, Math.round((tierCeiling - tierFloor) * 0.45));
+    // Casual bidders drop out slightly earlier in the tier range
+    const casualSpread = Math.max(1, Math.round((tierCeiling - tierFloor) * 0.55));
     const casualCeiling = Math.max(tierFloor, Math.min(calculatedMax, tierFloor + casualSpread));
     maxWilling = casualCeiling;
   }
@@ -428,35 +378,28 @@ export function evaluateAIBid(
 
   // Natural back-out & competitive duel logic:
   if (isUserLeading) {
-    const isEliteCard = (player.overall || 75) >= 88;
+    const isEliteCard = (player.overall || 75) >= 85;
 
     if (isEliteCard) {
-      // For top cards, stay competitive! Only concede if reached maximum willing bid or after a 4+ round duel
-      if (minRequiredBid >= stance.maxWilling) {
+      // For top cards (85+ OVR), stay competitive! Never concede prematurely below maximum willing valuation
+      if (minRequiredBid > stance.maxWilling) {
         stance.concededToUser = true;
         return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
       }
-      if (stance.bidsPlaced >= 4 && Math.random() < 0.40) {
+      // After a fierce 5+ round battle, slight 20% chance of conceding if within 1M of ceiling
+      if (stance.bidsPlaced >= 5 && stance.maxWilling - minRequiredBid <= 1 && Math.random() < 0.20) {
         stance.concededToUser = true;
         return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
       }
     } else {
-      // For mid-tier and squad depth (<= 87 OVR):
-      const diffToMax = stance.maxWilling - minRequiredBid;
-
-      if (diffToMax <= 0) {
+      // For mid-tier and squad depth (< 85 OVR):
+      if (minRequiredBid > stance.maxWilling) {
         stance.concededToUser = true;
         return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
       }
 
-      // If already bid 3+ times, yield respectfully
-      if (stance.bidsPlaced >= 3 && Math.random() < 0.50) {
-        stance.concededToUser = true;
-        return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
-      }
-
-      // For low-rated cards (< 80), allow user easy bargains (40% concession chance on lead)
-      if ((player.overall || 75) < 80 && Math.random() < 0.40) {
+      // If already bid 4+ times, give user a chance to win the bargain
+      if (stance.bidsPlaced >= 4 && Math.random() < 0.40) {
         stance.concededToUser = true;
         return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
       }
@@ -485,8 +428,11 @@ export function evaluateAIBid(
   // Record that bot placed a bid
   stance.bidsPlaced += 1;
 
-  // Realistic human delay
-  const baseDelay = ai.minDelayMs + Math.random() * (ai.maxDelayMs - ai.minDelayMs);
+  // Opening bids are placed promptly (450ms - 950ms); subsequent counter-bids follow human pacing
+  const isOpeningBid = currentBid === 0;
+  const baseDelay = isOpeningBid
+    ? 450 + Math.random() * 500
+    : ai.minDelayMs + Math.random() * (ai.maxDelayMs - ai.minDelayMs);
   const delayMs = Math.round(baseDelay);
 
   // Thinking messages
