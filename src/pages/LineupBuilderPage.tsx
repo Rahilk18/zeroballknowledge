@@ -36,7 +36,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
   allPlayers,
   onUpdateLineup,
   setActiveTab,
-  isHost
+  isHost: isHostProp
 }) => {
   const { user } = useAuth();
   const {
@@ -46,7 +46,16 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     sessionPlayers,
     allTeams,
     finalizeAiLineups,
+    updateSessionStatus,
   } = useSession();
+
+  const isHost = Boolean(
+    isHostProp ||
+    currentSession?.gameMode === 'ai' ||
+    !currentSession ||
+    currentSession?.hostUserId === 'human-user' ||
+    currentSession?.hostUserId === user?.id
+  );
 
   const [formation, setFormation] = useState<string>(currentTeam?.formation || '1-2-2-2');
   const [starting, setStarting] = useState<string[]>(currentTeam?.startingSeven || []);
@@ -61,15 +70,30 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
   // Synchronize squad IDs from squads table to guarantee all acquired players appear
   useEffect(() => {
     if (!currentSession || !currentTeam?.id || currentSession.gameMode === 'ai') {
-      const existingIds = [
+      const existingIds = Array.from(new Set([
         ...(currentTeam?.startingSeven || []),
         ...(currentTeam?.bench || [])
-      ].filter(Boolean);
+      ].filter(Boolean)));
+
       if (existingIds.length > 0) {
-        setSquadPoolIds(Array.from(new Set(existingIds)));
-        if (starting.length === 0 && bench.length === 0) {
-          setStarting(existingIds.slice(0, 7));
-          setBench(existingIds.slice(7));
+        setSquadPoolIds(existingIds);
+        if (starting.length < 7) {
+          const availablePlayers = existingIds
+            .map(id => allPlayers.find(p => p.id === id) || sessionPlayers.find(p => p.id === id))
+            .filter((p): p is Player => p !== undefined);
+
+          if (availablePlayers.length >= 7) {
+            const optimized = autoPickBestLineup(availablePlayers, formation);
+            setStarting(optimized.startingSeven);
+            setBench(optimized.bench);
+            onUpdateLineup(optimized.startingSeven, optimized.bench, formation);
+          } else {
+            const newStarters = existingIds.slice(0, 7);
+            const newBench = existingIds.slice(7);
+            setStarting(newStarters);
+            setBench(newBench);
+            onUpdateLineup(newStarters, newBench, formation);
+          }
         }
       }
       return;
@@ -250,7 +274,16 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
   // Confirm & Lock In Lineup
   const handleLockInLineup = async () => {
     sound.playVictorySound();
-    onUpdateLineup(starting, bench, formation);
+    let finalStarting = [...starting];
+    let finalBench = [...bench];
+    if (finalStarting.length < 7 && squadPlayers.length >= 7) {
+      const optimized = autoPickBestLineup(squadPlayers, formation);
+      finalStarting = optimized.startingSeven;
+      finalBench = optimized.bench;
+      setStarting(finalStarting);
+      setBench(finalBench);
+    }
+    onUpdateLineup(finalStarting, finalBench, formation);
     setIsLockedIn(true);
     setSaveSuccessNotice('✓ Playing 7 locked in! Ready for matchday.');
 
@@ -288,11 +321,25 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     setAdvancingToMatches(true);
     sound.playPowerUp();
 
+    // Ensure we have a valid 7 starters if the pool has enough players
+    let finalStarting = [...starting];
+    let finalBench = [...bench];
+    if (finalStarting.length < 7 && squadPlayers.length >= 7) {
+      const optimized = autoPickBestLineup(squadPlayers, formation);
+      finalStarting = optimized.startingSeven;
+      finalBench = optimized.bench;
+      setStarting(finalStarting);
+      setBench(finalBench);
+    }
+
     if (currentSession.gameMode === 'ai') {
       if (typeof finalizeAiLineups === 'function') {
         finalizeAiLineups();
       }
-      onUpdateLineup(starting, bench, formation);
+      onUpdateLineup(finalStarting, finalBench, formation);
+      if (typeof updateSessionStatus === 'function') {
+        await updateSessionStatus('MATCHES');
+      }
       setAdvancingToMatches(false);
       setActiveTab('league');
       return;

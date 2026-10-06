@@ -58,7 +58,11 @@ export function AuctionPage({ setActiveTab }: any) {
   const [submittingBid, setSubmittingBid] = useState(false);
   const [show3D, setShow3D] = useState(true);
 
-  const isHost = currentSession?.hostUserId === user?.id;
+  const isHost = Boolean(
+    currentSession
+      ? (currentSession.gameMode === 'ai' || currentSession.hostUserId === user?.id || !user || currentSession.hostUserId === 'human-user')
+      : true
+  );
 
   const latestBid = bids && bids.length > 0 ? bids[0] : null;
   const effectiveCurrentBid = Math.max(currentAuction?.currentBid ?? 0, latestBid?.amount ?? 0);
@@ -707,10 +711,17 @@ export function AuctionPage({ setActiveTab }: any) {
                       if (confirm('Finish auction draft now and choose your Playing 7?')) {
                         sound.playVictorySound();
                         if (currentSession) {
-                          await supabase
-                            .from('game_sessions')
-                            .update({ status: 'TEAM_SETUP' })
-                            .eq('id', currentSession.id);
+                          if (currentSession.gameMode === 'ai') {
+                            finalizeAiLineups();
+                            if (typeof updateSessionStatus === 'function') {
+                              await updateSessionStatus('TEAM_SETUP');
+                            }
+                          } else {
+                            await supabase
+                              .from('game_sessions')
+                              .update({ status: 'TEAM_SETUP' })
+                              .eq('id', currentSession.id);
+                          }
                           broadcastNavigation('lineup');
                         }
                         if (typeof setActiveTab === 'function') {

@@ -951,9 +951,24 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const finalizeAiLineups = () => {
     setAllTeams((prev) => prev.map(t => {
-      if (!t.id.startsWith('ai-')) return t;
       const teamPlayerIds = new Set([...(t.bench || []), ...(t.startingSeven || [])]);
       const teamPlayers = sessionPlayers.filter(p => teamPlayerIds.has(p.id));
+
+      if (!t.id.startsWith('ai-')) {
+        // If human team already has a full starting 7, keep it
+        if ((t.startingSeven || []).length >= 7) return t;
+        if (teamPlayers.length > 0) {
+          const { startingSeven, bench, formation } = selectAiStartingSeven(teamPlayers);
+          return {
+            ...t,
+            startingSeven,
+            bench,
+            formation: t.formation || formation,
+          };
+        }
+        return t;
+      }
+
       const { startingSeven, bench, formation } = selectAiStartingSeven(teamPlayers);
       return {
         ...t,
@@ -962,6 +977,23 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         formation,
       };
     }));
+
+    setMyTeam((prev) => {
+      if (!prev) return null;
+      if ((prev.startingSeven || []).length >= 7) return prev;
+      const teamPlayerIds = new Set([...(prev.bench || []), ...(prev.startingSeven || [])]);
+      const teamPlayers = sessionPlayers.filter(p => teamPlayerIds.has(p.id));
+      if (teamPlayers.length > 0) {
+        const { startingSeven, bench, formation } = selectAiStartingSeven(teamPlayers);
+        return {
+          ...prev,
+          startingSeven,
+          bench,
+          formation: prev.formation || formation,
+        };
+      }
+      return prev;
+    });
   };
 
   const broadcastNavigation = async (tab: string, opponentId?: string) => {

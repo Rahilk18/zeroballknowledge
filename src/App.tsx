@@ -49,7 +49,11 @@ export function App() {
     broadcastNavigation,
   } = useSession();
   const { user, profile, loading: authLoading, signOut } = useAuth();
-  const isHost = Boolean(currentSession ? currentSession.hostUserId === user?.id : true);
+  const isHost = Boolean(
+    currentSession
+      ? (currentSession.gameMode === 'ai' || currentSession.hostUserId === user?.id || !user || currentSession.hostUserId === 'human-user')
+      : true
+  );
   const [guestMode, setGuestMode] = useState(false);
   const [gameState, setGameState] = useState(loadInitialState);
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');

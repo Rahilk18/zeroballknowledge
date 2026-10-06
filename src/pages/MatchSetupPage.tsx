@@ -31,9 +31,15 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
   onSimulate,
   onBack,
   onGoToDashboard,
-  isHost = true,
+  isHost: isHostProp = true,
 }) => {
   const { currentSession, broadcastNavigation } = useSession();
+  const isHost = Boolean(
+    isHostProp ||
+    currentSession?.gameMode === 'ai' ||
+    !currentSession ||
+    currentSession?.hostUserId === 'human-user'
+  );
   const [squadCounts, setSquadCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
