@@ -1,0 +1,24 @@
+{
+  "short_name": "ZBK",
+  "name": "ZeroBallKnowledge – Football Arena",
+  "description": "Real-time multiplayer football character-auction battle game.",
+  "icons": [
+    {
+      "src": "/logo-square.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0A0A14",
+  "theme_color": "#0A0A14",
+  "display": "standalone",
+  "orientation": "portrait"
+}
