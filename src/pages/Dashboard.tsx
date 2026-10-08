@@ -6,6 +6,8 @@ import type { ActiveTab } from '../types';
 import { Trophy, Swords, Shield, PlusCircle, LogIn, LogOut, History, Sparkles, ArrowRight, Award, Flame, Glasses, Zap, Radio, Bot, Check, Users } from 'lucide-react';
 import { FOOTBALL_GEARS } from '../data/gearData';
 import { AI_BOTS } from '../services/aiEngine';
+import { sound } from '../utils/audioSynth';
+import { StadiumAudioModal } from '../components/StadiumAudioModal';
 
 const BADGES = ['⚡', '🔥', '🦁', '🐉', '⭐', '🚀', '🏆', '🎯', '🦅', '💎', '🌟', '⚔️'];
 
@@ -33,6 +35,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
   const [modal, setModal] = useState<DashboardModal>('none');
   const [error, setError] = useState('');
+  const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
 
   // AI Game setup state
   const [aiOpponentCount, setAiOpponentCount] = useState<number>(2);
@@ -129,6 +132,8 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
     setError('');
     const tName = aiTeamName.trim() || (profile?.displayName ? `${profile.displayName} FC` : 'Apex FC');
     const tAbbr = (aiAbbreviation || tName.slice(0, 3)).toUpperCase().slice(0, 3);
+    sound.playPowerUp();
+    sound.playWhistle('kickoff');
     const { error: err } = await createAiGame(aiOpponentCount, tName, tAbbr, aiBadge);
     if (err) {
       setError(err);
@@ -781,12 +786,26 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => setModal('none')}
-                className="text-slate-400 hover:text-white transition text-lg p-1.5 rounded-lg hover:bg-slate-800"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playClick();
+                    setIsAudioModalOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
+                  title="Test Stadium Crowd Audio & SFX"
+                >
+                  <Radio className="w-3.5 h-3.5 animate-pulse" />
+                  <span className="hidden sm:inline">STADIUM SOUND</span>
+                </button>
+                <button
+                  onClick={() => setModal('none')}
+                  className="text-slate-400 hover:text-white transition text-lg p-1.5 rounded-lg hover:bg-slate-800"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div className="p-6 space-y-5">
@@ -938,6 +957,12 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
           </div>
         </div>
       )}
+
+      {/* Stadium Audio & Crowd Soundboard Modal */}
+      <StadiumAudioModal
+        isOpen={isAudioModalOpen}
+        onClose={() => setIsAudioModalOpen(false)}
+      />
 
     </div>
   );

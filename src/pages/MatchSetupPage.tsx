@@ -9,8 +9,11 @@ import {
   Swords, 
   ArrowLeft, 
   ChevronDown,
-  Users
+  Users,
+  Radio
 } from 'lucide-react';
+import { sound } from '../utils/audioSynth';
+import { StadiumAudioModal } from '../components/StadiumAudioModal';
 
 interface MatchSetupPageProps {
   currentTeam: Team | null;
@@ -41,6 +44,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
     currentSession?.hostUserId === 'human-user'
   );
   const [squadCounts, setSquadCounts] = useState<Record<string, number>>({});
+  const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
 
   useEffect(() => {
     if (!currentSession) return;
@@ -220,9 +224,22 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
           <span>Back to Standings</span>
         </button>
 
-        {isHost ? (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 font-semibold">Select Rival:</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              sound.playClick();
+              setIsAudioModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
+            title="Adjust Stadium Crowd Audio & SFX"
+          >
+            <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
+            <span className="hidden sm:inline">STADIUM SOUND</span>
+          </button>
+
+          {isHost ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400 font-semibold">Select Rival:</span>
             <div className="relative">
               <select
                 value={selectedOpponentId}
@@ -244,6 +261,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
             <span>OFFICIAL ROOM FIXTURE</span>
           </div>
         )}
+        </div>
       </div>
 
       {/* MATCH FIXTURE MAIN BANNER */}
@@ -444,7 +462,12 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
                 </button>
               )}
               <button
-                onClick={() => canSimulate && onSimulate(opponentTeam.id)}
+                onClick={() => {
+                  if (!canSimulate) return;
+                  sound.playWhistle('kickoff');
+                  sound.startStadiumAmbiance();
+                  onSimulate(opponentTeam.id);
+                }}
                 disabled={!canSimulate}
                 className={`w-full sm:w-auto min-w-[260px] flex items-center justify-center gap-3 px-10 py-4 rounded-2xl font-black text-base uppercase tracking-wider transition-all duration-300 shadow-2xl active:scale-95 group ${
                   canSimulate
@@ -478,6 +501,12 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
         </div>
 
       </div>
+
+      {/* Stadium Audio & Crowd Soundboard Modal */}
+      <StadiumAudioModal
+        isOpen={isAudioModalOpen}
+        onClose={() => setIsAudioModalOpen(false)}
+      />
 
     </div>
   );

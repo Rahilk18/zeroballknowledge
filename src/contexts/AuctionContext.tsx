@@ -289,6 +289,13 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
 
       setBids(prev => [aiBid, ...prev]);
 
+      // Sound feedback for AI bot bid
+      if (liveAuction.highestTeamId === sessionTeam?.id) {
+        sound.playOutbidWarning();
+      } else {
+        sound.playBidSound();
+      }
+
       const updatedAuction = {
         ...liveAuction,
         currentBid: chosen.decision.bidAmount,

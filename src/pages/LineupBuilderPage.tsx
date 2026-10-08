@@ -20,8 +20,10 @@ import {
   Layers,
   ArrowRight,
   Lock,
-  RefreshCw
+  RefreshCw,
+  Radio
 } from 'lucide-react';
+import { StadiumAudioModal } from '../components/StadiumAudioModal';
 
 interface LineupBuilderPageProps {
   currentTeam: Team | null;
@@ -65,6 +67,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
   const [isLockedIn, setIsLockedIn] = useState<boolean>(false);
   const [saveSuccessNotice, setSaveSuccessNotice] = useState<string>('');
   const [advancingToMatches, setAdvancingToMatches] = useState<boolean>(false);
+  const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
   const [squadPoolIds, setSquadPoolIds] = useState<string[]>([]);
 
   // Synchronize squad IDs from squads table to guarantee all acquired players appear
@@ -418,21 +421,36 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
             </p>
           </div>
 
-          {/* Quick Squad Metrics */}
-          <div className="flex items-center gap-3 bg-[#0A0D1A] border border-slate-800 rounded-2xl p-3 sm:p-4">
-            <div className="text-center px-2">
-              <p className="text-[10px] font-bold uppercase text-slate-400">STARTERS</p>
-              <p className="text-xl font-black text-[#FF1744] font-mono">{starting.length}/7</p>
-            </div>
-            <div className="w-px h-8 bg-slate-800" />
-            <div className="text-center px-2">
-              <p className="text-[10px] font-bold uppercase text-slate-400">BENCH</p>
-              <p className="text-xl font-black text-amber-400 font-mono">{bench.length}/3</p>
-            </div>
-            <div className="w-px h-8 bg-slate-800" />
-            <div className="text-center px-2">
-              <p className="text-[10px] font-bold uppercase text-slate-400">TEAM OVR</p>
-              <p className="text-xl font-black text-emerald-400 font-mono">{teamOvr}</p>
+          {/* Stadium Audio & Squad Metrics */}
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                sound.playClick();
+                setIsAudioModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2.5 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
+              title="Adjust Stadium Crowd Audio & SFX"
+            >
+              <Radio className="w-3.5 h-3.5 animate-pulse" />
+              <span className="hidden sm:inline">STADIUM AUDIO</span>
+            </button>
+
+            <div className="flex items-center gap-3 bg-[#0A0D1A] border border-slate-800 rounded-2xl p-3 sm:p-4">
+              <div className="text-center px-2">
+                <p className="text-[10px] font-bold uppercase text-slate-400">STARTERS</p>
+                <p className="text-xl font-black text-[#FF1744] font-mono">{starting.length}/7</p>
+              </div>
+              <div className="w-px h-8 bg-slate-800" />
+              <div className="text-center px-2">
+                <p className="text-[10px] font-bold uppercase text-slate-400">BENCH</p>
+                <p className="text-xl font-black text-amber-400 font-mono">{bench.length}/3</p>
+              </div>
+              <div className="w-px h-8 bg-slate-800" />
+              <div className="text-center px-2">
+                <p className="text-[10px] font-bold uppercase text-slate-400">TEAM OVR</p>
+                <p className="text-xl font-black text-emerald-400 font-mono">{teamOvr}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -832,6 +850,12 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
         </div>
 
       </div>
+
+      {/* Stadium Audio & Crowd Soundboard Modal */}
+      <StadiumAudioModal
+        isOpen={isAudioModalOpen}
+        onClose={() => setIsAudioModalOpen(false)}
+      />
 
     </div>
   );
