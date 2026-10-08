@@ -3,6 +3,7 @@ import { Shield, Coins, Award, Menu, X, Trophy, LogOut, User, Volume2, VolumeX, 
 import { Team, ActiveTab, UserAccount } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import { sound } from '../utils/audioSynth';
+import { StadiumAudioModal } from './StadiumAudioModal';
 
 interface HeaderProps {
   currentTeam?: Team | null;
@@ -29,11 +30,12 @@ export const Header: React.FC<HeaderProps> = ({
   setMobileMenuOpen,
   onQuickSimulate
 }) => {
-  const [isAudioOn, setIsAudioOn] = useState(false);
+  const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
+  const isMuted = sound.getIsMuted();
 
-  const handleToggleAudio = () => {
-    const nextState = sound.toggleMusic();
-    setIsAudioOn(nextState);
+  const handleOpenAudioModal = () => {
+    sound.playClick();
+    setIsAudioModalOpen(true);
   };
 
   return (
@@ -84,17 +86,20 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Quick Team Status Chips & HeroBid Actions */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Audio Ambient Beat Toggle */}
+            {/* Stadium Audio & SFX Control */}
             <button
-              onClick={handleToggleAudio}
-              className={`p-2 rounded-xl border transition-all ${
-                isAudioOn
-                  ? 'bg-[#FF1744]/20 border-[#FF1744]/50 text-[#FF1744] shadow-glow-cyan'
+              onClick={handleOpenAudioModal}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border transition-all ${
+                !isMuted
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/25'
                   : 'bg-[#0E1324] border-slate-800 text-slate-400 hover:text-white'
               }`}
-              title={isAudioOn ? 'Mute Cyber Audio' : 'Play Cyber Ambient Music'}
+              title="Open Stadium Audio & SFX Soundboard"
             >
-              {isAudioOn ? <Volume2 className="w-4 h-4 animate-pulse" /> : <VolumeX className="w-4 h-4" />}
+              {!isMuted ? <Volume2 className="w-4 h-4 text-emerald-400 animate-pulse" /> : <VolumeX className="w-4 h-4" />}
+              <span className="text-[10px] font-black uppercase tracking-wider hidden lg:inline">
+                {!isMuted ? 'STADIUM SFX' : 'MUTED'}
+              </span>
             </button>
 
             {/* 3D Arena Fast Jump Button */}
@@ -189,12 +194,13 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Mobile Right Bar */}
           <div className="flex items-center gap-2 md:hidden">
             <button
-              onClick={handleToggleAudio}
-              className={`p-1.5 rounded-lg border text-xs ${
-                isAudioOn ? 'bg-[#FF1744]/20 border-[#FF1744] text-[#FF1744]' : 'bg-[#0E1324] border-slate-800 text-slate-400'
+              onClick={handleOpenAudioModal}
+              className={`p-1.5 rounded-lg border text-xs transition ${
+                !isMuted ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400' : 'bg-[#0E1324] border-slate-800 text-slate-400'
               }`}
+              title="Open Stadium Audio"
             >
-              {isAudioOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              {!isMuted ? <Volume2 className="w-4 h-4 text-emerald-400 animate-pulse" /> : <VolumeX className="w-4 h-4" />}
             </button>
 
             {currentUser ? (
@@ -233,6 +239,12 @@ export const Header: React.FC<HeaderProps> = ({
 
         </div>
       </div>
+
+      {/* Stadium Audio & SFX Modal */}
+      <StadiumAudioModal 
+        isOpen={isAudioModalOpen} 
+        onClose={() => setIsAudioModalOpen(false)} 
+      />
     </header>
   );
 };

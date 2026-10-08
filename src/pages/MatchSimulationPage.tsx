@@ -14,11 +14,15 @@ import {
   ArrowRight,
   RotateCcw,
   Swords,
-  Zap
+  Zap,
+  Volume2,
+  VolumeX,
+  Radio
 } from 'lucide-react';
 import { getPositionBadgeColor } from '../utils/formatters';
 import { sound } from '../utils/audioSynth';
 import { MatchPitchVisualizer } from '../components/MatchPitchVisualizer';
+import { StadiumAudioModal } from '../components/StadiumAudioModal';
 
 interface MatchSimulationPageProps {
   matchResult: MatchResult;
@@ -40,10 +44,12 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(2); // 1x, 2x, 4x
   const [isFinished, setIsFinished] = useState(false);
   const [activeTab, setActiveTab] = useState<'pitch' | 'overview' | 'events' | 'stats' | 'players'>('pitch');
+  const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
 
   // Trigger win confetti once
   const confettiFired = useRef(false);
   const prevGoalCount = useRef(0);
+  const prevProcessedMinute = useRef<number>(-1);
 
   // Filter events up to current minute
   const visibleEvents = matchResult.events.filter((e) => e.minute <= currentMinute);
@@ -56,16 +62,68 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
     (e) => e.type === 'goal' && e.teamId === matchResult.awayTeamId
   ).length;
 
-  // Sound effects on goal
+  // Stadium crowd ambience loop: runs whenever match is active & not finished
   useEffect(() => {
-    const goalsCount = currentHomeScore + currentAwayScore;
-    if (goalsCount > prevGoalCount.current) {
-      sound.playVictorySound();
-      prevGoalCount.current = goalsCount;
+    if (isPlaying && !isFinished) {
+      sound.startStadiumAmbiance();
+    } else {
+      sound.stopStadiumAmbiance();
     }
-  }, [currentHomeScore, currentAwayScore]);
+    return () => {
+      sound.stopStadiumAmbiance();
+    };
+  }, [isPlaying, isFinished]);
 
   const maxMinute = matchResult.wentToExtraTime ? 120 : 90;
+
+  // Event & Whistle Audio Triggers per minute change
+  useEffect(() => {
+    if (prevProcessedMinute.current === currentMinute) return;
+    prevProcessedMinute.current = currentMinute;
+
+    // Kickoff Whistle
+    if (currentMinute === 1) {
+      sound.playWhistle('kickoff');
+    }
+    // Halftime Whistle
+    else if (currentMinute === 45) {
+      sound.playWhistle('halftime');
+    }
+    // Extra Time Start Whistle
+    else if (currentMinute === 90 && matchResult.wentToExtraTime) {
+      sound.playWhistle('foul');
+    }
+    // Penalty Shootout Start Whistle
+    else if (currentMinute === 120 && matchResult.wentToPenalties) {
+      sound.playWhistle('kickoff');
+    }
+
+    // Process specific events occurring in this minute
+    const eventsThisMinute = matchResult.events.filter((e) => e.minute === currentMinute);
+    for (const ev of eventsThisMinute) {
+      const type = (ev.type || '').toLowerCase();
+      const desc = (ev.description || '').toLowerCase();
+
+      if (type.includes('goal') || desc.includes('goal')) {
+        sound.playGoalRoar();
+        sound.playGoalHorn();
+      } else if (desc.includes('crossbar') || desc.includes('post') || desc.includes('woodwork')) {
+        sound.playCrossbarSound();
+        sound.playCrowdGasp();
+      } else if (type.includes('save') || desc.includes('save') || desc.includes('saved')) {
+        sound.playSave();
+        sound.playCrowdGasp();
+      } else if (type.includes('card') || type.includes('foul')) {
+        sound.playWhistle('foul');
+      } else if (type.includes('penalty_scored')) {
+        sound.playKick('shot');
+        sound.playGoalRoar();
+      } else if (type.includes('penalty_saved')) {
+        sound.playSave();
+        sound.playCrowdGasp();
+      }
+    }
+  }, [currentMinute, matchResult]);
 
   // Timer loop
   useEffect(() => {
@@ -79,6 +137,8 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           clearInterval(timer);
           setIsFinished(true);
           setIsPlaying(false);
+          sound.stopStadiumAmbiance();
+          sound.playWhistle('fulltime');
           sound.playVictorySound();
           return maxMinute;
         }
@@ -108,10 +168,12 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
   const handleInstantSkip = () => {
     sound.playClick();
+    sound.stopStadiumAmbiance();
+    sound.playWhistle('fulltime');
+    sound.playVictorySound();
     setCurrentMinute(maxMinute);
     setIsFinished(true);
     setIsPlaying(false);
-    sound.playVictorySound();
   };
 
   const handleRestart = () => {
@@ -121,6 +183,8 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
     setIsPlaying(true);
     confettiFired.current = false;
     prevGoalCount.current = 0;
+    prevProcessedMinute.current = -1;
+    sound.startStadiumAmbiance();
   };
 
   const potm = matchResult.playerOfTheMatch;
@@ -157,8 +221,21 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
             <span>{String(currentMinute).padStart(2, '0')}:00</span>
           </div>
 
-          {/* Simulation Speed & Skip Controls */}
+          {/* Simulation Speed, Audio & Skip Controls */}
           <div className="flex items-center gap-2">
+            {/* Stadium Audio Quick Controller */}
+            <button
+              onClick={() => {
+                sound.playClick();
+                setIsAudioModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/50 transition shadow-glow-emerald"
+              title="Adjust Stadium Crowd Audio & SFX"
+            >
+              <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
+              <span className="hidden sm:inline">STADIUM AUDIO</span>
+            </button>
+
             {[1, 2, 4].map(s => (
               <button
                 key={s}
@@ -843,6 +920,12 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           <span>Go to League Table</span>
         </button>
       </div>
+
+      {/* Stadium Audio & Crowd Soundboard Modal */}
+      <StadiumAudioModal
+        isOpen={isAudioModalOpen}
+        onClose={() => setIsAudioModalOpen(false)}
+      />
 
     </div>
   );

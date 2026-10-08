@@ -12,6 +12,7 @@ import {
 import { syncPlayersToSupabase } from '../services/playerSyncService';
 import { INITIAL_PLAYERS } from '../data/initialData';
 import { AI_BOTS, evaluateAIBid, ABSOLUTE_MAX_AI_BID } from '../services/aiEngine';
+import { sound } from '../utils/audioSynth';
 
 interface AuctionContextType {
   currentAuction: Auction | null;
@@ -623,7 +624,9 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       const soldPlayer = currentPlayer;
 
       if (hasWinner && winningTeamId && soldPlayer) {
+        sound.playGavelHammer();
         if (sessionTeam && winningTeamId === sessionTeam.id) {
+          sound.playVictorySound();
           setMySquad(prev => [
             ...prev,
             {
@@ -735,6 +738,10 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       const hasWinner = Boolean(winningTeamId && winningAmount > 0);
 
       if (hasWinner && winningTeamId) {
+        sound.playGavelHammer();
+        if (sessionTeam && winningTeamId === sessionTeam.id) {
+          sound.playVictorySound();
+        }
         // Deduct winning team's budget
         const { data: teamData } = await supabase
           .from('teams')

@@ -24,6 +24,7 @@ interface MatchPitchVisualizerProps {
   speedMultiplier: number;
   allPlayers: Player[];
   onPlayerSelect?: (player: Player, rating?: PlayerMatchRating) => void;
+  isAudioHandledByParent?: boolean;
 }
 
 interface PitchPlayer {
@@ -63,11 +64,12 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
   isPlaying,
   speedMultiplier: _speedMultiplier,
   allPlayers,
-  onPlayerSelect
+  onPlayerSelect,
+  isAudioHandledByParent = true
 }) => {
   const [selectedPlayer, setSelectedPlayer] = useState<PitchPlayer | null>(null);
   const [showTacticalLanes, setShowTacticalLanes] = useState(true);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);
   const [activeBanner, setActiveBanner] = useState<{
     text: string;
     subtext?: string;
@@ -305,36 +307,44 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
 
     if (bannerTimeoutRef.current) clearTimeout(bannerTimeoutRef.current);
 
+    const shouldPlaySound = soundEnabled && !isAudioHandledByParent;
+
     if (event.type === 'goal' || event.type === 'GOAL') {
-      if (soundEnabled) sound.playVictorySound();
+      if (shouldPlaySound) {
+        sound.playGoalRoar();
+        sound.playGoalHorn();
+      }
       setActiveBanner({
         text: `⚽ GOAL! ${event.playerName || 'Superstar'} scores!`,
         subtext: event.assistPlayerName ? `Assist by ${event.assistPlayerName}` : event.description,
         type: 'goal'
       });
     } else if (event.type === 'save' || event.type === 'SHOT_SAVED') {
-      if (soundEnabled) sound.playSave();
+      if (shouldPlaySound) {
+        sound.playSave();
+        sound.playCrowdGasp();
+      }
       setActiveBanner({
         text: `🧤 SENSATIONAL SAVE!`,
         subtext: event.description,
         type: 'save'
       });
     } else if (event.type === 'yellow_card' || event.type === 'YELLOW_CARD') {
-      if (soundEnabled) sound.playWhistle();
+      if (shouldPlaySound) sound.playWhistle('foul');
       setActiveBanner({
         text: `🟨 YELLOW CARD: ${event.playerName}`,
         subtext: event.description,
         type: 'card'
       });
     } else if (event.type === 'red_card' || event.type === 'RED_CARD') {
-      if (soundEnabled) sound.playWhistle();
+      if (shouldPlaySound) sound.playWhistle('foul');
       setActiveBanner({
         text: `🟥 RED CARD ISSUED: ${event.playerName}`,
         subtext: event.description,
         type: 'card'
       });
     } else if (event.type === 'corner' || event.type === 'CORNER') {
-      if (soundEnabled) sound.playKick();
+      if (shouldPlaySound) sound.playKick('pass');
       setActiveBanner({
         text: `🚩 CORNER KICK: ${event.teamName || 'Attacking Team'}`,
         subtext: 'Dangerous set-piece whipped into the 6-yard box!',

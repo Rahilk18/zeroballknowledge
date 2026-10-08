@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
@@ -6,8 +6,9 @@ import { useAuction } from '../contexts/AuctionContext';
 import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import { Hero3DViewer } from '../components/Hero3DViewer';
 import { sound } from '../utils/audioSynth';
+import { StadiumAudioModal } from '../components/StadiumAudioModal';
 import type { ActiveTab } from '../types';
-import { Gavel, Sparkles, Zap, Award, Flame, Volume2, Shield, ArrowRight, Brain, Clock, Users } from 'lucide-react';
+import { Gavel, Sparkles, Zap, Award, Flame, Volume2, VolumeX, Radio, Shield, ArrowRight, Brain, Clock, Users } from 'lucide-react';
 
 interface Props {
   setActiveTab: (tab: ActiveTab) => void;
@@ -57,6 +58,9 @@ export function AuctionPage({ setActiveTab }: any) {
   const [bidSuccess, setBidSuccess] = useState('');
   const [submittingBid, setSubmittingBid] = useState(false);
   const [show3D, setShow3D] = useState(true);
+  const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
+  const prevTimeLeftRef = useRef<number>(timeLeft);
+  const prevHighestTeamIdRef = useRef<string | null>(null);
 
   const isHost = Boolean(
     currentSession
@@ -88,12 +92,27 @@ export function AuctionPage({ setActiveTab }: any) {
     ? effectiveCurrentBid + 1 
     : (currentAuction?.startingPrice ?? 5);
 
-  // Sound pulse when time is running low
+  // Sound pulse when time is running low & buzzer at 0
   useEffect(() => {
+    if (prevTimeLeftRef.current === timeLeft) return;
+    prevTimeLeftRef.current = timeLeft;
+
     if (timeLeft > 0 && timeLeft <= 5) {
-      sound.playCountdownPulse();
+      sound.playAuctionCountdownBeep(timeLeft);
+    } else if (timeLeft === 0 && currentAuction?.status === 'LIVE') {
+      sound.playAuctionBuzzer();
     }
-  }, [timeLeft]);
+  }, [timeLeft, currentAuction?.status]);
+
+  // Outbid warning alarm (alerts user if they were top bidder and just got outbid)
+  useEffect(() => {
+    if (prevHighestTeamIdRef.current && myTeam && prevHighestTeamIdRef.current === myTeam.id) {
+      if (effectiveHighestTeamId && effectiveHighestTeamId !== myTeam.id) {
+        sound.playOutbidWarning();
+      }
+    }
+    prevHighestTeamIdRef.current = effectiveHighestTeamId;
+  }, [effectiveHighestTeamId, myTeam]);
 
   // AI Tactical Advice Generator
   const aiAdvice = useMemo(() => {
@@ -379,6 +398,19 @@ export function AuctionPage({ setActiveTab }: any) {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Stadium Audio Soundboard Button */}
+          <button
+            onClick={() => {
+              sound.playClick();
+              setIsAudioModalOpen(true);
+            }}
+            className="px-3 py-1.5 rounded-xl border border-emerald-500/40 bg-emerald-950/60 text-emerald-400 text-xs font-bold uppercase transition flex items-center gap-1.5 hover:bg-emerald-900/40"
+            title="Open Stadium Audio Soundboard"
+          >
+            <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
+            <span className="hidden sm:inline">AUDIO SFX</span>
+          </button>
+
           <button
             onClick={() => setShow3D(!show3D)}
             className={`px-3 py-1.5 rounded-xl border text-xs font-bold uppercase transition flex items-center gap-1.5 ${
@@ -828,6 +860,12 @@ export function AuctionPage({ setActiveTab }: any) {
 
         </div>
       </div>
+
+      {/* Stadium Audio & Soundboard Modal */}
+      <StadiumAudioModal
+        isOpen={isAudioModalOpen}
+        onClose={() => setIsAudioModalOpen(false)}
+      />
     </div>
   );
 }
