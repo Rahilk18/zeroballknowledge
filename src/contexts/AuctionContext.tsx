@@ -58,6 +58,7 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
   const aiPoolRef = useRef<Player[]>([]);
   const aiPoolIndexRef = useRef<number>(0);
   const aiSquadsRef = useRef<Record<string, Player[]>>({});
+  const aiBudgetsRef = useRef<Record<string, number>>({});
   const aiBidTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -175,11 +176,14 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
 
     const initialSquads: Record<string, Player[]> = {};
     const initialCounts: Record<string, number> = {};
+    const initialBudgets: Record<string, number> = {};
     (allTeams || []).forEach(t => {
       initialSquads[t.id] = [];
       initialCounts[t.id] = 0;
+      initialBudgets[t.id] = t.budget ?? 130;
     });
     aiSquadsRef.current = initialSquads;
+    aiBudgetsRef.current = initialBudgets;
     setTeamSquadCounts(initialCounts);
     setMySquad([]);
 
@@ -234,19 +238,22 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
       if (!bot) continue;
 
       const squad = aiSquadsRef.current[team.id] || [];
+      const liveBudget = aiBudgetsRef.current[team.id] ?? team.budget ?? 130;
+      const liveTeam: Team = { ...team, budget: liveBudget };
+
       const decision = evaluateAIBid(
         player,
         currentBid,
         auction.startingPrice || 5,
         highestTeamId,
-        team,
+        liveTeam,
         squad,
         bot,
         auction.id
       );
 
-      if (decision.shouldBid && decision.bidAmount <= ABSOLUTE_MAX_AI_BID) {
-        candidates.push({ team, bot, decision });
+      if (decision.shouldBid && decision.bidAmount <= ABSOLUTE_MAX_AI_BID && decision.bidAmount <= liveBudget) {
+        candidates.push({ team: liveTeam, bot, decision });
       }
     }
 
@@ -652,6 +659,10 @@ export function AuctionProvider({ children }: { children: ReactNode }) {
           ...(aiSquadsRef.current[winningTeamId] || []),
           soldPlayer
         ];
+
+        // Deduct synchronous budget immediately in ref
+        const currentAiBudget = aiBudgetsRef.current[winningTeamId] ?? 130;
+        aiBudgetsRef.current[winningTeamId] = Math.max(0, currentAiBudget - effectiveBid);
 
         updateSessionTeamSquadAndBudget(winningTeamId, soldPlayer, effectiveBid);
 

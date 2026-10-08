@@ -107,42 +107,38 @@ export function calculatePositionNeed(
   // 1. Goalkeeper priority
   if (position === 'GK') {
     if (gkCount === 0) {
-      // Must have at least 1 goalkeeper!
-      return personality === 'analytical' ? 1.35 : 1.25;
+      // Must have at least 1 goalkeeper! High urgency as squad progresses
+      return squad.length >= 4 ? 1.45 : (personality === 'analytical' ? 1.35 : 1.25);
     }
-    // Already has 1 goalkeeper: allow depth/backup at reasonable valuation
-    return 0.65;
+    // If squad has fewer than 7 players, do NOT draft a backup GK yet!
+    if (squad.length < 7) {
+      return 0.05;
+    }
+    // Squad has >= 7 players, can consider affordable backup
+    return 0.60;
   }
 
   // 2. Outfield positions
   let count = 0;
-  let target = 2;
-
-  if (position === 'DEF') {
-    count = defCount;
-    target = 2;
-  } else if (position === 'MID') {
-    count = midCount;
-    target = 2;
-  } else if (position === 'ATT') {
-    count = attCount;
-    target = 2;
-  }
+  if (position === 'DEF') count = defCount;
+  else if (position === 'MID') count = midCount;
+  else if (position === 'ATT') count = attCount;
 
   if (count === 0) {
-    return personality === 'analytical' ? 1.25 : 1.2;
+    // If team has 0 players in this outfield position, urgent starter need!
+    return squad.length >= 4 ? 1.35 : (personality === 'analytical' ? 1.25 : 1.20);
   }
   if (count === 1) {
     return 1.10;
   }
   if (count === 2) {
-    return 1.0;
+    return squad.length < 7 ? 0.95 : 0.85;
   }
   if (count === 3) {
-    return 0.85;
+    return 0.70;
   }
   if (count >= 4) {
-    return 0.35;
+    return 0.30;
   }
 
   return 1.0;
@@ -176,20 +172,43 @@ export function calculateAIMaxWillingBid(
 ): number {
   if (squad.length >= 10) return 0;
 
-  // 1. Guaranteed Purse Reserve to complete at least 7 players:
-  // Slots remaining to reach minimum 7 players (excluding this card):
-  const neededAfterThis = Math.max(0, 7 - squad.length - 1);
-  // Each remaining slot must have a safe reserve of at least €5.5M (starting bid is 5M)
-  const safeReserveForFutureSlots = neededAfterThis * 5.5;
-  const maxSpendable = Math.max(0, currentBudget - safeReserveForFutureSlots);
+  const pos = player.position;
+  const gkCount = squad.filter(p => p.position === 'GK').length;
 
-  // If bot doesn't even have 5M left after reserving for remaining squad, it cannot bid
+  // Rule 1: Never draft a backup GK when squad has fewer than 7 players
+  if (pos === 'GK' && gkCount >= 1 && squad.length < 7) {
+    return 0;
+  }
+
+  // Rule 2: Strict Purse Reserve to guarantee completing at least 7 players
+  const neededSlots = Math.max(0, 7 - squad.length);
+  const futureSlotsAfterThis = Math.max(0, neededSlots - 1);
+
+  // Absolute non-negotiable floor: each remaining future slot MUST have at least €5.0M
+  const absoluteFloorReserve = futureSlotsAfterThis * 5.0;
+
+  // Safe dynamic reserve: when purse allows, protect €6.5M per future slot
+  const preferredReserve = futureSlotsAfterThis * (futureSlotsAfterThis >= 3 ? 7.0 : 6.0);
+
+  // Safe reserve to use:
+  const safeReserve = currentBudget >= (preferredReserve + 5.0)
+    ? preferredReserve
+    : absoluteFloorReserve;
+
+  const maxSpendable = Math.max(0, currentBudget - safeReserve);
+
+  // If bot cannot even afford starting bid (5M) without violating future slots reserve, cannot bid
   if (maxSpendable < 5) return 0;
 
   const ovr = player.overall || 75;
   const { tierFloor, tierCeiling } = getTierBounds(ovr);
 
-  // Calibrated strictly to user specifications (max 30M for 92+ Ronaldo/Messi, 25-27M for 90-91)
+  // Calibrated strictly to user specifications:
+  // - 92+ (Ronaldo, Messi): max like 30M [24M - 30M]
+  // - 90-91 (Rodri, Mbappe, Haaland): 25-30M [19M - 27M]
+  // - 85-89 (Saka, Van Dijk): [11M - 17M]
+  // - 80-84 (Mid-tier): [7M - 9M]
+  // - <80 (Squad depth): [5M - 7M]
   let baseValue = tierFloor;
   if (ovr >= 92) {
     baseValue = 26 + Math.min(4, (ovr - 92) * 2.0);
@@ -203,7 +222,7 @@ export function calculateAIMaxWillingBid(
     baseValue = 5 + Math.max(0, ovr - 75) * 0.35;
   }
 
-  // Positional need multiplier (urgent GK if 0 GKs, or balanced outfield)
+  // Positional need multiplier:
   const needMultiplier = calculatePositionNeed(player.position, squad, ai.type);
 
   // Personality adjustments:
@@ -219,7 +238,28 @@ export function calculateAIMaxWillingBid(
   const rawVal = baseValue * needMultiplier * personalityMultiplier;
 
   // Strictly clamp within user-specified tier bounds:
-  const clampedTierVal = Math.min(tierCeiling, Math.max(tierFloor, Math.round(rawVal)));
+  let clampedTierVal = Math.min(tierCeiling, Math.max(tierFloor, Math.round(rawVal)));
+
+  // Rule 3: Superstar Quota (Max 2 tier-1 90+ players at premium price per bot)
+  const eliteCount = squad.filter(p => (p.overall || 75) >= 90).length;
+  if (ovr >= 90 && eliteCount >= 2) {
+    // Already has 2 superstars (e.g. Messi & Ronaldo). Don't blow another 25-30M!
+    clampedTierVal = Math.min(clampedTierVal, 14);
+  }
+
+  // Rule 4: Star Depth Quota (Max 4 players rated 85+ before hitting 7 players)
+  const highTierCount = squad.filter(p => (p.overall || 75) >= 85).length;
+  if (highTierCount >= 4 && squad.length < 7) {
+    clampedTierVal = Math.min(clampedTierVal, 11);
+  }
+
+  // Rule 5: Dynamic slot budget ceiling to prevent draining purse on any single card
+  if (squad.length < 7) {
+    const averageRemainingPerSlot = currentBudget / neededSlots;
+    const maxAllowedMultiplier = futureSlotsAfterThis >= 4 ? 2.4 : futureSlotsAfterThis >= 2 ? 1.7 : 1.35;
+    const dynamicSlotLimit = Math.max(5, Math.floor(averageRemainingPerSlot * maxAllowedMultiplier));
+    clampedTierVal = Math.min(clampedTierVal, dynamicSlotLimit);
+  }
 
   // Strict hard ceiling: never exceed botCap or ABSOLUTE_MAX_AI_BID (30M)
   const botCap = Math.min(ai.maxBidCap || ABSOLUTE_MAX_AI_BID, ABSOLUTE_MAX_AI_BID);
@@ -266,43 +306,58 @@ export function getOrInitBotStance(
   const pos = player.position;
   const gkCount = squad.filter(p => p.position === 'GK').length;
   const posCount = squad.filter(p => p.position === pos).length;
+  const eliteCount = squad.filter(p => (p.overall || 75) >= 90).length;
 
   let interest: 'PASSING' | 'CASUAL' | 'TARGETING' = 'TARGETING';
 
   // Position quota check for balanced 7-a-side team building:
-  // GK max 2 (1 starter, 1 backup)
-  // DEF max 3 (2 starters, 1 backup)
-  // MID max 3 (2 starters, 1 backup)
-  // ATT max 3 (2 starters, 1 backup)
+  // GK: max 1 until squad reaches 7 players; max 2 once 7 players secured
+  // Outfield: max 2 starters per position initially; max 3/4 for squad depth
   const isPosFull =
-    (pos === 'GK' && gkCount >= 2) ||
-    (pos === 'DEF' && posCount >= 3) ||
-    (pos === 'MID' && posCount >= 3) ||
-    (pos === 'ATT' && posCount >= 3);
+    (pos === 'GK' && gkCount >= (squad.length < 7 ? 1 : 2)) ||
+    (pos === 'DEF' && posCount >= (squad.length < 7 ? 3 : 4)) ||
+    (pos === 'MID' && posCount >= (squad.length < 7 ? 3 : 4)) ||
+    (pos === 'ATT' && posCount >= (squad.length < 7 ? 3 : 4));
 
   if (squad.length >= 10 || isPosFull) {
     interest = 'PASSING';
-  } else if (pos === 'GK' && gkCount === 1 && ovr < 87) {
-    // Already has a starting goalkeeper; only bid on a backup GK if elite
+  } else if (pos === 'GK' && gkCount >= 1 && squad.length < 7) {
+    // Already has starting keeper; must focus on completing outfield starters
     interest = 'PASSING';
   } else {
-    // Actively go for high-rated players to build a strong, competitive team!
+    // Actively go for players that build a strong team and complete minimum 7:
     if (ovr >= 90) {
-      // 90+ Superstars (Ronaldo, Messi, Mbappé, Haaland, Rodri, De Bruyne):
-      // Prime targets for building a formidable team
-      interest = 'TARGETING';
+      if (eliteCount >= 2) {
+        // Already has 2 superstars: only casually bid if bargain
+        interest = 'CASUAL';
+      } else {
+        interest = 'TARGETING';
+      }
     } else if (ovr >= 85) {
-      // 85-89 Solid core starters:
-      // Vital starters for defense, midfield, attack, or keeper
       interest = 'TARGETING';
     } else if (ovr >= 80) {
-      // 80-84 Quality mid-tier:
-      const roll = Math.random();
-      interest = roll < 0.15 ? 'PASSING' : roll < 0.40 ? 'CASUAL' : 'TARGETING';
+      if (squad.length < 7) {
+        // Starters needed to reach minimum 7: actively target!
+        interest = 'TARGETING';
+      } else {
+        const roll = Math.random();
+        interest = roll < 0.20 ? 'PASSING' : roll < 0.50 ? 'CASUAL' : 'TARGETING';
+      }
     } else {
       // < 80 Squad depth:
-      const roll = Math.random();
-      interest = roll < 0.25 ? 'PASSING' : 'CASUAL';
+      if (squad.length < 7) {
+        // Emergency squad completion mode:
+        // If team still needs players and budget is tight or position is needed, TARGET them!
+        const neededSlots = 7 - squad.length;
+        if (currentBudget <= neededSlots * 9 || posCount < 2 || gkCount === 0) {
+          interest = 'TARGETING';
+        } else {
+          interest = 'CASUAL';
+        }
+      } else {
+        const roll = Math.random();
+        interest = roll < 0.35 ? 'PASSING' : 'CASUAL';
+      }
     }
   }
 
@@ -314,9 +369,9 @@ export function getOrInitBotStance(
     maxWilling = 0;
   } else if (interest === 'CASUAL') {
     // Casual bidders drop out slightly earlier in the tier range
-    const casualSpread = Math.max(1, Math.round((tierCeiling - tierFloor) * 0.55));
+    const casualSpread = Math.max(1, Math.round((tierCeiling - tierFloor) * 0.50));
     const casualCeiling = Math.max(tierFloor, Math.min(calculatedMax, tierFloor + casualSpread));
-    maxWilling = casualCeiling;
+    maxWilling = Math.min(casualCeiling, calculatedMax);
   }
 
   const stance: BotAuctionStance = {
@@ -398,8 +453,8 @@ export function evaluateAIBid(
         return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
       }
 
-      // If already bid 4+ times, give user a chance to win the bargain
-      if (stance.bidsPlaced >= 4 && Math.random() < 0.40) {
+      // If already bid 4+ times and squad already has minimum 7 players, give user a chance to win the bargain
+      if (aiSquad.length >= 7 && stance.bidsPlaced >= 4 && Math.random() < 0.40) {
         stance.concededToUser = true;
         return { shouldBid: false, bidAmount: 0, delayMs: 0, thinkingMessage: '' };
       }

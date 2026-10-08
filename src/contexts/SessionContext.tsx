@@ -23,6 +23,7 @@ import {
 } from '../utils/tournament';
 import { syncPlayersToSupabase } from '../services/playerSyncService';
 import { AI_BOTS, selectAiStartingSeven } from '../services/aiEngine';
+import { INITIAL_PLAYERS } from '../data/initialData';
 
 interface SessionContextType {
   currentSession: GameSession | null;
@@ -950,9 +951,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   const finalizeAiLineups = () => {
+    const allAssigned = new Set<string>();
+    sessionPlayers.forEach(p => allAssigned.add(p.id));
+    const availablePool = INITIAL_PLAYERS.filter(p => !allAssigned.has(p.id));
+    let poolIndex = 0;
+    const addedPlayers: Player[] = [];
+
     setAllTeams((prev) => prev.map(t => {
       const teamPlayerIds = new Set([...(t.bench || []), ...(t.startingSeven || [])]);
-      const teamPlayers = sessionPlayers.filter(p => teamPlayerIds.has(p.id));
+      let teamPlayers = sessionPlayers.filter(p => teamPlayerIds.has(p.id));
+
+      if (t.id.startsWith('ai-') && teamPlayers.length < 7) {
+        // Guaranteed safety net: if draft ended early, backfill up to 7 players
+        const needed = 7 - teamPlayers.length;
+        for (let i = 0; i < needed && poolIndex < availablePool.length; i++) {
+          const filler = availablePool[poolIndex++];
+          teamPlayers.push(filler);
+          addedPlayers.push(filler);
+        }
+      }
 
       if (!t.id.startsWith('ai-')) {
         // If human team already has a full starting 7, keep it
@@ -977,6 +994,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         formation,
       };
     }));
+
+    if (addedPlayers.length > 0) {
+      setSessionPlayers(prev => {
+        const existing = new Set(prev.map(p => p.id));
+        const toAdd = addedPlayers.filter(p => !existing.has(p.id));
+        return [...prev, ...toAdd];
+      });
+    }
 
     setMyTeam((prev) => {
       if (!prev) return null;

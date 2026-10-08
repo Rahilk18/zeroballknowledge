@@ -845,11 +845,15 @@ export function AuctionPage({ setActiveTab }: any) {
             <div className="divide-y divide-slate-800/80">
               {allTeams.map(t => {
                 const isMe = myTeam && t.id === myTeam.id;
+                const squadCount = teamSquadCounts[t.id] ?? (isMe ? mySquad.length : 0);
                 return (
                   <div key={t.id} className={`flex items-center gap-3 px-4 py-2.5 ${isMe ? 'bg-[#FF1744]/10' : ''}`}>
                     <span className="text-base">{t.badgeIcon}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-white truncate">{t.teamName}</p>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        {squadCount}/7 min ({squadCount < 7 ? `${7 - squadCount} needed` : 'ready ✓'})
+                      </p>
                     </div>
                     <span className="text-amber-400 text-xs font-mono font-black">€{t.budget}M</span>
                   </div>
