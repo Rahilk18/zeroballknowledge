@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Volume2, 
   VolumeX, 
@@ -80,9 +81,9 @@ export const StadiumAudioModal: React.FC<StadiumAudioModalProps> = ({ isOpen, on
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-lg rounded-3xl bg-[#0A0D18] border-2 border-[#FF1744]/40 shadow-2xl p-6 sm:p-7 overflow-hidden text-white">
+  return typeof document !== 'undefined' ? createPortal(
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn overflow-y-auto">
+      <div className="relative w-full max-w-lg rounded-2xl sm:rounded-3xl bg-[#0A0D18] border-2 border-[#FF1744]/40 shadow-2xl p-4 sm:p-6 overflow-hidden text-white my-auto max-h-[92vh] flex flex-col">
         
         {/* Stadium Floodlight Accents */}
         <div className="absolute top-0 right-0 w-48 h-48 bg-[#FF1744]/15 rounded-full blur-3xl pointer-events-none" />
@@ -351,6 +352,7 @@ export const StadiumAudioModal: React.FC<StadiumAudioModalProps> = ({ isOpen, on
         </div>
 
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 };

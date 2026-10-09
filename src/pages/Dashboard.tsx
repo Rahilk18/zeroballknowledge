@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
 import { fetchUserGameHistory, fetchUserTeams, UserGameHistoryItem, UserPastTeamItem } from '../services/userService';
@@ -574,20 +575,20 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
       </div>
 
       {/* CREATE GAME MODAL */}
-      {modal === 'create' && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4">
+      {modal === 'create' && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[100] p-2.5 sm:p-4 overflow-y-auto">
           <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-2xl sm:rounded-3xl w-full max-w-md shadow-glow-cyan overflow-hidden animate-fadeIn max-h-[92vh] flex flex-col my-auto">
-            <div className="flex items-center justify-between px-3.5 py-2.5 sm:px-4 sm:py-3 border-b border-slate-800 flex-shrink-0">
+            <div className="flex items-center justify-between p-3.5 sm:p-5 border-b border-slate-800 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <span className="text-xl">🚀</span>
+                <span className="text-xl sm:text-2xl">🚀</span>
                 <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider font-display text-glow-cyan">
                   HOST BATTLE ROOM
                 </h2>
               </div>
-              <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-base p-1 rounded-lg hover:bg-slate-800">✕</button>
+              <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-lg p-1">✕</button>
             </div>
             
-            <div className="p-3 sm:p-4 overflow-y-auto flex-1">
+            <div className="p-3.5 sm:p-6 overflow-y-auto flex-1">
               {error && (
                 <div className="mb-3 p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
                   {error}
@@ -595,34 +596,34 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               )}
 
               {createdCode ? (
-                <div className="text-center space-y-3">
-                  <div className="text-4xl">🎉</div>
+                <div className="text-center space-y-3.5">
+                  <div className="text-4xl sm:text-5xl">🎉</div>
                   <h3 className="text-base sm:text-lg font-black text-white font-display text-glow-cyan">ROOM INITIALIZED!</h3>
-                  <div className="bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-2xl p-4 shadow-glow-cyan">
+                  <div className="bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-2xl p-4 sm:p-5 shadow-glow-cyan">
                     <p className="text-slate-400 text-xs mb-1">YOUR 6-LETTER ARENA CODE:</p>
                     <p className="text-3xl sm:text-4xl font-black text-[#FF1744] tracking-widest font-mono select-all text-glow-cyan">{createdCode}</p>
-                    <p className="text-slate-400 text-[11px] mt-1.5">Share this code with your friends to join the real-time live auction.</p>
+                    <p className="text-slate-400 text-[11px] sm:text-xs mt-2">Share this code with your friends to join the real-time live auction.</p>
                   </div>
-                  <div className="flex gap-2.5 pt-1">
+                  <div className="flex gap-2 sm:gap-3">
                     <button
                       onClick={() => navigator.clipboard.writeText(createdCode)}
-                      className="flex-1 py-2.5 bg-[#0A0A14] hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition border border-slate-700"
+                      className="flex-1 py-2.5 sm:py-3 bg-[#0A0A14] hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition border border-slate-700"
                     >
                       📋 Copy Code
                     </button>
                     <button
                       onClick={() => { setModal('none'); setActiveTab('lobby'); }}
-                      className="flex-1 py-2.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs transition shadow-glow-cyan uppercase"
+                      className="flex-1 py-2.5 sm:py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs transition shadow-glow-cyan uppercase"
                     >
                       Go to Lobby →
                     </button>
                   </div>
                 </div>
               ) : (
-                <form id="create-modal-form" onSubmit={handleCreateGame} className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">
+                <form onSubmit={handleCreateGame} className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="col-span-2">
+                      <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">
                         Your Club Name <span className="text-[#FF1744]">*</span>
                       </label>
                       <input
@@ -635,36 +636,36 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                             setAbbreviation(e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase());
                           }
                         }}
-                        placeholder="e.g. Cyber FC"
-                        className="w-full bg-[#0A0A14] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-semibold"
+                        placeholder="e.g. Cyber City FC"
+                        className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 sm:py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-semibold"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">
-                        Code (3 letters)
+                      <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">
+                        Code (3L)
                       </label>
                       <input
                         type="text"
                         value={abbreviation}
                         onChange={e => setAbbreviation(e.target.value.toUpperCase().slice(0, 3))}
-                        placeholder="e.g. CCF"
+                        placeholder="CCF"
                         maxLength={3}
-                        className="w-full bg-[#0A0A14] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono uppercase tracking-widest text-center"
+                        className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-2 py-2 sm:py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono uppercase tracking-widest text-center"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">Club Crest Badge</label>
-                    <div className="flex items-center gap-1 overflow-x-auto pb-0.5 no-scrollbar">
+                    <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1.5">Club Crest Badge</label>
+                    <div className="grid grid-cols-6 gap-1.5">
                       {BADGES.map(b => (
                         <button
                           key={b}
                           type="button"
                           onClick={() => setSelectedBadge(b)}
-                          className={`w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs rounded-lg border transition ${
-                            selectedBadge === b ? 'border-[#FF1744] bg-[#FF1744]/25 shadow-glow-cyan scale-105' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
+                          className={`aspect-square flex items-center justify-center text-base sm:text-lg rounded-lg border transition ${
+                            selectedBadge === b ? 'border-[#FF1744] bg-[#FF1744]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
                           }`}
                         >
                           {b}
@@ -672,50 +673,46 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                       ))}
                     </div>
                   </div>
+
+                  <button
+                    type="submit"
+                    disabled={loadingSession}
+                    className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-glow-cyan disabled:opacity-50 mt-1 uppercase tracking-wider"
+                  >
+                    {loadingSession ? 'GENERATING ROOM...' : '🚀 CREATE ROOM'}
+                  </button>
                 </form>
               )}
             </div>
-
-            {!createdCode && (
-              <div className="p-2.5 sm:p-3 bg-slate-900/95 border-t border-slate-800 flex-shrink-0">
-                <button
-                  type="submit"
-                  form="create-modal-form"
-                  disabled={loadingSession}
-                  className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider cursor-pointer"
-                >
-                  {loadingSession ? 'GENERATING ROOM...' : '🚀 CREATE ROOM NOW'}
-                </button>
-              </div>
-            )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* JOIN GAME MODAL */}
-      {modal === 'join' && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4">
+      {modal === 'join' && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[100] p-2.5 sm:p-4 overflow-y-auto">
           <div className="bg-[#0E1324] border border-purple-500/40 rounded-2xl sm:rounded-3xl w-full max-w-md shadow-glow-purple overflow-hidden animate-fadeIn max-h-[92vh] flex flex-col my-auto">
-            <div className="flex items-center justify-between px-3.5 py-2.5 sm:px-4 sm:py-3 border-b border-slate-800 flex-shrink-0">
+            <div className="flex items-center justify-between p-3.5 sm:p-5 border-b border-slate-800 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <span className="text-xl">🎯</span>
+                <span className="text-xl sm:text-2xl">🎯</span>
                 <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider font-display text-glow-purple">
                   JOIN ARENA ROOM
                 </h2>
               </div>
-              <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-base p-1 rounded-lg hover:bg-slate-800">✕</button>
+              <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-lg p-1">✕</button>
             </div>
 
-            <div className="p-3 sm:p-4 overflow-y-auto flex-1">
+            <div className="p-3.5 sm:p-6 overflow-y-auto flex-1">
               {error && (
                 <div className="mb-3 p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
                   {error}
                 </div>
               )}
 
-              <form id="join-modal-form" onSubmit={handleJoinGame} className="space-y-3">
+              <form onSubmit={handleJoinGame} className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">
+                  <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">
                     Room Code (6 letters) <span className="text-[#FF1744]">*</span>
                   </label>
                   <input
@@ -725,13 +722,13 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     onChange={e => setJoinCode(e.target.value.toUpperCase())}
                     placeholder="e.g. F7K92A"
                     maxLength={6}
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-base font-mono tracking-widest uppercase text-center font-bold"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 sm:py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-base font-mono tracking-widest uppercase text-center font-bold"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2">
+                    <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">
                       Your Team Name <span className="text-[#FF1744]">*</span>
                     </label>
                     <input
@@ -745,35 +742,35 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                         }
                       }}
                       placeholder="e.g. Cyber Squad"
-                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-semibold"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-semibold"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">
-                      Abbr (3 letters)
+                    <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">
+                      Code (3L)
                     </label>
                     <input
                       type="text"
                       value={joinAbbr}
                       onChange={e => setJoinAbbr(e.target.value.toUpperCase().slice(0, 3))}
-                      placeholder="e.g. CSQ"
+                      placeholder="CSQ"
                       maxLength={3}
-                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono uppercase tracking-widest text-center"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-2 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono uppercase tracking-widest text-center"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">Team Badge</label>
-                  <div className="flex items-center gap-1 overflow-x-auto pb-0.5 no-scrollbar">
+                  <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1.5">Team Badge</label>
+                  <div className="grid grid-cols-6 gap-1.5">
                     {BADGES.map(b => (
                       <button
                         key={b}
                         type="button"
                         onClick={() => setJoinBadge(b)}
-                        className={`w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs rounded-lg border transition ${
-                          joinBadge === b ? 'border-[#FF1744] bg-[#FF1744]/25 shadow-glow-cyan scale-105' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
+                        className={`aspect-square flex items-center justify-center text-base rounded-lg border transition ${
+                          joinBadge === b ? 'border-[#FF1744] bg-[#FF1744]/20 shadow-glow-cyan' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
                         }`}
                       >
                         {b}
@@ -781,50 +778,47 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     ))}
                   </div>
                 </div>
+
+                <button
+                  type="submit"
+                  disabled={loadingSession}
+                  className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-purple-600 to-rose-700 hover:from-purple-500 hover:to-rose-600 text-white font-black rounded-xl text-xs sm:text-sm transition shadow-glow-purple disabled:opacity-50 mt-1 uppercase tracking-wider"
+                >
+                  {loadingSession ? 'CONNECTING...' : '🎯 ENTER ROOM'}
+                </button>
               </form>
             </div>
-
-            <div className="p-2.5 sm:p-3 bg-slate-900/95 border-t border-slate-800 flex-shrink-0">
-              <button
-                type="submit"
-                form="join-modal-form"
-                disabled={loadingSession}
-                className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-rose-700 hover:from-purple-500 hover:to-rose-600 text-white font-black rounded-xl text-xs sm:text-sm transition shadow-glow-purple disabled:opacity-50 uppercase tracking-wider cursor-pointer"
-              >
-                {loadingSession ? 'CONNECTING...' : '🎯 ENTER ROOM NOW'}
-              </button>
-            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* PLAY VS AI MODAL */}
-      {modal === 'ai' && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-2xl sm:rounded-3xl w-full max-w-lg shadow-glow-cyan overflow-hidden animate-fadeIn max-h-[94vh] flex flex-col my-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-3.5 sm:p-4 border-b border-slate-800 flex-shrink-0">
+      {modal === 'ai' && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[100] p-2.5 sm:p-4 overflow-y-auto">
+          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-2xl sm:rounded-3xl w-full max-w-lg shadow-glow-cyan overflow-hidden animate-fadeIn max-h-[92vh] flex flex-col my-auto">
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-slate-800 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-sm text-[#FF1744] shadow-glow-cyan flex-shrink-0">
-                  <Bot className="w-4 h-4" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-base sm:text-lg text-[#FF1744] shadow-glow-cyan flex-shrink-0">
+                  <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider font-display text-glow-cyan leading-tight">
+                  <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-display text-glow-cyan">
                     PLAY VS AI
                   </h2>
                   <p className="text-slate-400 text-[10px]">
-                    Solo Match vs Intelligent Bots
+                    Fast Solo Battle with Intelligent Bots.
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => {
                     sound.playClick();
                     setIsAudioModalOpen(true);
                   }}
-                  className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-[10px] font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
+                  className="flex items-center gap-1 px-2 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-[11px] font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
                   title="Test Stadium Crowd Audio & SFX"
                 >
                   <Radio className="w-3 h-3 animate-pulse" />
@@ -832,15 +826,14 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                 </button>
                 <button
                   onClick={() => setModal('none')}
-                  className="text-slate-400 hover:text-white transition text-base p-1 rounded-lg hover:bg-slate-800"
+                  className="text-slate-400 hover:text-white transition text-lg p-1 rounded-lg hover:bg-slate-800"
                 >
                   ✕
                 </button>
               </div>
             </div>
 
-            {/* Scrollable Form Body */}
-            <form id="ai-modal-form" onSubmit={handleStartAiGame} className="p-3 sm:p-4 space-y-3 overflow-y-auto flex-1 text-xs">
+            <div className="p-3 sm:p-4 space-y-2.5 sm:space-y-3.5 overflow-y-auto flex-1">
               {error && (
                 <div className="p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
                   {error}
@@ -849,15 +842,15 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
               {/* 1. SELECT NUMBER OF AI OPPONENTS */}
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-300 mb-1.5 tracking-wider">
+                <label className="block text-[10px] sm:text-[11px] font-bold uppercase text-slate-300 mb-1 tracking-wider">
                   CHOOSE NUMBER OF AI OPPONENTS
                 </label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-1.5">
                   {[
-                    { count: 1, label: '1 AI', players: '2P' },
-                    { count: 2, label: '2 AI', players: '3P' },
-                    { count: 3, label: '3 AI', players: '4P' },
-                    { count: 4, label: '4 AI', players: '5P' },
+                    { count: 1, label: '1 AI', players: '2 PLAYERS' },
+                    { count: 2, label: '2 AI', players: '3 PLAYERS' },
+                    { count: 3, label: '3 AI', players: '4 PLAYERS' },
+                    { count: 4, label: '4 AI', players: '5 PLAYERS' },
                   ].map(opt => {
                     const isSelected = aiOpponentCount === opt.count;
                     return (
@@ -865,16 +858,16 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                         key={opt.count}
                         type="button"
                         onClick={() => setAiOpponentCount(opt.count)}
-                        className={`p-2 rounded-xl border transition-all text-center flex flex-col items-center justify-center ${
+                        className={`py-1.5 px-1 rounded-xl border transition-all text-center flex flex-col items-center justify-center gap-0.5 ${
                           isSelected
                             ? 'bg-[#FF1744]/20 border-[#FF1744] shadow-glow-cyan scale-[1.02]'
                             : 'bg-[#0A0A14] border-slate-800 hover:border-slate-700 text-slate-400'
                         }`}
                       >
-                        <span className={`text-xs font-black font-display uppercase ${isSelected ? 'text-[#FF1744] text-glow-cyan' : 'text-white'}`}>
+                        <span className={`text-xs sm:text-sm font-black font-display uppercase ${isSelected ? 'text-[#FF1744] text-glow-cyan' : 'text-white'}`}>
                           {opt.label}
                         </span>
-                        <span className="text-[9px] font-mono text-slate-400 font-bold uppercase">
+                        <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-tight">
                           {opt.players}
                         </span>
                       </button>
@@ -884,103 +877,111 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               </div>
 
               {/* 2. VISUAL PARTICIPANTS ROSTER */}
-              <div className="bg-[#0A0A14] border border-slate-800 rounded-xl p-2.5 space-y-1.5">
+              <div className="bg-[#0A0A14] border border-slate-800 rounded-xl p-2 sm:p-2.5 space-y-1">
                 <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  <span className="flex items-center gap-1 text-white">
+                  <span className="flex items-center gap-1.5 text-white">
                     <Users className="w-3 h-3 text-[#FF1744]" />
-                    ROSTER ({aiOpponentCount + 1} PARTICIPANTS)
+                    ROOM ROSTER ({aiOpponentCount + 1} PARTICIPANTS)
                   </span>
-                  <span className="text-slate-500 font-mono text-[9px]">1 YOU + {aiOpponentCount} BOTS</span>
+                  <span className="text-slate-500 font-mono text-[9px]">1 HUMAN + {aiOpponentCount} AI</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#FF1744]/15 border border-[#FF1744]/40 text-xs shadow-glow-cyan">
-                    <span>{aiBadge}</span>
-                    <span className="font-black text-white">{aiTeamName.trim() || 'YOU'}</span>
-                    <span className="text-[8px] font-mono text-[#FF1744] font-bold">(YOU)</span>
+                  {/* Human player */}
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[#FF1744]/15 border border-[#FF1744]/40 text-xs shadow-glow-cyan">
+                    <span className="text-sm">{aiBadge}</span>
+                    <div>
+                      <span className="font-black text-white text-[11px]">{aiTeamName.trim() || 'YOU'}</span>
+                      <span className="text-[9px] font-mono text-[#FF1744] ml-1 font-bold uppercase">(YOU)</span>
+                    </div>
                   </div>
+
+                  {/* AI opponents in strict order: Steve, Mark, Joseph, Ron */}
                   {AI_BOTS.slice(0, aiOpponentCount).map(bot => (
                     <div
                       key={bot.id}
-                      className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-xs"
+                      className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 text-[11px]"
                     >
-                      <span>{bot.badgeIcon}</span>
-                      <span className="font-bold text-white uppercase">{bot.name}</span>
-                      <span className="text-[8px] font-mono text-slate-400">[{bot.shortCode}]</span>
+                      <span className="text-sm">{bot.badgeIcon}</span>
+                      <div>
+                        <span className="font-bold text-white uppercase">{bot.name}</span>
+                        <span className="text-[9px] font-mono text-slate-400 ml-1">[{bot.shortCode}]</span>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* 3. CLUB DETAILS IN A SINGLE ROW */}
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">
-                    Club Name
-                  </label>
-                  <input
-                    type="text"
-                    value={aiTeamName}
-                    onChange={e => {
-                      setAiTeamName(e.target.value);
-                      if (!aiAbbreviation) {
-                        setAiAbbreviation(e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase());
-                      }
-                    }}
-                    placeholder="e.g. Apex FC"
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">
-                    Code (3 letters)
-                  </label>
-                  <input
-                    type="text"
-                    value={aiAbbreviation}
-                    onChange={e => setAiAbbreviation(e.target.value.toUpperCase().slice(0, 3))}
-                    placeholder="e.g. APX"
-                    maxLength={3}
-                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono uppercase tracking-widest text-center"
-                  />
-                </div>
-              </div>
+              {/* 3. YOUR CLUB DETAILS */}
+              <form onSubmit={handleStartAiGame} className="space-y-2.5 sm:space-y-3">
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2">
+                    <label className="block text-[10px] sm:text-[11px] font-bold uppercase text-slate-400 mb-1">
+                      Your Club Name
+                    </label>
+                    <input
+                      type="text"
+                      value={aiTeamName}
+                      onChange={e => {
+                        setAiTeamName(e.target.value);
+                        if (!aiAbbreviation) {
+                          setAiAbbreviation(e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase());
+                        }
+                      }}
+                      placeholder="e.g. Apex FC"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-1.5 sm:py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-semibold"
+                    />
+                  </div>
 
-              {/* 4. CLUB CREST BADGE */}
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Crest Badge</label>
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-                  {BADGES.map(b => (
-                    <button
-                      key={b}
-                      type="button"
-                      onClick={() => setAiBadge(b)}
-                      className={`w-8 h-8 flex-shrink-0 flex items-center justify-center text-sm rounded-lg border transition ${
-                        aiBadge === b
-                          ? 'border-[#FF1744] bg-[#FF1744]/25 shadow-glow-cyan scale-105'
-                          : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
-                      }`}
-                    >
-                      {b}
-                    </button>
-                  ))}
+                  <div>
+                    <label className="block text-[10px] sm:text-[11px] font-bold uppercase text-slate-400 mb-1">
+                      Code (3L)
+                    </label>
+                    <input
+                      type="text"
+                      value={aiAbbreviation}
+                      onChange={e => setAiAbbreviation(e.target.value.toUpperCase().slice(0, 3))}
+                      placeholder="APX"
+                      maxLength={3}
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-2 py-1.5 sm:py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono uppercase tracking-widest text-center"
+                    />
+                  </div>
                 </div>
-              </div>
-            </form>
 
-            {/* STICKY FOOTER: PROMINENT PLAY BUTTON - 100% ALWAYS VISIBLE WITHOUT DRAGGING DOWN */}
-            <div className="p-3 sm:p-4 bg-slate-900/95 border-t border-slate-800 flex-shrink-0">
-              <button
-                type="submit"
-                form="ai-modal-form"
-                disabled={loadingSession}
-                className="w-full py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-sm transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
-              >
-                <Bot className="w-4 h-4" />
-                <span>{loadingSession ? 'INITIALIZING ARENA...' : '⚡ PLAY VS AI NOW'}</span>
-              </button>
+                <div>
+                  <label className="block text-[10px] sm:text-[11px] font-bold uppercase text-slate-400 mb-1">
+                    Club Crest Badge
+                  </label>
+                  <div className="grid grid-cols-6 gap-1 sm:gap-1.5">
+                    {BADGES.map(b => (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => setAiBadge(b)}
+                        className={`aspect-square flex items-center justify-center text-sm sm:text-base rounded-lg border transition ${
+                          aiBadge === b
+                            ? 'border-[#FF1744] bg-[#FF1744]/20 shadow-glow-cyan'
+                            : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
+                        }`}
+                      >
+                        {b}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loadingSession}
+                  className="w-full py-2.5 sm:py-3.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-glow-cyan disabled:opacity-50 mt-1 uppercase tracking-wider flex items-center justify-center gap-2 active:scale-98"
+                >
+                  <Bot className="w-4 h-4" />
+                  <span>{loadingSession ? 'INITIALIZING AI ARENA...' : 'START AI ROOM'}</span>
+                </button>
+              </form>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Stadium Audio & Crowd Soundboard Modal */}
