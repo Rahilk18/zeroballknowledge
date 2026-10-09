@@ -962,12 +962,43 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       let teamPlayers = sessionPlayers.filter(p => teamPlayerIds.has(p.id));
 
       if (t.id.startsWith('ai-') && teamPlayers.length < 7) {
-        // Guaranteed safety net: if draft ended early, backfill up to 7 players
-        const needed = 7 - teamPlayers.length;
-        for (let i = 0; i < needed && poolIndex < availablePool.length; i++) {
-          const filler = availablePool[poolIndex++];
-          teamPlayers.push(filler);
-          addedPlayers.push(filler);
+        // Guaranteed safety net: if draft ended early, backfill up to 7 players with guaranteed (1 GK, 2 DEF, 2 MID, 2 ATT)
+        const findAndTakePlayer = (pos?: string): Player | null => {
+          const idx = availablePool.findIndex(p => !allAssigned.has(p.id) && (!pos || p.position === pos));
+          if (idx !== -1) {
+            const player = availablePool.splice(idx, 1)[0];
+            allAssigned.add(player.id);
+            return player;
+          }
+          return null;
+        };
+
+        const neededGk = Math.max(0, 1 - teamPlayers.filter(p => p.position === 'GK').length);
+        const neededDef = Math.max(0, 2 - teamPlayers.filter(p => p.position === 'DEF').length);
+        const neededMid = Math.max(0, 2 - teamPlayers.filter(p => p.position === 'MID').length);
+        const neededAtt = Math.max(0, 2 - teamPlayers.filter(p => p.position === 'ATT').length);
+
+        for (let i = 0; i < neededGk && teamPlayers.length < 7; i++) {
+          const p = findAndTakePlayer('GK') || findAndTakePlayer();
+          if (p) { teamPlayers.push(p); addedPlayers.push(p); }
+        }
+        for (let i = 0; i < neededDef && teamPlayers.length < 7; i++) {
+          const p = findAndTakePlayer('DEF') || findAndTakePlayer();
+          if (p) { teamPlayers.push(p); addedPlayers.push(p); }
+        }
+        for (let i = 0; i < neededMid && teamPlayers.length < 7; i++) {
+          const p = findAndTakePlayer('MID') || findAndTakePlayer();
+          if (p) { teamPlayers.push(p); addedPlayers.push(p); }
+        }
+        for (let i = 0; i < neededAtt && teamPlayers.length < 7; i++) {
+          const p = findAndTakePlayer('ATT') || findAndTakePlayer();
+          if (p) { teamPlayers.push(p); addedPlayers.push(p); }
+        }
+        while (teamPlayers.length < 7) {
+          const p = findAndTakePlayer();
+          if (!p) break;
+          teamPlayers.push(p);
+          addedPlayers.push(p);
         }
       }
 

@@ -313,7 +313,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           {/* Home Team */}
           <div className="flex-1 text-center sm:text-left flex items-center gap-2.5 sm:gap-3">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-2xl shadow-lg border border-emerald-300 flex-shrink-0">
-              ⚡
+              {matchResult.homeBadgeIcon || '⚡'}
             </div>
             <div>
               <span className="text-[9px] font-black uppercase text-emerald-400">HOME</span>
@@ -357,7 +357,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
               <span className="text-[10px] text-slate-400 hidden sm:inline">Tactical 7 Lineup</span>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center text-2xl shadow-lg border border-blue-400 flex-shrink-0">
-              🦅
+              {matchResult.awayBadgeIcon || '🦅'}
             </div>
           </div>
         </div>

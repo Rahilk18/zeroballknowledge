@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Team, Player, ActiveTab } from '../types';
 import { PitchView } from '../components/PitchView';
-import { getPositionBadgeColor, calculateTeamOverall } from '../utils/formatters';
+import { getPositionBadgeColor, calculateTeamOverall, getRatingBadgeStyle } from '../utils/formatters';
 import { FORMATIONS, getFormationInfo, autoPickBestLineup } from '../utils/formation';
 import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
@@ -388,7 +388,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
   };
 
   return (
-    <div className="p-2 sm:p-4 max-w-7xl mx-auto space-y-3.5 animate-fadeIn pb-6">
+    <div className="p-2 sm:p-4 max-w-7xl mx-auto space-y-3 animate-fadeIn pb-24 sm:pb-8">
       
       {/* ===== HERO BANNER: STAGE INFORMATION & ROOM CODE ===== */}
       <div className="bg-gradient-to-r from-[#0E1324] via-[#10182E] to-[#0E1324] border border-[#FF1744]/30 rounded-2xl p-3.5 sm:p-4 shadow-glow-cyan">
@@ -634,7 +634,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                         }`}
                       >
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
                             {p.overall}
                           </span>
                           <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
@@ -689,7 +689,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                       }`}
                     >
                       <div className="flex items-center gap-2 truncate">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
                           {p.overall}
                         </span>
                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
@@ -732,7 +732,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
                         {p.overall}
                       </span>
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
@@ -773,7 +773,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
                         {p.overall}
                       </span>
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
@@ -793,8 +793,8 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
         </div>
       )}
 
-      {/* ===== BOTTOM ACTION PANEL & MULTIPLAYER READY SYNC ===== */}
-      <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-2xl p-3.5 sm:p-4 shadow-glow-cyan flex flex-col md:flex-row items-center justify-between gap-3">
+      {/* ===== STICKY BOTTOM ACTION PANEL & MULTIPLAYER READY SYNC ===== */}
+      <div className="sticky bottom-2 z-30 bg-[#0E1324]/95 backdrop-blur-md border border-[#FF1744]/40 rounded-2xl p-2.5 sm:p-3.5 shadow-2xl shadow-black/90 flex flex-col md:flex-row items-center justify-between gap-2.5 sm:gap-3">
         
         {/* Left: Lock-in Summary */}
         <div className="space-y-0.5 text-center md:text-left">
@@ -810,11 +810,11 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
         </div>
 
         {/* Right: Actions */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-center md:justify-end">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-center md:justify-end">
           
           <button
             onClick={handleLockInLineup}
-            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 active:scale-95 shadow-md ${
+            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md whitespace-nowrap ${
               isLockedIn
                 ? 'bg-emerald-950/80 border border-emerald-500/60 text-emerald-300'
                 : 'bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 shadow-glow-cyan'
@@ -835,17 +835,17 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
 
           {/* Host Launch Match Arena Button */}
           {isHost ? (
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
               <button
                 onClick={handleReturnToAuction}
-                className="px-4 py-2.5 bg-[#0A0D1A] hover:bg-slate-800 border border-[#FF1744]/40 text-[#FF1744] text-xs font-bold uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 active:scale-95"
+                className="flex-1 sm:flex-initial px-3.5 py-2.5 bg-[#0A0D1A] hover:bg-slate-800 border border-[#FF1744]/40 text-[#FF1744] text-xs font-bold uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
               >
-                <span>🔙 RETURN TO LIVE AUCTION</span>
+                <span>🔙 AUCTION</span>
               </button>
               <button
                 onClick={handleHostLaunchMatches}
                 disabled={advancingToMatches}
-                className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition shadow-lg flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+                className="flex-1 sm:flex-initial px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition shadow-lg flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50 whitespace-nowrap"
               >
                 <Swords className="w-4 h-4" />
                 <span>{advancingToMatches ? 'LAUNCHING ARENA...' : '⚔️ LAUNCH MATCH ARENA →'}</span>

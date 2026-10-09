@@ -697,7 +697,7 @@ export function simulateMatch(
   const playerRatings: Record<string, PlayerMatchRating> = {};
 
   allPlayers.forEach(p => {
-    const isHome = homeTeam.startingSeven.includes(p.id);
+    const isHome = homeStarting.some(hp => hp.id === p.id);
     const teamWon = isHome ? homeScore > awayScore : awayScore > homeScore;
     const teamDrew = homeScore === awayScore;
     const goalsConceded = isHome ? awayScore : homeScore;
@@ -783,6 +783,8 @@ export function simulateMatch(
     awayTeamId: awayTeam.id,
     homeTeamName: homeTeam.name,
     awayTeamName: awayTeam.name,
+    homeBadgeIcon: homeTeam.badgeIcon || homeTeam.badge || '⚡',
+    awayBadgeIcon: awayTeam.badgeIcon || awayTeam.badge || '🦅',
     homeScore,
     awayScore,
     events,

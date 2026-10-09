@@ -501,6 +501,8 @@ export interface MatchResult {
   awayTeamId: string;
   homeTeamName: string;
   awayTeamName: string;
+  homeBadgeIcon?: string;
+  awayBadgeIcon?: string;
   homeScore: number;
   awayScore: number;
   homeGoals?: number;

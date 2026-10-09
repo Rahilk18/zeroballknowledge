@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Team, Player } from '../types';
-import { calculateTeamOverall } from '../utils/formatters';
+import { calculateTeamOverall, getPositionBadgeColor, getRatingBadgeStyle } from '../utils/formatters';
 import { useSession } from '../contexts/SessionContext';
 import { supabase } from '../lib/supabase';
 import { 
@@ -212,7 +212,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
   const awayGk = calculateUnit(displayAwayStarters, 'GK', 'goalkeeping');
 
   return (
-    <div className="p-2 sm:p-4 max-w-5xl mx-auto space-y-3.5 pb-6 animate-fadeIn">
+    <div className="p-2 sm:p-4 max-w-5xl mx-auto space-y-3 pb-24 sm:pb-8 animate-fadeIn">
       
       {/* Back button and Matchday header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-800">
@@ -307,25 +307,30 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
 
             {/* Starting 7 Roster */}
             <div className="space-y-1">
-              {displayHomeStarters.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between px-2.5 py-1 rounded-md bg-slate-900/60 border border-slate-800/80 text-xs"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 text-center text-[10px] font-black text-slate-400">
-                      #{p.number || 1}
-                    </span>
-                    <span className="font-extrabold text-white">{p.name}</span>
+              {displayHomeStarters.map((p) => {
+                const posBadge = getPositionBadgeColor(p.position);
+                return (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between px-2.5 py-1 rounded-md bg-slate-900/60 border border-slate-800/80 text-xs"
+                  >
+                    <div className="flex items-center gap-2 truncate mr-2">
+                      <span className="w-5 text-center text-[10px] font-black text-slate-400 flex-shrink-0">
+                        #{p.number || 1}
+                      </span>
+                      <span className="font-extrabold text-white truncate">{p.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
+                        {p.overall}
+                      </span>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${posBadge.bg} ${posBadge.text} ${posBadge.border}`}>
+                        {p.position}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-black font-mono text-emerald-400 text-xs">{p.overall}</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">
-                      {p.position}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Unit Stats */}
@@ -389,25 +394,30 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
 
             {/* Starting 7 Roster */}
             <div className="space-y-1">
-              {displayAwayStarters.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between px-2.5 py-1 rounded-md bg-slate-900/60 border border-slate-800/80 text-xs"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 text-center text-[10px] font-black text-slate-400">
-                      #{p.number || 1}
-                    </span>
-                    <span className="font-extrabold text-white">{p.name}</span>
+              {displayAwayStarters.map((p) => {
+                const posBadge = getPositionBadgeColor(p.position);
+                return (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between px-2.5 py-1 rounded-md bg-slate-900/60 border border-slate-800/80 text-xs"
+                  >
+                    <div className="flex items-center gap-2 truncate mr-2">
+                      <span className="w-5 text-center text-[10px] font-black text-slate-400 flex-shrink-0">
+                        #{p.number || 1}
+                      </span>
+                      <span className="font-extrabold text-white truncate">{p.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
+                        {p.overall}
+                      </span>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${posBadge.bg} ${posBadge.text} ${posBadge.border}`}>
+                        {p.position}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-black font-mono text-blue-400 text-xs">{p.overall}</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">
-                      {p.position}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Unit Stats */}
@@ -494,7 +504,7 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
             </div>
           )}
           {isHost && canSimulate && (
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-400 text-center">
               Real simulation engine evaluates tactical attributes, form, and match momentum.
             </p>
           )}
@@ -502,6 +512,54 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
 
       </div>
 
+      {/* STICKY BOTTOM ACTION BAR: Guarantees Simulate button is never hidden below screen fold on mobile & laptop */}
+      <div className="sticky bottom-2 z-30 bg-[#0A0D1A]/95 backdrop-blur-md border border-emerald-500/50 rounded-2xl p-2.5 sm:p-3 shadow-2xl shadow-black/90 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2 text-center sm:text-left">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+          <div className="truncate">
+            <p className="text-xs font-black text-white uppercase tracking-wider font-display truncate">
+              {currentTeam.name || currentTeam.teamName} <span className="text-emerald-400">VS</span> {opponentTeam.name || opponentTeam.teamName}
+            </p>
+            <p className="text-[10px] text-slate-400 font-mono">
+              {canSimulate ? 'Ready to kick off arena simulation' : 'Waiting for full rosters (7/7 min)'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
+          {currentSession && isHost && (
+            <button
+              onClick={handleReturnToAuction}
+              className="px-3.5 py-2.5 rounded-xl bg-[#0A0D1A] hover:bg-slate-800 border border-[#FF1744]/40 text-[#FF1744] font-bold text-xs uppercase tracking-wider transition active:scale-95 whitespace-nowrap"
+            >
+              🔙 AUCTION
+            </button>
+          )}
+          {isHost ? (
+            <button
+              onClick={() => {
+                if (!canSimulate) return;
+                sound.playWhistle('kickoff');
+                sound.startStadiumAmbiance();
+                onSimulate(opponentTeam.id);
+              }}
+              disabled={!canSimulate}
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-xl active:scale-95 whitespace-nowrap ${
+                canSimulate
+                  ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-green-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 shadow-emerald-500/30 cursor-pointer'
+                  : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed opacity-60'
+              }`}
+            >
+              <Play className="w-4 h-4 fill-current" />
+              <span>{canSimulate ? 'SIMULATE MATCH' : 'ROSTERS INCOMPLETE'}</span>
+            </button>
+          ) : (
+            <div className="px-3.5 py-2 rounded-xl bg-[#0A0E1A] border border-[#FF1744]/40 text-[#FF1744] text-xs font-mono font-bold animate-pulse text-center">
+              Waiting for Host to simulate...
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Stadium Audio & Crowd Soundboard Modal */}
       <StadiumAudioModal

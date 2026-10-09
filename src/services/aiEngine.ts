@@ -132,10 +132,11 @@ export function calculatePositionNeed(
     return 1.10;
   }
   if (count === 2) {
-    return squad.length < 7 ? 0.95 : 0.85;
+    // If squad < 7, team has already filled its 2 starters for this position; do not draft a 3rd yet!
+    return squad.length < 7 ? 0.05 : 0.85;
   }
   if (count === 3) {
-    return 0.70;
+    return squad.length < 7 ? 0.05 : 0.70;
   }
   if (count >= 4) {
     return 0.30;
@@ -175,9 +176,12 @@ export function calculateAIMaxWillingBid(
   const pos = player.position;
   const gkCount = squad.filter(p => p.position === 'GK').length;
 
-  // Rule 1: Never draft a backup GK when squad has fewer than 7 players
-  if (pos === 'GK' && gkCount >= 1 && squad.length < 7) {
-    return 0;
+  // Rule 1: Never draft a backup GK or excess outfield position when squad has fewer than 7 players.
+  // Core 7-a-side starting lineup strictly requires: 1 GK, 2 DEF, 2 MID, 2 ATT (total 7 players).
+  if (squad.length < 7) {
+    if (pos === 'GK' && gkCount >= 1) return 0;
+    const posCount = squad.filter(p => p.position === pos).length;
+    if (posCount >= 2) return 0;
   }
 
   // Rule 2: Strict Purse Reserve to guarantee completing at least 7 players
@@ -312,17 +316,20 @@ export function getOrInitBotStance(
 
   // Position quota check for balanced 7-a-side team building:
   // GK: max 1 until squad reaches 7 players; max 2 once 7 players secured
-  // Outfield: max 2 starters per position initially; max 3/4 for squad depth
+  // Outfield: max 2 starters per position initially (1 GK + 2 DEF + 2 MID + 2 ATT = 7); max 4 once 7 players secured for squad depth
   const isPosFull =
     (pos === 'GK' && gkCount >= (squad.length < 7 ? 1 : 2)) ||
-    (pos === 'DEF' && posCount >= (squad.length < 7 ? 3 : 4)) ||
-    (pos === 'MID' && posCount >= (squad.length < 7 ? 3 : 4)) ||
-    (pos === 'ATT' && posCount >= (squad.length < 7 ? 3 : 4));
+    (pos === 'DEF' && posCount >= (squad.length < 7 ? 2 : 4)) ||
+    (pos === 'MID' && posCount >= (squad.length < 7 ? 2 : 4)) ||
+    (pos === 'ATT' && posCount >= (squad.length < 7 ? 2 : 4));
 
   if (squad.length >= 10 || isPosFull) {
     interest = 'PASSING';
   } else if (pos === 'GK' && gkCount >= 1 && squad.length < 7) {
     // Already has starting keeper; must focus on completing outfield starters
+    interest = 'PASSING';
+  } else if (pos !== 'GK' && posCount >= 2 && squad.length < 7) {
+    // Already has 2 starters in this outfield position; must save remaining slots for deficient positions
     interest = 'PASSING';
   } else {
     // Actively go for players that build a strong team and complete minimum 7:
