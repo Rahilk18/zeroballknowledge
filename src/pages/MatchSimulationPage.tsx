@@ -41,7 +41,28 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 }) => {
   const [currentMinute, setCurrentMinute] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [speedMultiplier, setSpeedMultiplier] = useState<number>(2); // 1x, 2x, 4x
+  const [speedMultiplier, setSpeedMultiplier] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('zeroball_match_speed');
+      if (saved) {
+        const val = parseFloat(saved);
+        if ([0.5, 1, 2, 4].includes(val)) return val;
+      }
+    } catch {
+      // ignore
+    }
+    return 1; // Default to 1x
+  });
+
+  const handleSpeedChange = (s: number) => {
+    sound.playClick();
+    setSpeedMultiplier(s);
+    try {
+      localStorage.setItem('zeroball_match_speed', String(s));
+    } catch {
+      // ignore
+    }
+  };
   const [isFinished, setIsFinished] = useState(false);
   const [activeTab, setActiveTab] = useState<'pitch' | 'overview' | 'events' | 'stats' | 'players'>('pitch');
   const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
@@ -129,7 +150,12 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   useEffect(() => {
     if (!isPlaying || isFinished) return;
 
-    const intervalTime = Math.max(40, 180 / speedMultiplier);
+    // Base interval is 200ms per match minute:
+    // 0.5x = 400ms per minute (~36s for 90min match, relaxed and easy to watch)
+    // 1x   = 200ms per minute (~18s for 90min match)
+    // 2x   = 100ms per minute (~9s for 90min match)
+    // 4x   = 50ms per minute (~4.5s for 90min match)
+    const intervalTime = Math.max(35, Math.round(200 / speedMultiplier));
 
     const timer = setInterval(() => {
       setCurrentMinute((prev) => {
@@ -222,30 +248,49 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           </div>
 
           {/* Simulation Speed, Audio & Skip Controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Play / Pause Toggle */}
+            {!isFinished && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  setIsPlaying(prev => !prev);
+                }}
+                className={`p-1.5 rounded-xl border transition active:scale-95 ${
+                  isPlaying 
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30' 
+                    : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30 shadow-glow-emerald'
+                }`}
+                title={isPlaying ? 'Pause Simulation' : 'Resume Simulation'}
+              >
+                {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+              </button>
+            )}
+
             {/* Stadium Audio Quick Controller */}
             <button
               onClick={() => {
                 sound.playClick();
                 setIsAudioModalOpen(true);
               }}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/50 transition shadow-glow-emerald"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/50 transition shadow-glow-emerald"
               title="Adjust Stadium Crowd Audio & SFX"
             >
               <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-              <span className="hidden sm:inline">STADIUM AUDIO</span>
+              <span className="hidden md:inline">STADIUM AUDIO</span>
             </button>
 
-            {[1, 2, 4].map(s => (
+            {/* Speed Options: 0.5x, 1x, 2x, 4x */}
+            {[0.5, 1, 2, 4].map(s => (
               <button
                 key={s}
-                onClick={() => {
-                  sound.playClick();
-                  setSpeedMultiplier(s);
-                }}
-                className={`px-3 py-1 rounded-xl text-xs font-black transition ${
-                  speedMultiplier === s ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan' : 'bg-[#0A0A14] text-slate-400 border border-slate-800'
+                onClick={() => handleSpeedChange(s)}
+                className={`px-2 sm:px-2.5 py-1 rounded-xl text-xs font-black transition active:scale-95 ${
+                  speedMultiplier === s 
+                    ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan' 
+                    : 'bg-[#0A0A14] text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-white'
                 }`}
+                title={`Simulation Speed ${s}x`}
               >
                 {s}x
               </button>
@@ -253,10 +298,11 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
             {!isFinished && (
               <button
                 onClick={handleInstantSkip}
-                className="flex items-center gap-1 px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-black hover:bg-purple-500/30 transition shadow-glow-purple"
+                className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-black hover:bg-purple-500/30 transition shadow-glow-purple active:scale-95"
+                title="Instant skip to match conclusion"
               >
                 <FastForward className="w-3.5 h-3.5" />
-                <span>SKIP TO END</span>
+                <span className="hidden sm:inline">SKIP TO END</span>
               </button>
             )}
           </div>

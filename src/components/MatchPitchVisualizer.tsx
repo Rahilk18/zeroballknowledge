@@ -62,7 +62,7 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
   matchResult,
   currentMinute,
   isPlaying,
-  speedMultiplier: _speedMultiplier,
+  speedMultiplier = 1,
   allPlayers,
   onPlayerSelect,
   isAudioHandledByParent = true
@@ -75,6 +75,9 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
     subtext?: string;
     type: 'goal' | 'save' | 'card' | 'corner' | 'action';
   } | null>(null);
+
+  // Dynamic animation easing based on simulation speed (longer for 0.5x, snappy for 2x/4x)
+  const transitionDurationMs = Math.round(Math.min(450, Math.max(50, 180 / speedMultiplier)));
 
   const prevMinuteRef = useRef(currentMinute);
   const bannerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -354,8 +357,8 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
 
     bannerTimeoutRef.current = setTimeout(() => {
       setActiveBanner(null);
-    }, 3800);
-  }, [currentMinute, matchResult.events, soundEnabled]);
+    }, Math.max(1200, Math.round(3600 / speedMultiplier)));
+  }, [currentMinute, matchResult.events, soundEnabled, speedMultiplier]);
 
   const handlePlayerTokenClick = (p: PitchPlayer) => {
     sound.playClick();
@@ -586,7 +589,8 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
           <g
             transform={`translate(${ball.x}, ${ball.y})`}
             filter="url(#ballGlow)"
-            className="transition-all duration-300 ease-out"
+            style={{ transition: `transform ${transitionDurationMs}ms ease-out` }}
+            className="ease-out"
           >
             {/* Drop Shadow */}
             <ellipse cx="0" cy="5" rx="7" ry="3" fill="#000000" opacity="0.6" />
@@ -607,7 +611,8 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
                 key={p.id}
                 transform={`translate(${p.baseX}, ${p.baseY})`}
                 onClick={() => handlePlayerTokenClick(p)}
-                className="cursor-pointer transition-transform duration-300 hover:scale-110"
+                style={{ transition: `transform ${transitionDurationMs}ms ease-out` }}
+                className="cursor-pointer hover:scale-110"
               >
                 {/* Active Player Beacon Ring */}
                 {(isBallCarrier || isSelected) && (
