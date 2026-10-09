@@ -378,32 +378,32 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
       <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* ===== TOP PITCH CONTROLS & LIVE RADAR HUD ===== */}
-      <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 bg-slate-950/80 backdrop-blur-md border-b border-emerald-500/30">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 font-mono text-xs font-black">
-            <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}`} />
+      <div className="relative z-20 flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-slate-950/80 backdrop-blur-md border-b border-emerald-500/30">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 font-mono text-[11px] font-black">
+            <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}`} />
             <span>2D TACTICAL MATCH RADAR</span>
           </div>
-          <span className="text-xs font-bold text-slate-400 hidden sm:inline">
+          <span className="text-[11px] font-bold text-slate-400 hidden sm:inline">
             7v7 Real-Time Simulation
           </span>
         </div>
 
         {/* Action Toggles */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => {
               sound.playClick();
               setShowTacticalLanes(prev => !prev);
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${
               showTacticalLanes
                 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
                 : 'bg-slate-900 text-slate-400 border border-slate-800'
             }`}
             title="Toggle Tactical Pressure Lanes"
           >
-            <Activity className="w-3.5 h-3.5" />
+            <Activity className="w-3 h-3" />
             <span className="hidden sm:inline">Tactical Lanes</span>
           </button>
 
@@ -412,25 +412,25 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
               sound.playClick();
               setSoundEnabled(prev => !prev);
             }}
-            className="p-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition"
+            className="p-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition"
             title={soundEnabled ? 'Mute Pitch Audio' : 'Unmute Pitch Audio'}
           >
-            {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
 
       {/* ===== LIVE EVENT TOAST BANNER ===== */}
       {activeBanner && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 animate-bounce duration-300">
-          <div className={`px-5 py-2.5 rounded-2xl backdrop-blur-xl border-2 shadow-2xl flex items-center gap-3 ${
+        <div className="absolute top-12 left-1/2 -translate-x-1/2 z-30 animate-bounce duration-300">
+          <div className={`px-4 py-2 rounded-xl backdrop-blur-xl border-2 shadow-2xl flex items-center gap-2.5 ${
             activeBanner.type === 'goal'
               ? 'bg-gradient-to-r from-emerald-900/90 to-teal-900/90 border-emerald-400 text-white shadow-emerald-500/40'
               : activeBanner.type === 'save'
               ? 'bg-gradient-to-r from-blue-900/90 to-indigo-900/90 border-blue-400 text-white shadow-blue-500/40'
               : 'bg-gradient-to-r from-amber-950/90 to-slate-900/90 border-amber-400 text-amber-200'
           }`}>
-            <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" />
             <div>
               <p className="text-xs font-black uppercase tracking-wider">{activeBanner.text}</p>
               {activeBanner.subtext && (
@@ -442,7 +442,7 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
       )}
 
       {/* ===== MAIN 2D FOOTBALL PITCH SVG ===== */}
-      <div className="relative w-full aspect-[16/9] sm:aspect-[1.8/1] max-h-[620px] overflow-hidden">
+      <div className="relative w-full aspect-[16/9] sm:aspect-[2/1] max-h-[460px] overflow-hidden">
         <svg
           viewBox="0 0 1000 600"
           className="w-full h-full object-cover"

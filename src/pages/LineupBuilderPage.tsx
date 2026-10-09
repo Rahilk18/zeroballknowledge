@@ -388,102 +388,102 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 animate-fadeIn pb-16">
+    <div className="p-2 sm:p-4 max-w-7xl mx-auto space-y-3.5 animate-fadeIn pb-6">
       
       {/* ===== HERO BANNER: STAGE INFORMATION & ROOM CODE ===== */}
-      <div className="bg-gradient-to-r from-[#0E1324] via-[#10182E] to-[#0E1324] border border-[#FF1744]/30 rounded-3xl p-5 sm:p-6 shadow-glow-cyan">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1.5">
+      <div className="bg-gradient-to-r from-[#0E1324] via-[#10182E] to-[#0E1324] border border-[#FF1744]/30 rounded-2xl p-3.5 sm:p-4 shadow-glow-cyan">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 flex items-center gap-1">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 flex items-center gap-1">
                 <Sparkles className="w-3 h-3" />
                 STAGE 2: TACTICAL ROSTER SETUP
               </span>
               {currentSession && (
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
                   ROOM: {currentSession.sessionCode}
                 </span>
               )}
               {isLockedIn && (
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
                   <Check className="w-3 h-3" />
                   LINEUP LOCKED IN
                 </span>
               )}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+            <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
               SELECT YOUR PLAYING 7
             </h1>
-            <p className="text-slate-400 text-xs sm:text-sm max-w-2xl">
+            <p className="text-slate-400 text-xs max-w-2xl line-clamp-2">
               From your 10 acquired superstars, select your best 7 starters and 3 bench reserves.
               Configure your tactical formation, drag & drop or tap to swap, and lock in your roster.
             </p>
           </div>
 
           {/* Stadium Audio & Squad Metrics */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               type="button"
               onClick={() => {
                 sound.playClick();
                 setIsAudioModalOpen(true);
               }}
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
               title="Adjust Stadium Crowd Audio & SFX"
             >
               <Radio className="w-3.5 h-3.5 animate-pulse" />
               <span className="hidden sm:inline">STADIUM AUDIO</span>
             </button>
 
-            <div className="flex items-center gap-3 bg-[#0A0D1A] border border-slate-800 rounded-2xl p-3 sm:p-4">
-              <div className="text-center px-2">
-                <p className="text-[10px] font-bold uppercase text-slate-400">STARTERS</p>
-                <p className="text-xl font-black text-[#FF1744] font-mono">{starting.length}/7</p>
+            <div className="flex items-center gap-2.5 bg-[#0A0D1A] border border-slate-800 rounded-xl p-2 sm:p-2.5">
+              <div className="text-center px-1.5">
+                <p className="text-[9px] font-bold uppercase text-slate-400">STARTERS</p>
+                <p className="text-lg font-black text-[#FF1744] font-mono leading-none">{starting.length}/7</p>
               </div>
-              <div className="w-px h-8 bg-slate-800" />
-              <div className="text-center px-2">
-                <p className="text-[10px] font-bold uppercase text-slate-400">BENCH</p>
-                <p className="text-xl font-black text-amber-400 font-mono">{bench.length}/3</p>
+              <div className="w-px h-6 bg-slate-800" />
+              <div className="text-center px-1.5">
+                <p className="text-[9px] font-bold uppercase text-slate-400">BENCH</p>
+                <p className="text-lg font-black text-amber-400 font-mono leading-none">{bench.length}/3</p>
               </div>
-              <div className="w-px h-8 bg-slate-800" />
-              <div className="text-center px-2">
-                <p className="text-[10px] font-bold uppercase text-slate-400">TEAM OVR</p>
-                <p className="text-xl font-black text-emerald-400 font-mono">{teamOvr}</p>
+              <div className="w-px h-6 bg-slate-800" />
+              <div className="text-center px-1.5">
+                <p className="text-[9px] font-bold uppercase text-slate-400">TEAM OVR</p>
+                <p className="text-lg font-black text-emerald-400 font-mono leading-none">{teamOvr}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tactical Rating Breakdown Bar */}
-        <div className="mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-3 sm:grid-cols-6 gap-2">
-          <div className="bg-[#080B14] p-2 rounded-xl border border-slate-800 text-center">
+        <div className="mt-2.5 pt-2.5 border-t border-slate-800/80 grid grid-cols-3 sm:grid-cols-6 gap-2">
+          <div className="bg-[#080B14] p-1.5 rounded-xl border border-slate-800 text-center">
             <span className="text-[9px] uppercase font-bold text-slate-400">FORMATION</span>
             <p className="text-xs font-black text-white font-mono">{formation}</p>
           </div>
-          <div className="bg-[#080B14] p-2 rounded-xl border border-slate-800 text-center">
+          <div className="bg-[#080B14] p-1.5 rounded-xl border border-slate-800 text-center">
             <span className="text-[9px] uppercase font-bold text-blue-400">DEFENSE</span>
             <p className="text-xs font-black text-blue-300 font-mono">{tacticalRatings.def}</p>
           </div>
-          <div className="bg-[#080B14] p-2 rounded-xl border border-slate-800 text-center">
+          <div className="bg-[#080B14] p-1.5 rounded-xl border border-slate-800 text-center">
             <span className="text-[9px] uppercase font-bold text-emerald-400">MIDFIELD</span>
             <p className="text-xs font-black text-emerald-300 font-mono">{tacticalRatings.mid}</p>
           </div>
-          <div className="bg-[#080B14] p-2 rounded-xl border border-slate-800 text-center">
+          <div className="bg-[#080B14] p-1.5 rounded-xl border border-slate-800 text-center">
             <span className="text-[9px] uppercase font-bold text-rose-400">ATTACK</span>
             <p className="text-xs font-black text-rose-300 font-mono">{tacticalRatings.att}</p>
           </div>
           <div className="col-span-3 sm:col-span-2 flex items-center justify-end gap-2">
             <button
               onClick={handleAutoOptimize}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-black uppercase rounded-xl transition shadow-md active:scale-95"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-black uppercase rounded-xl transition shadow-md active:scale-95"
             >
               <Zap className="w-3.5 h-3.5 fill-slate-950" />
               <span>AUTO-OPTIMIZE</span>
             </button>
             <button
               onClick={() => setViewMode(prev => prev === 'pitch' ? 'cards' : 'pitch')}
-              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold uppercase rounded-xl transition"
+              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold uppercase rounded-xl transition"
             >
               {viewMode === 'pitch' ? '📋 CARDS' : '🏟️ PITCH'}
             </button>
@@ -492,8 +492,8 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
       </div>
 
       {/* ===== FORMATION SELECTOR BAR ===== */}
-      <div className="bg-[#0E1324] border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-lg space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="bg-[#0E1324] border border-slate-800 rounded-2xl p-3 sm:p-3.5 shadow-lg space-y-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-[#FF1744]" />
             <h2 className="text-xs font-black uppercase tracking-wider text-white">
@@ -505,7 +505,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
           {FORMATIONS.map(f => {
             const isSelected = formation === f.id;
             return (
@@ -515,17 +515,17 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                   sound.playClick();
                   setFormation(f.id);
                 }}
-                className={`p-3 rounded-2xl border text-left transition-all ${
+                className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all ${
                   isSelected
                     ? 'bg-[#FF1744]/15 border-[#FF1744] shadow-glow-cyan ring-1 ring-[#FF1744]'
                     : 'bg-[#0A0D1A] border-slate-800 hover:border-slate-700 hover:bg-[#10182D]'
                 }`}
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-sm font-black font-mono ${isSelected ? 'text-[#FF1744]' : 'text-white'}`}>
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className={`text-xs sm:text-sm font-black font-mono ${isSelected ? 'text-[#FF1744]' : 'text-white'}`}>
                     {f.id}
                   </span>
-                  {isSelected && <Check className="w-4 h-4 text-[#FF1744]" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-[#FF1744]" />}
                 </div>
                 <p className="text-[10px] text-slate-400 font-bold uppercase truncate">{f.name}</p>
                 <p className="text-[9px] text-slate-500 font-mono mt-0.5">
@@ -570,10 +570,10 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
 
       {/* ===== MAIN PLAYING 7 INTERACTIVE PITCH & BENCH DOCK ===== */}
       {viewMode === 'pitch' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           
           {/* Tactical Pitch (7 Starting Slots) */}
-          <div className="lg:col-span-8 space-y-3">
+          <div className="lg:col-span-8 space-y-2">
             <div className="flex items-center justify-between px-1">
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-[#FF1744]" />
@@ -593,28 +593,28 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
           </div>
 
           {/* Right Column: Bench Dock & Starting List */}
-          <div className="lg:col-span-4 space-y-5">
+          <div className="lg:col-span-4 space-y-3">
             
             {/* Bench Substitutes Dock */}
             <div
               onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
               onDrop={handleDropOnBench}
-              className="bg-[#0E1324] rounded-3xl border border-amber-500/30 p-5 shadow-lg"
+              className="bg-[#0E1324] rounded-2xl border border-amber-500/30 p-3.5 shadow-lg"
             >
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+              <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-800">
                 <h3 className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                  <span className="w-2 h-2 rounded-full bg-amber-400" />
                   BENCH RESERVES ({bench.length}/3)
                 </h3>
                 <span className="text-[10px] text-slate-500 font-mono">TAP TO SWAP</span>
               </div>
 
               {bench.length === 0 ? (
-                <div className="p-6 text-center text-slate-500 text-xs italic bg-[#0A0D1A] rounded-2xl border border-dashed border-slate-800">
+                <div className="p-4 text-center text-slate-500 text-xs italic bg-[#0A0D1A] rounded-xl border border-dashed border-slate-800">
                   No players currently on bench. Your starting 7 occupies all slots!
                 </div>
               ) : (
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {bench.map(id => {
                     const p = getPlayer(id);
                     if (!p) return null;
@@ -627,9 +627,9 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                         draggable
                         onDragStart={(e) => e.dataTransfer.setData('text/plain', p.id)}
                         onClick={() => handleSwap(p.id)}
-                        className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${
+                        className={`flex items-center justify-between p-2 sm:p-2.5 rounded-xl border cursor-pointer transition-all ${
                           isSelected
-                            ? 'bg-emerald-950/90 border-emerald-400 ring-2 ring-emerald-500/50 shadow-md scale-[1.02]'
+                            ? 'bg-emerald-950/90 border-emerald-400 ring-2 ring-emerald-500/50 shadow-md scale-[1.01]'
                             : 'bg-[#0A0D1A] border-slate-800 hover:border-amber-400/50 hover:bg-[#12182D]'
                         }`}
                       >
@@ -637,7 +637,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
                             {p.overall}
                           </span>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                             {p.position}
                           </span>
                           <div className="truncate">
@@ -646,9 +646,9 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2.5 flex-shrink-0">
-                          <span className="text-xs font-black text-slate-200 bg-slate-800 px-2 py-0.5 rounded font-mono">
-                            {p.overall} OVR
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-xs font-black text-slate-200 bg-slate-800 px-1.5 py-0.5 rounded font-mono">
+                            {p.overall}
                           </span>
                           <ArrowLeftRight className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-400' : 'text-slate-500'}`} />
                         </div>
@@ -660,8 +660,8 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
             </div>
 
             {/* Starting Roster Quick View */}
-            <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/25 p-5 shadow-lg">
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+            <div className="bg-[#0E1324] rounded-2xl border border-[#FF1744]/25 p-3.5 shadow-lg">
+              <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-800">
                 <h3 className="text-xs font-black uppercase tracking-wider text-[#FF1744] flex items-center gap-2">
                   <Shield className="w-3.5 h-3.5 text-[#FF1744]" />
                   STARTING ROSTER ({starting.length}/7)
@@ -669,7 +669,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                 <span className="text-[10px] text-slate-400 font-mono">{formation}</span>
               </div>
 
-              <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                 {starting.map(id => {
                   const p = getPlayer(id);
                   if (!p) return null;
@@ -682,7 +682,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                       draggable
                       onDragStart={(e) => e.dataTransfer.setData('text/plain', p.id)}
                       onClick={() => handleSwap(p.id)}
-                      className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
+                      className={`flex items-center justify-between p-2 rounded-xl border cursor-pointer transition-all ${
                         isSelected
                           ? 'bg-emerald-950/80 border-emerald-400 ring-2 ring-emerald-500/50 shadow-md scale-[1.01]'
                           : 'bg-[#0A0D1A] border-slate-800 hover:border-slate-700'
@@ -708,13 +708,13 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
         </div>
       ) : (
         /* Alternative Cards View */
-        <div className="space-y-6">
-          <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-3xl p-5 shadow-lg space-y-3">
+        <div className="space-y-4">
+          <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-2xl p-3.5 sm:p-4 shadow-lg space-y-2.5">
             <h3 className="text-xs font-black uppercase tracking-wider text-[#FF1744] flex items-center gap-2">
               <Shield className="w-4 h-4" />
               STARTING 7 PLAYERS ({starting.length}/7)
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
               {starting.map(id => {
                 const p = getPlayer(id);
                 if (!p) return null;
@@ -725,7 +725,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                   <button
                     key={p.id}
                     onClick={() => handleSwap(p.id)}
-                    className={`flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all ${
+                    className={`flex items-center justify-between p-2.5 sm:p-3 rounded-xl border text-left transition-all ${
                       isSelected
                         ? 'bg-emerald-950/90 border-emerald-400 ring-2 ring-emerald-500/50 shadow-md'
                         : 'bg-[#0A0D1A] border-slate-800 hover:border-slate-700'
@@ -735,7 +735,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
                         {p.overall}
                       </span>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                         {p.position}
                       </span>
                       <div>
@@ -750,12 +750,12 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
             </div>
           </div>
 
-          <div className="bg-[#0E1324] border border-amber-500/30 rounded-3xl p-5 shadow-lg space-y-3">
+          <div className="bg-[#0E1324] border border-amber-500/30 rounded-2xl p-3.5 sm:p-4 shadow-lg space-y-2.5">
             <h3 className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
               BENCH RESERVES ({bench.length}/3)
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
               {bench.map(id => {
                 const p = getPlayer(id);
                 if (!p) return null;
@@ -766,7 +766,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                   <button
                     key={p.id}
                     onClick={() => handleSwap(p.id)}
-                    className={`flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all ${
+                    className={`flex items-center justify-between p-2.5 sm:p-3 rounded-xl border text-left transition-all ${
                       isSelected
                         ? 'bg-emerald-950/90 border-emerald-400 ring-2 ring-emerald-500/50 shadow-md'
                         : 'bg-[#0A0D1A] border-slate-800 hover:border-slate-700'
@@ -776,7 +776,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
                         {p.overall}
                       </span>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                         {p.position}
                       </span>
                       <div>
@@ -794,15 +794,15 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
       )}
 
       {/* ===== BOTTOM ACTION PANEL & MULTIPLAYER READY SYNC ===== */}
-      <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-3xl p-5 sm:p-6 shadow-glow-cyan flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-[#0E1324] border border-[#FF1744]/30 rounded-2xl p-3.5 sm:p-4 shadow-glow-cyan flex flex-col md:flex-row items-center justify-between gap-3">
         
         {/* Left: Lock-in Summary */}
-        <div className="space-y-1 text-center md:text-left">
+        <div className="space-y-0.5 text-center md:text-left">
           <p className="text-xs font-black uppercase text-white tracking-wider flex items-center gap-2 justify-center md:justify-start">
             <Lock className="w-3.5 h-3.5 text-[#FF1744]" />
             CONFIRMATION & MATCH LAUNCH
           </p>
-          <p className="text-xs text-slate-400">
+          <p className="text-[11px] sm:text-xs text-slate-400">
             {isLockedIn
               ? '✓ Lineup locked in! Ready to face league competitors.'
               : 'Lock in your 7 starters. You can readjust formations before matches start.'}
@@ -810,11 +810,11 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
         </div>
 
         {/* Right: Actions */}
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-center md:justify-end">
+        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-center md:justify-end">
           
           <button
             onClick={handleLockInLineup}
-            className={`px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 active:scale-95 shadow-md ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 active:scale-95 shadow-md ${
               isLockedIn
                 ? 'bg-emerald-950/80 border border-emerald-500/60 text-emerald-300'
                 : 'bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 shadow-glow-cyan'
@@ -835,17 +835,17 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
 
           {/* Host Launch Match Arena Button */}
           {isHost ? (
-            <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={handleReturnToAuction}
-                className="px-5 py-3.5 bg-[#0A0D1A] hover:bg-slate-800 border border-[#FF1744]/40 text-[#FF1744] text-xs font-bold uppercase tracking-wider rounded-2xl transition flex items-center gap-2 active:scale-95"
+                className="px-4 py-2.5 bg-[#0A0D1A] hover:bg-slate-800 border border-[#FF1744]/40 text-[#FF1744] text-xs font-bold uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 active:scale-95"
               >
                 <span>🔙 RETURN TO LIVE AUCTION</span>
               </button>
               <button
                 onClick={handleHostLaunchMatches}
                 disabled={advancingToMatches}
-                className="px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-2xl transition shadow-lg flex items-center gap-2 active:scale-95 disabled:opacity-50"
+                className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition shadow-lg flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
               >
                 <Swords className="w-4 h-4" />
                 <span>{advancingToMatches ? 'LAUNCHING ARENA...' : '⚔️ LAUNCH MATCH ARENA →'}</span>
@@ -853,7 +853,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
             </div>
           ) : (
             currentSession && (
-              <div className="px-4 py-3 bg-[#0A0D1A] border border-slate-800 rounded-2xl text-xs text-slate-400 flex items-center gap-2">
+              <div className="px-3.5 py-2.5 bg-[#0A0D1A] border border-slate-800 rounded-xl text-xs text-slate-400 flex items-center gap-2">
                 <RefreshCw className="w-3.5 h-3.5 text-[#FF1744] animate-spin" />
                 <span>Waiting for Host to launch fixtures...</span>
               </div>

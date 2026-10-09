@@ -329,30 +329,30 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   }
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-16 max-w-6xl mx-auto">
+    <div className="space-y-3.5 animate-fadeIn pb-6 max-w-6xl mx-auto">
       
       {/* Super Admin Top Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border-2 border-[#FF1744]/50 p-6 sm:p-7 shadow-glow-cyan">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border-2 border-[#FF1744]/50 px-4 py-3 sm:px-5 sm:py-3.5 shadow-glow-cyan">
         <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#FF1744]/20 border border-[#FF1744]/50 flex items-center justify-center text-3xl shadow-glow-cyan text-[#FF1744]">
-              <ShieldCheck className="w-8 h-8" />
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#FF1744]/20 border border-[#FF1744]/50 flex items-center justify-center text-xl shadow-glow-cyan text-[#FF1744]">
+              <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider text-glow-cyan">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[9px] font-black uppercase px-2 py-0.2 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider text-glow-cyan">
                   ROOT SYSTEM ADMIN
                 </span>
                 <span className="text-[10px] text-emerald-400 font-mono font-bold">
                   ● PRIVILEGES ELEVATED
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+              <h1 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
                 COMMAND CENTER
               </h1>
-              <p className="text-xs text-slate-400">
+              <p className="text-[11px] text-slate-400">
                 Manage live multiplayer rooms, inject footballers, grant budget credits, and control leaderboards.
               </p>
             </div>
@@ -361,7 +361,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handleDeauthorize}
-              className="px-4 py-2 bg-[#0A0A14] hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/40 text-slate-300 hover:text-rose-300 text-xs font-bold uppercase rounded-xl transition flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-[#0A0A14] hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/40 text-slate-300 hover:text-rose-300 text-xs font-bold uppercase rounded-xl transition flex items-center gap-1.5"
             >
               <Unlock className="w-3.5 h-3.5" />
               <span>LOCK CONSOLE</span>
@@ -371,13 +371,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       </div>
 
       {statusMessage && (
-        <div className="p-3 bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-2xl text-[#FF1744] text-xs font-bold text-center shadow-glow-cyan animate-fadeIn">
+        <div className="p-2.5 bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-xl text-[#FF1744] text-xs font-bold text-center shadow-glow-cyan animate-fadeIn">
           {statusMessage}
         </div>
       )}
 
       {/* Admin Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 border-b border-slate-800 pb-1.5 overflow-x-auto no-scrollbar">
         {[
           { id: 'rooms', label: 'ROOMS & LOBBIES', icon: Radio },
           { id: 'players', label: 'FOOTBALLER INJECTOR', icon: PlusCircle },
@@ -393,13 +393,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 sound.playClick();
                 setActiveTab(t.id as any);
               }}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition ${
                 isActive
                   ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan'
                   : 'bg-[#0E1324] text-slate-400 hover:text-white border border-slate-800'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-3.5 h-3.5" />
               <span>{t.label}</span>
             </button>
           );
@@ -408,7 +408,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       {/* TAB 1: ACTIVE ROOMS MANAGEMENT */}
       {activeTab === 'rooms' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-4">
+        <div className="bg-[#0E1324] rounded-2xl border border-[#FF1744]/20 p-3 sm:p-4 shadow-xl space-y-3">
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <div>
               <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
@@ -481,13 +481,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       {/* TAB 2: FOOTBALLER INJECTOR */}
       {activeTab === 'players' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-6">
+        <div className="bg-[#0E1324] rounded-2xl border border-[#FF1744]/20 p-3 sm:p-4 shadow-xl space-y-3.5">
           
           {/* OFFICIAL CATALOG AUTO-SYNC CARD */}
-          <div className="p-4 rounded-2xl bg-[#0A0A14] border border-[#FF1744]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-3 rounded-xl bg-[#0A0A14] border border-[#FF1744]/30 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div>
-              <h3 className="text-xs font-black uppercase text-white flex items-center gap-2">
-                <Database className="w-4 h-4 text-[#FF1744]" />
+              <h3 className="text-xs font-black uppercase text-white flex items-center gap-1.5">
+                <Database className="w-3.5 h-3.5 text-[#FF1744]" />
                 OFFICIAL 110+ PLAYER CATALOG SYNC
               </h3>
               <p className="text-[11px] text-slate-400 mt-0.5">
@@ -503,21 +503,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               type="button"
               onClick={handleSyncAllPlayers}
               disabled={syncingPlayers}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black text-xs uppercase tracking-wider transition whitespace-nowrap shadow-glow-cyan cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black text-xs uppercase tracking-wider transition whitespace-nowrap shadow-glow-cyan cursor-pointer disabled:opacity-50"
             >
               {syncingPlayers ? 'SYNCING PLAYERS...' : '⚡ SYNC ALL 110 PLAYERS TO DB'}
             </button>
           </div>
 
-          <div className="pb-3 border-b border-slate-800">
+          <div className="pb-2 border-b border-slate-800">
             <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
               CREATE CUSTOM SUPERSTAR FOOTBALLER
             </h2>
-            <p className="text-[11px] text-slate-400">Inject custom players directly into your draft auction pool</p>
+            <p className="text-[10px] text-slate-400">Inject custom players directly into your draft auction pool</p>
           </div>
 
-          <form onSubmit={handleCreatePlayer} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <form onSubmit={handleCreatePlayer} className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               <div>
                 <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Player Name</label>
                 <input
@@ -526,7 +526,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   value={newPlayerName}
                   onChange={e => setNewPlayerName(e.target.value)}
                   placeholder="e.g. Wayne Rooney"
-                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-bold"
+                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-bold"
                 />
               </div>
 
@@ -535,7 +535,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 <select
                   value={newPlayerPos}
                   onChange={e => setNewPlayerPos(e.target.value as any)}
-                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#FF1744] text-xs font-bold"
+                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-[#FF1744] text-xs font-bold"
                 >
                   <option value="ATT">ATT (Forward)</option>
                   <option value="MID">MID (Midfield)</option>
@@ -551,13 +551,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   value={newPlayerNat}
                   onChange={e => setNewPlayerNat(e.target.value)}
                   placeholder="e.g. England"
-                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-bold"
+                  className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-bold"
                 />
               </div>
             </div>
 
             {/* Attributes slider grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#0A0A14] p-4 rounded-2xl border border-slate-800">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-[#0A0A14] p-3 rounded-xl border border-slate-800">
               {[
                 { label: 'Overall (OVR)', val: newPlayerOvr, set: setNewPlayerOvr },
                 { label: 'Pace (PAC)', val: newPlayerPac, set: setNewPlayerPac },
@@ -569,7 +569,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 { label: 'Market Value (€M)', val: newPlayerValue, set: setNewPlayerValue, max: 200 },
               ].map(st => (
                 <div key={st.label}>
-                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-1">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-0.5">
                     <span>{st.label}</span>
                     <span className="text-[#FF1744] font-mono font-black">{st.val}</span>
                   </div>
@@ -592,13 +592,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 value={newPlayerAvatar}
                 onChange={e => setNewPlayerAvatar(e.target.value)}
                 placeholder="https://...png"
-                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono"
+                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-xs font-mono"
               />
             </div>
 
             <button
               type="submit"
-              className="py-3 px-6 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
+              className="py-2.5 px-5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-glow-cyan"
             >
               + INJECT SUPERSTAR INTO DATABASE
             </button>
@@ -608,21 +608,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       {/* TAB 3: BUDGET & CREDITS CHEATS */}
       {activeTab === 'budget' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-5">
-          <div className="pb-3 border-b border-slate-800">
+        <div className="bg-[#0E1324] rounded-2xl border border-[#FF1744]/20 p-3 sm:p-4 shadow-xl space-y-3">
+          <div className="pb-2 border-b border-slate-800">
             <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
               ECONOMY & SQUAD BUDGET CONTROLS
             </h2>
-            <p className="text-[11px] text-slate-400">Instantly modify budget credits for any manager team</p>
+            <p className="text-[10px] text-slate-400">Instantly modify budget credits for any manager team</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Select Team</label>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Select Team</label>
               <select
                 value={selectedTeamId}
                 onChange={e => setSelectedTeamId(e.target.value)}
-                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-3 text-white text-xs font-bold focus:outline-none focus:border-[#FF1744]"
+                className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3 py-2 text-white text-xs font-bold focus:outline-none focus:border-[#FF1744]"
               >
                 {allTeams.map(t => (
                   <option key={t.id} value={t.id}>
@@ -633,26 +633,26 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Quick Grant Options</label>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Quick Grant Options</label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => handleGrantBudget(150)}
-                  className="py-2.5 px-3 bg-[#0A0A14] hover:bg-[#12182D] border border-slate-700 text-[#FF1744] text-xs font-black rounded-xl transition"
+                  className="py-2 px-2.5 bg-[#0A0A14] hover:bg-[#12182D] border border-slate-700 text-[#FF1744] text-xs font-black rounded-xl transition"
                 >
                   €150M Default
                 </button>
                 <button
                   type="button"
                   onClick={() => handleGrantBudget(300)}
-                  className="py-2.5 px-3 bg-[#0A0A14] hover:bg-[#12182D] border border-slate-700 text-amber-400 text-xs font-black rounded-xl transition"
+                  className="py-2 px-2.5 bg-[#0A0A14] hover:bg-[#12182D] border border-slate-700 text-amber-400 text-xs font-black rounded-xl transition"
                 >
                   €300M Mega
                 </button>
                 <button
                   type="button"
                   onClick={() => handleGrantBudget(999)}
-                  className="py-2.5 px-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-black rounded-xl transition shadow-glow-purple"
+                  className="py-2 px-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-black rounded-xl transition shadow-glow-purple"
                 >
                   €999M Infinite
                 </button>
@@ -664,12 +664,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       {/* TAB 4: LEADERBOARD ELO ADJUSTER */}
       {activeTab === 'leaderboard' && (
-        <div className="bg-[#0E1324] rounded-3xl border border-[#FF1744]/20 p-6 shadow-xl space-y-5">
-          <div className="pb-3 border-b border-slate-800">
+        <div className="bg-[#0E1324] rounded-2xl border border-[#FF1744]/20 p-3 sm:p-4 shadow-xl space-y-3">
+          <div className="pb-2 border-b border-slate-800">
             <h2 className="text-xs font-black uppercase tracking-widest text-white font-display">
               LEADERBOARD ELO CHEAT ENGINE
             </h2>
-            <p className="text-[11px] text-slate-400">Manually grant or deduct career ELO rating points</p>
+            <p className="text-[10px] text-slate-400">Manually grant or deduct career ELO rating points</p>
           </div>
 
           <form onSubmit={handleAdjustElo} className="space-y-4 max-w-md">

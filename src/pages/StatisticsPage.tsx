@@ -28,30 +28,30 @@ export const StatisticsPage: React.FC<StatisticsPageProps> = ({ players, teams }
     .slice(0, 8);
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-fadeIn pb-16">
+    <div className="space-y-3.5 animate-fadeIn pb-6">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-800">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <BarChart3 className="w-6 h-6 text-emerald-400" />
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
+          <div className="flex items-center gap-2 mb-0.5">
+            <BarChart3 className="w-5 h-5 text-emerald-400" />
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">
               Player Season Statistics
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs text-slate-400">
             Official league leaders in goals, assists, clean sheets, and average player ratings.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         
         {/* Top Goalscorers */}
-        <div className="bg-[#0e1720] rounded-3xl border border-slate-800 p-5 shadow-xl">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-            <div className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-rose-400" />
+        <div className="bg-[#0e1720] rounded-2xl border border-slate-800 p-3 sm:p-3.5 shadow-xl">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+            <div className="flex items-center gap-1.5">
+              <Target className="w-4 h-4 text-rose-400" />
               <h3 className="text-xs font-black uppercase tracking-wider text-white">
                 Golden Boot Leaders
               </h3>
@@ -59,29 +59,29 @@ export const StatisticsPage: React.FC<StatisticsPageProps> = ({ players, teams }
             <span className="text-[10px] font-bold uppercase text-slate-400">Goals</span>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {topScorers.map((p, idx) => {
               const badge = getPositionBadgeColor(p.position);
               return (
                 <div
                   key={p.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs"
+                  className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800 text-xs"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={`w-5 text-center font-black ${idx === 0 ? 'text-amber-400' : 'text-slate-500'}`}>
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-4 text-center font-black text-xs ${idx === 0 ? 'text-amber-400' : 'text-slate-500'}`}>
                       {idx + 1}
                     </span>
                     <div>
-                      <span className="font-extrabold text-white block">{p.name}</span>
-                      <span className="text-[10px] text-slate-400">{getTeamName(p.teamId)}</span>
+                      <span className="font-extrabold text-white block text-xs">{p.name}</span>
+                      <span className="text-[10px] text-slate-400 leading-tight">{getTeamName(p.teamId)}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className={`px-1.5 py-0.2 rounded text-[10px] font-black uppercase ${badge.bg} ${badge.text}`}>
+                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-black uppercase ${badge.bg} ${badge.text}`}>
                       {p.position}
                     </span>
-                    <span className="text-sm font-black text-rose-400 min-w-6 text-right">
+                    <span className="text-xs font-black text-rose-400 min-w-5 text-right">
                       {p.stats.goals} ⚽
                     </span>
                   </div>
@@ -92,10 +92,10 @@ export const StatisticsPage: React.FC<StatisticsPageProps> = ({ players, teams }
         </div>
 
         {/* Top Playmakers (Assists) */}
-        <div className="bg-[#0e1720] rounded-3xl border border-slate-800 p-5 shadow-xl">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-            <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-teal-400" />
+        <div className="bg-[#0e1720] rounded-2xl border border-slate-800 p-3 sm:p-3.5 shadow-xl">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+            <div className="flex items-center gap-1.5">
+              <Award className="w-4 h-4 text-teal-400" />
               <h3 className="text-xs font-black uppercase tracking-wider text-white">
                 Top Playmakers
               </h3>
@@ -103,29 +103,29 @@ export const StatisticsPage: React.FC<StatisticsPageProps> = ({ players, teams }
             <span className="text-[10px] font-bold uppercase text-slate-400">Assists</span>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {topAssists.map((p, idx) => {
               const badge = getPositionBadgeColor(p.position);
               return (
                 <div
                   key={p.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs"
+                  className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800 text-xs"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={`w-5 text-center font-black ${idx === 0 ? 'text-teal-400' : 'text-slate-500'}`}>
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-4 text-center font-black text-xs ${idx === 0 ? 'text-teal-400' : 'text-slate-500'}`}>
                       {idx + 1}
                     </span>
                     <div>
-                      <span className="font-extrabold text-white block">{p.name}</span>
-                      <span className="text-[10px] text-slate-400">{getTeamName(p.teamId)}</span>
+                      <span className="font-extrabold text-white block text-xs">{p.name}</span>
+                      <span className="text-[10px] text-slate-400 leading-tight">{getTeamName(p.teamId)}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className={`px-1.5 py-0.2 rounded text-[10px] font-black uppercase ${badge.bg} ${badge.text}`}>
+                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-black uppercase ${badge.bg} ${badge.text}`}>
                       {p.position}
                     </span>
-                    <span className="text-sm font-black text-teal-400 min-w-6 text-right">
+                    <span className="text-xs font-black text-teal-400 min-w-5 text-right">
                       {p.stats.assists} 🎯
                     </span>
                   </div>
@@ -136,10 +136,10 @@ export const StatisticsPage: React.FC<StatisticsPageProps> = ({ players, teams }
         </div>
 
         {/* Highest Rated (Avg Rating) */}
-        <div className="bg-[#0e1720] rounded-3xl border border-slate-800 p-5 shadow-xl">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-            <div className="flex items-center gap-2">
-              <Flame className="w-5 h-5 text-amber-400" />
+        <div className="bg-[#0e1720] rounded-2xl border border-slate-800 p-3 sm:p-3.5 shadow-xl">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+            <div className="flex items-center gap-1.5">
+              <Flame className="w-4 h-4 text-amber-400" />
               <h3 className="text-xs font-black uppercase tracking-wider text-white">
                 Highest Average Rating
               </h3>
@@ -147,29 +147,29 @@ export const StatisticsPage: React.FC<StatisticsPageProps> = ({ players, teams }
             <span className="text-[10px] font-bold uppercase text-slate-400">Match Avg</span>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {topRated.map((p, idx) => {
               const badge = getPositionBadgeColor(p.position);
               return (
                 <div
                   key={p.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs"
+                  className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800 text-xs"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={`w-5 text-center font-black ${idx === 0 ? 'text-amber-400' : 'text-slate-500'}`}>
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-4 text-center font-black text-xs ${idx === 0 ? 'text-amber-400' : 'text-slate-500'}`}>
                       {idx + 1}
                     </span>
                     <div>
-                      <span className="font-extrabold text-white block">{p.name}</span>
-                      <span className="text-[10px] text-slate-400">{getTeamName(p.teamId)}</span>
+                      <span className="font-extrabold text-white block text-xs">{p.name}</span>
+                      <span className="text-[10px] text-slate-400 leading-tight">{getTeamName(p.teamId)}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className={`px-1.5 py-0.2 rounded text-[10px] font-black uppercase ${badge.bg} ${badge.text}`}>
+                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-black uppercase ${badge.bg} ${badge.text}`}>
                       {p.position}
                     </span>
-                    <span className="text-xs font-black text-emerald-400 min-w-6 text-right">
+                    <span className="text-xs font-black text-emerald-400 min-w-5 text-right">
                       {p.stats.avgRating.toFixed(1)} ★
                     </span>
                   </div>

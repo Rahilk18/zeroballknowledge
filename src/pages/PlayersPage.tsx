@@ -51,32 +51,32 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
   }, [players, searchQuery, selectedPosition, selectedRarity, sortBy]);
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-16 max-w-6xl mx-auto">
+    <div className="space-y-3.5 animate-fadeIn pb-6 max-w-6xl mx-auto">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border border-[#FF1744]/30 p-6 sm:p-7 shadow-glow-cyan">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border border-[#FF1744]/30 px-4 py-3 sm:px-5 sm:py-3.5 shadow-glow-cyan">
         <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <Database className="w-5 h-5 text-[#FF1744]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#FF1744] font-display text-glow-cyan">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <Database className="w-4 h-4 text-[#FF1744]" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-[#FF1744] font-display text-glow-cyan">
                 ZEROBALLKNOWLEDGE FOOTBALL DATABASE
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+            <h1 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
               SUPERSTAR SCOUTING MATRIX
             </h1>
-            <p className="text-xs text-slate-400 mt-1 font-medium">
+            <p className="text-[11px] text-slate-400 font-medium">
               Inspect football icons, view 3D holographic cards, and evaluate tactical attributes
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono font-bold">
-            <span className="px-3.5 py-2 rounded-2xl bg-[#0A0A14] border border-[#FF1744]/30 text-slate-300">
+          <div className="flex items-center gap-2 text-[11px] font-mono font-bold">
+            <span className="px-2.5 py-1 rounded-xl bg-[#0A0A14] border border-[#FF1744]/30 text-slate-300">
               TOTAL: <strong className="text-[#FF1744]">{players.length}</strong>
             </span>
-            <span className="px-3.5 py-2 rounded-2xl bg-[#0A0A14] border border-purple-500/30 text-slate-300">
+            <span className="px-2.5 py-1 rounded-xl bg-[#0A0A14] border border-purple-500/30 text-slate-300">
               FILTERED: <strong className="text-purple-300">{filteredPlayers.length}</strong>
             </span>
           </div>
@@ -84,21 +84,21 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
       </div>
 
       {/* Search & Filter Toolbar */}
-      <div className="bg-[#0E1324] p-4 rounded-3xl border border-[#FF1744]/20 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-xl">
+      <div className="bg-[#0E1324] p-2.5 sm:p-3 rounded-2xl border border-[#FF1744]/20 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 shadow-xl">
         {/* Search Bar */}
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FF1744]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#FF1744]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search players by name, nationality (e.g. Messi, Haaland, Bellingham)..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#0A0A14] border border-slate-700 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] transition font-medium"
+            className="w-full pl-9 pr-12 py-1.5 sm:py-2 rounded-xl bg-[#0A0A14] border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] transition font-medium"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-500 hover:text-white"
             >
               Clear
             </button>
@@ -106,7 +106,7 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
         </div>
 
         {/* Position Filter Buttons */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
+        <div className="flex items-center gap-1 overflow-x-auto pb-0.5 md:pb-0 no-scrollbar">
           {[
             { id: 'ALL', label: 'ALL' },
             { id: 'ATT', label: 'ATT' },
@@ -122,7 +122,7 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
                   sound.playClick();
                   setSelectedPosition(pos.id);
                 }}
-                className={`px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
                   isActive
                     ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan'
                     : 'bg-[#0A0A14] hover:bg-[#12182D] text-slate-400 hover:text-white border border-slate-800'
@@ -135,15 +135,15 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
         </div>
 
         {/* Sort Select */}
-        <div className="flex items-center gap-2">
-          <ArrowUpDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+        <div className="flex items-center gap-1.5">
+          <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
           <select
             value={sortBy}
             onChange={(e) => {
               sound.playClick();
               setSortBy(e.target.value as any);
             }}
-            className="bg-[#0A0A14] border border-slate-700 text-xs font-bold text-slate-200 py-2.5 px-3 rounded-2xl focus:outline-none focus:border-[#FF1744]"
+            className="bg-[#0A0A14] border border-slate-700 text-xs font-bold text-slate-200 py-1.5 sm:py-2 px-2.5 rounded-xl focus:outline-none focus:border-[#FF1744]"
           >
             <option value="overall">Highest Overall (OVR)</option>
             <option value="form">Highest Form (HOT)</option>
@@ -155,15 +155,15 @@ export const PlayersPage: React.FC<PlayersPageProps> = ({ players, userTeamId: _
 
       {/* Players Grid */}
       {filteredPlayers.length === 0 ? (
-        <div className="text-center py-16 bg-[#0E1324] rounded-3xl border border-dashed border-slate-800">
-          <UserCheck className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-300">NO PLAYERS MATCH FILTER</h3>
-          <p className="text-xs text-slate-500 mt-1">
+        <div className="text-center py-10 bg-[#0E1324] rounded-2xl border border-dashed border-slate-800">
+          <UserCheck className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+          <h3 className="text-sm font-bold text-slate-300">NO PLAYERS MATCH FILTER</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
             Try adjusting your search criteria or position filter.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {filteredPlayers.map((player) => (
             <PlayerCard
               key={player.id}

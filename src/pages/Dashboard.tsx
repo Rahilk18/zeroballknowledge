@@ -189,11 +189,11 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6 animate-fadeIn pb-16">
+    <div className="p-2 sm:p-4 max-w-6xl mx-auto space-y-4 animate-fadeIn pb-8">
       
       {/* Inactivity Notice Alert */}
       {inactivityNotice && (
-        <div className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-4 flex items-center justify-between gap-4 text-amber-300 text-xs font-bold animate-fadeIn shadow-lg">
+        <div className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-4 text-amber-300 text-xs font-bold animate-fadeIn shadow-lg">
           <div className="flex items-center gap-2.5">
             <span className="text-xl">⚠️</span>
             <span>{inactivityNotice}</span>
@@ -207,127 +207,34 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
         </div>
       )}
 
-      {/* 1. HEROBID ARENA HEADER BANNER */}
-      <div className="relative bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border border-[#FF1744]/30 rounded-3xl p-6 sm:p-8 shadow-glow-cyan overflow-hidden">
-        {/* Holographic grid and glow lines */}
-        <div className="absolute inset-0 cyber-grid-bg opacity-30 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#FF1744]/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#0E1324] rounded-2xl flex items-center justify-center p-2 shadow-glow-cyan border border-[#FF1744]/60 flex-shrink-0 relative overflow-hidden group">
-              <img src="/logo.png" alt="ZBK" className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(255,23,68,0.7)]" />
-              <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-[#FF1744] text-[9px] font-black text-slate-950 rounded-tl-lg">
-                {profile?.displayName?.charAt(0).toUpperCase() || 'M'}
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#FF1744]/15 text-[#FF1744] border border-[#FF1744]/30 tracking-widest text-glow-cyan">
-                  ZEROBALLKNOWLEDGE // MULTIPLAYER ARENA
-                </span>
-                <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                  SERVER ONLINE
-                </span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-wide font-display text-glow-cyan">
-                {profile?.displayName || profile?.username || 'CYBER MANAGER'}
-              </h1>
-              <div className="flex items-center gap-3 mt-1 text-xs">
-                <span className="text-[#FF1744] font-mono">@{profile?.username || 'manager'}</span>
-                <span className="text-slate-500">•</span>
-                <span className="text-slate-400 font-semibold">Division I Rank</span>
-                {myTeam && (
-                  <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold">
-                    {myTeam.name}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Stats Pill */}
-          <div className="flex items-center gap-3 self-start lg:self-center">
-            <div className="bg-[#0A0A14]/90 border border-[#FF1744]/25 rounded-2xl px-5 py-3 shadow-lg">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">CAREER POINTS</span>
-              <span className="text-2xl font-black font-mono text-[#FF1744] text-glow-cyan">{careerPoints} ELO</span>
-            </div>
-            <div className="bg-[#0A0A14]/90 border border-amber-500/30 rounded-2xl px-5 py-3 shadow-lg">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">WIN RATIO</span>
-              <span className="text-2xl font-black font-mono text-amber-300">
-                {gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0}%
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. PROMINENT 3D BIDDING ARENA ENTRY */}
-      <div 
-        onClick={() => setActiveTab('auction')}
-        className="group relative cursor-pointer bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border border-[#FF1744]/40 rounded-3xl p-6 sm:p-7 shadow-glow-cyan hover:shadow-glow-cyan-lg transition-all hover:-translate-y-0.5 overflow-hidden"
-      >
-        <div className="absolute top-0 right-0 w-80 h-full bg-[#FF1744]/10 blur-2xl group-hover:bg-[#FF1744]/20 transition-all pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF1744]/20 to-purple-600/30 border border-[#FF1744]/50 flex items-center justify-center text-3xl shadow-glow-cyan group-hover:scale-110 transition-transform">
-              🥽
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider">
-                  IMMERSIVE 3D STUDIO
-                </span>
-                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                  REAL-TIME BID WARS
-                </span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
-                ENTER 3D FOOTBALL BIDDING ARENA
-              </h2>
-              <p className="text-slate-300 text-xs mt-1 max-w-xl">
-                Experience ZeroBallKnowledge's high-performance 60 FPS WebGL holographic player stage, interactive 3D camera controls, live timer, and tactical bidding AI advisor.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 self-end md:self-center">
-            <button className="px-5 py-2.5 rounded-xl bg-[#FF1744] text-slate-950 font-black text-xs uppercase tracking-wider shadow-glow-cyan group-hover:bg-[#FF4D6D] transition flex items-center gap-2">
-              <span>LAUNCH ARENA</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. MULTIPLAYER BATTLE ROOM STATUS / ACTIONS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* 1. QUICK PLAY / BATTLE ROOM ACTIONS (FRONT & CENTER - ZERO SCROLLING) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {currentSession ? (
-          <div className="md:col-span-3 bg-[#0E1324] border-2 border-[#FF1744]/50 rounded-3xl p-6 shadow-glow-cyan relative overflow-hidden">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="sm:col-span-3 bg-[#0E1324] border-2 border-[#FF1744]/50 rounded-2xl p-4 sm:p-5 shadow-glow-cyan relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-0.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#FF1744] animate-ping" />
                   <span className="text-xs font-bold text-[#FF1744] uppercase tracking-wider text-glow-cyan">
                     ACTIVE ROOM CONNECTED
                   </span>
                 </div>
-                <h2 className="text-2xl font-black text-white tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                   ROOM CODE: <span className="font-mono text-[#FF1744] tracking-widest text-glow-cyan">{currentSession.sessionCode}</span>
                 </h2>
-                <p className="text-slate-400 text-xs mt-1">
+                <p className="text-slate-400 text-xs mt-0.5">
                   Team: <span className="text-white font-bold">{myTeam?.name || 'Your Team'}</span> • Status: <span className="text-[#FF1744] font-bold uppercase">{currentSession.status}</span>
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2.5">
                 <button
                   onClick={() => {
                     if (currentSession.status === 'LOBBY') setActiveTab('lobby');
                     else if (currentSession.status === 'AUCTION') setActiveTab('auction');
                     else setActiveTab('my-team');
                   }}
-                  className="px-6 py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-sm transition shadow-glow-cyan flex items-center gap-2 active:scale-95 uppercase tracking-wider"
+                  className="px-5 py-2.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-glow-cyan flex items-center gap-2 active:scale-95 uppercase tracking-wider"
                 >
                   <span>RETURN TO ROOM</span>
                   <ArrowRight className="w-4 h-4" />
@@ -336,50 +243,18 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                 <button
                   onClick={handleExitRoom}
                   disabled={exitingRoom}
-                  className="px-5 py-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/40 hover:border-rose-500 text-rose-400 hover:text-rose-300 font-black rounded-xl text-xs transition shadow-lg flex items-center gap-2 active:scale-95 uppercase tracking-wider disabled:opacity-50"
+                  className="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/40 hover:border-rose-500 text-rose-400 hover:text-rose-300 font-bold rounded-xl text-xs transition shadow-lg flex items-center gap-2 active:scale-95 uppercase tracking-wider disabled:opacity-50"
                   title={isHost ? "End and quit room" : "Leave room"}
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span>{exitingRoom ? 'EXITING...' : (isHost ? 'END & QUIT ROOM' : 'EXIT ROOM')}</span>
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>{exitingRoom ? 'EXITING...' : (isHost ? 'END ROOM' : 'LEAVE')}</span>
                 </button>
               </div>
             </div>
           </div>
         ) : (
           <>
-            {/* 1. Join Room Button */}
-            <button
-              onClick={() => { setModal('join'); setError(''); setJoinCode(''); setJoinTeamName(''); setJoinAbbr(''); }}
-              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-purple-500/60 rounded-3xl p-6 text-left transition-all hover:-translate-y-0.5 shadow-xl border border-purple-500/25 hover:shadow-glow-purple"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl mb-4 text-purple-300 shadow-glow-purple">
-                <Radio className="w-6 h-6" />
-              </div>
-              <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-purple">
-                JOIN A ROOM
-              </h2>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Enter a 6-letter room code from your friends or discord lobby. Draft your superstar lineup and battle in the live season.
-              </p>
-            </button>
-
-            {/* 2. Create Room Button */}
-            <button
-              onClick={() => { setModal('create'); setError(''); setCreatedCode(''); setTeamName(''); setAbbreviation(''); }}
-              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-[#FF1744]/60 rounded-3xl p-6 text-left transition-all shadow-xl hover:-translate-y-0.5 border border-[#FF1744]/25 hover:shadow-glow-cyan"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-[#FF1744]/10 border border-[#FF1744]/30 flex items-center justify-center text-2xl mb-4 text-[#FF1744] shadow-glow-cyan">
-                <PlusCircle className="w-6 h-6" />
-              </div>
-              <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-cyan">
-                CREATE A ROOM
-              </h2>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Host a multiplayer room for up to 8 managers. Customize the $130M starting budget, set timer, and summon the football legends pool.
-              </p>
-            </button>
-
-            {/* 3. Play vs AI Button */}
+            {/* 1. Play vs AI Button - TOP RECOMMENDED */}
             <button
               onClick={() => {
                 setModal('ai');
@@ -390,20 +265,163 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                   setAiAbbreviation('APX');
                 }
               }}
-              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-emerald-500/60 rounded-3xl p-6 text-left transition-all hover:-translate-y-0.5 shadow-xl border border-emerald-500/25 hover:shadow-glow-emerald"
+              className="group bg-gradient-to-br from-[#0E1324] via-[#101b2a] to-[#0E1324] hover:border-emerald-500/60 rounded-2xl p-4 sm:p-5 text-left transition-all hover:-translate-y-0.5 shadow-xl border border-emerald-500/35 hover:shadow-glow-emerald"
             >
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-2xl mb-4 text-emerald-300 shadow-glow-emerald">
-                <Bot className="w-6 h-6" />
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-xl text-emerald-400 shadow-glow-emerald flex-shrink-0">
+                  <Bot className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 tracking-wider">
+                    SOLO FAST PLAY
+                  </span>
+                  <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider font-display text-glow-emerald">
+                    PLAY VS AI
+                  </h2>
+                </div>
               </div>
-              <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider font-display text-glow-emerald">
-                PLAY VS AI
-              </h2>
               <p className="text-slate-400 text-xs leading-relaxed">
-                Play a complete ZeroBallKnowledge match solo against intelligent AI managers (Steve, Mark, Joseph, Ron).
+                Start immediately vs intelligent bot managers (Steve, Mark, Joseph, Ron). No waiting.
+              </p>
+            </button>
+
+            {/* 2. Create Room Button */}
+            <button
+              onClick={() => { setModal('create'); setError(''); setCreatedCode(''); setTeamName(''); setAbbreviation(''); }}
+              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-[#FF1744]/60 rounded-2xl p-4 sm:p-5 text-left transition-all shadow-xl hover:-translate-y-0.5 border border-[#FF1744]/25 hover:shadow-glow-cyan"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-[#FF1744]/10 border border-[#FF1744]/30 flex items-center justify-center text-xl text-[#FF1744] shadow-glow-cyan flex-shrink-0">
+                  <PlusCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider">
+                    HOST LOBBY
+                  </span>
+                  <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+                    CREATE ROOM
+                  </h2>
+                </div>
+              </div>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Host a multiplayer room for up to 8 managers with custom €130M budget & live timer.
+              </p>
+            </button>
+
+            {/* 3. Join Room Button */}
+            <button
+              onClick={() => { setModal('join'); setError(''); setJoinCode(''); setJoinTeamName(''); setJoinAbbr(''); }}
+              className="group bg-gradient-to-br from-[#0E1324] to-[#13192E] hover:border-purple-500/60 rounded-2xl p-4 sm:p-5 text-left transition-all hover:-translate-y-0.5 shadow-xl border border-purple-500/25 hover:shadow-glow-purple"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-xl text-purple-300 shadow-glow-purple flex-shrink-0">
+                  <Radio className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 tracking-wider">
+                    CODE ENTRY
+                  </span>
+                  <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider font-display text-glow-purple">
+                    JOIN A ROOM
+                  </h2>
+                </div>
+              </div>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Enter a 6-letter room code from your friends or discord lobby to draft together.
               </p>
             </button>
           </>
         )}
+      </div>
+
+      {/* 2. HEROBID ARENA COMPACT BANNER */}
+      <div className="relative bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border border-[#FF1744]/25 rounded-2xl p-4 sm:p-5 shadow-glow-cyan overflow-hidden">
+        {/* Holographic grid and glow lines */}
+        <div className="absolute inset-0 cyber-grid-bg opacity-25 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#FF1744]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#0E1324] rounded-xl flex items-center justify-center p-1.5 shadow-glow-cyan border border-[#FF1744]/50 flex-shrink-0 relative overflow-hidden group">
+              <img src="/logo.png" alt="ZBK" className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,23,68,0.7)]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-[#FF1744]/15 text-[#FF1744] border border-[#FF1744]/30 tracking-widest text-glow-cyan">
+                  ARENA MANAGER
+                </span>
+                <span className="text-[9px] text-emerald-400 font-mono flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  ONLINE
+                </span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black text-white tracking-wide font-display text-glow-cyan">
+                {profile?.displayName || profile?.username || 'CYBER MANAGER'}
+              </h1>
+              <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
+                <span className="text-[#FF1744] font-mono">@{profile?.username || 'manager'}</span>
+                <span>•</span>
+                <span>Division I</span>
+                {myTeam && (
+                  <span className="text-[10px] px-2 py-0.2 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold">
+                    {myTeam.name}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats Pill */}
+          <div className="flex items-center gap-2.5 self-start md:self-center">
+            <div className="bg-[#0A0A14]/90 border border-[#FF1744]/20 rounded-xl px-3.5 py-2 shadow">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">CAREER PTS</span>
+              <span className="text-lg font-black font-mono text-[#FF1744] text-glow-cyan">{careerPoints} ELO</span>
+            </div>
+            <div className="bg-[#0A0A14]/90 border border-amber-500/25 rounded-xl px-3.5 py-2 shadow">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-amber-400 block">WIN RATE</span>
+              <span className="text-lg font-black font-mono text-amber-300">
+                {gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0}%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. PROMINENT 3D BIDDING ARENA ENTRY */}
+      <div 
+        onClick={() => setActiveTab('auction')}
+        className="group relative cursor-pointer bg-gradient-to-r from-rose-950/40 via-[#0E1324] to-purple-950/40 border border-[#FF1744]/35 rounded-2xl p-4 sm:p-5 shadow-glow-cyan hover:shadow-glow-cyan-lg transition-all hover:-translate-y-0.5 overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 w-80 h-full bg-[#FF1744]/10 blur-2xl group-hover:bg-[#FF1744]/20 transition-all pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#FF1744]/20 to-purple-600/30 border border-[#FF1744]/50 flex items-center justify-center text-2xl shadow-glow-cyan group-hover:scale-105 transition-transform flex-shrink-0">
+              🥽
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider">
+                  IMMERSIVE 3D STUDIO
+                </span>
+                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                  REAL-TIME DRAFT
+                </span>
+              </div>
+              <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+                ENTER 3D FOOTBALL BIDDING ARENA
+              </h2>
+              <p className="text-slate-300 text-xs mt-0.5 max-w-xl">
+                WebGL 60 FPS holographic player stage with interactive 3D rotation, live buzzer timer & AI bids.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 self-end md:self-center">
+            <button className="px-4 py-2 rounded-xl bg-[#FF1744] text-slate-950 font-black text-xs uppercase tracking-wider shadow-glow-cyan group-hover:bg-[#FF4D6D] transition flex items-center gap-1.5">
+              <span>LAUNCH ARENA</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* 4. ZEROBALLKNOWLEDGE GEAR & TRAITS SHOWCASE */}
@@ -557,9 +575,9 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
       {/* CREATE GAME MODAL */}
       {modal === 'create' && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-3xl w-full max-w-md shadow-glow-cyan overflow-hidden animate-fadeIn">
-            <div className="flex items-center justify-between p-6 border-b border-slate-800">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-2xl sm:rounded-3xl w-full max-w-md shadow-glow-cyan overflow-hidden animate-fadeIn max-h-[92vh] flex flex-col my-auto">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🚀</span>
                 <h2 className="text-lg font-black text-white uppercase tracking-wider font-display text-glow-cyan">
@@ -569,7 +587,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-lg">✕</button>
             </div>
             
-            <div className="p-6">
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1">
               {error && (
                 <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
                   {error}
@@ -669,9 +687,9 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
       {/* JOIN GAME MODAL */}
       {modal === 'join' && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0E1324] border border-purple-500/40 rounded-3xl w-full max-w-md shadow-glow-purple overflow-hidden animate-fadeIn">
-            <div className="flex items-center justify-between p-6 border-b border-slate-800">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-[#0E1324] border border-purple-500/40 rounded-2xl sm:rounded-3xl w-full max-w-md shadow-glow-purple overflow-hidden animate-fadeIn max-h-[92vh] flex flex-col my-auto">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🎯</span>
                 <h2 className="text-lg font-black text-white uppercase tracking-wider font-display text-glow-purple">
@@ -681,7 +699,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-lg">✕</button>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1">
               {error && (
                 <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
                   {error}
@@ -770,19 +788,19 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
       {/* PLAY VS AI MODAL */}
       {modal === 'ai' && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-3xl w-full max-w-lg shadow-glow-cyan overflow-hidden animate-fadeIn my-8">
-            <div className="flex items-center justify-between p-6 border-b border-slate-800">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-2xl sm:rounded-3xl w-full max-w-lg shadow-glow-cyan overflow-hidden animate-fadeIn max-h-[92vh] flex flex-col my-auto">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 flex-shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-xl text-[#FF1744] shadow-glow-cyan">
-                  <Bot className="w-5 h-5" />
+                <div className="w-8 h-8 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-lg text-[#FF1744] shadow-glow-cyan flex-shrink-0">
+                  <Bot className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+                  <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
                     PLAY VS AI
                   </h2>
-                  <p className="text-slate-400 text-xs mt-0.5">
-                    Play a full ZeroBallKnowledge match with AI opponents.
+                  <p className="text-slate-400 text-[11px]">
+                    Fast Solo Battle with Intelligent Bots.
                   </p>
                 </div>
               </div>
@@ -793,11 +811,11 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     sound.playClick();
                     setIsAudioModalOpen(true);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
                   title="Test Stadium Crowd Audio & SFX"
                 >
                   <Radio className="w-3.5 h-3.5 animate-pulse" />
-                  <span className="hidden sm:inline">STADIUM SOUND</span>
+                  <span className="hidden sm:inline">SOUND</span>
                 </button>
                 <button
                   onClick={() => setModal('none')}
@@ -808,7 +826,7 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               </div>
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
               {error && (
                 <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
                   {error}

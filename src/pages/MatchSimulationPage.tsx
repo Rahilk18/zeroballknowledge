@@ -216,17 +216,17 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   const potm = matchResult.playerOfTheMatch;
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-20 max-w-6xl mx-auto">
+    <div className="p-2 sm:p-4 max-w-6xl mx-auto space-y-3 pb-6 animate-fadeIn">
       
       {/* SCOREBOARD HERO HEADER */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#0E1324] via-[#0A0A14] to-[#12182D] border-2 border-[#FF1744]/40 p-6 sm:p-8 shadow-glow-cyan">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#0E1324] via-[#0A0A14] to-[#12182D] border-2 border-[#FF1744]/40 p-3 sm:p-4 shadow-glow-cyan">
         <div className="absolute inset-0 cyber-grid-bg opacity-20 pointer-events-none" />
 
         {/* Top Match Status and Clock */}
-        <div className="relative z-10 flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
+        <div className="relative z-10 flex items-center justify-between pb-2 border-b border-slate-800 mb-2.5">
           <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${isFinished ? 'bg-slate-500' : 'bg-[#FF1744] animate-ping'}`} />
-            <span className="text-xs font-black uppercase tracking-widest text-[#FF1744] font-display text-glow-cyan">
+            <span className={`w-2 h-2 rounded-full ${isFinished ? 'bg-slate-500' : 'bg-[#FF1744] animate-ping'}`} />
+            <span className="text-[11px] font-black uppercase tracking-wider text-[#FF1744] font-display text-glow-cyan">
               {isFinished
                 ? (matchResult.wentToPenalties
                     ? 'FULL TIME (PENALTIES DECIDED)'
@@ -242,13 +242,13 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           </div>
 
           {/* Clock Display */}
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#0A0A14] border border-[#FF1744]/30 font-mono font-black text-sm text-[#FF1744] shadow-glow-cyan">
-            <Clock className="w-4 h-4 text-[#FF1744]" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#0A0A14] border border-[#FF1744]/30 font-mono font-black text-xs text-[#FF1744] shadow-glow-cyan">
+            <Clock className="w-3.5 h-3.5 text-[#FF1744]" />
             <span>{String(currentMinute).padStart(2, '0')}:00</span>
           </div>
 
           {/* Simulation Speed, Audio & Skip Controls */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             {/* Play / Pause Toggle */}
             {!isFinished && (
               <button
@@ -256,14 +256,14 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                   sound.playClick();
                   setIsPlaying(prev => !prev);
                 }}
-                className={`p-1.5 rounded-xl border transition active:scale-95 ${
+                className={`p-1 rounded-lg border transition active:scale-95 ${
                   isPlaying 
                     ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30' 
                     : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30 shadow-glow-emerald'
                 }`}
                 title={isPlaying ? 'Pause Simulation' : 'Resume Simulation'}
               >
-                {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 fill-current" />}
               </button>
             )}
 
@@ -273,11 +273,11 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                 sound.playClick();
                 setIsAudioModalOpen(true);
               }}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/50 transition shadow-glow-emerald"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-[11px] font-black hover:bg-emerald-900/50 transition shadow-glow-emerald"
               title="Adjust Stadium Crowd Audio & SFX"
             >
-              <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-              <span className="hidden md:inline">STADIUM AUDIO</span>
+              <Radio className="w-3 h-3 animate-pulse text-emerald-400" />
+              <span className="hidden md:inline">AUDIO</span>
             </button>
 
             {/* Speed Options: 0.5x, 1x, 2x, 4x */}
@@ -285,7 +285,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
               <button
                 key={s}
                 onClick={() => handleSpeedChange(s)}
-                className={`px-2 sm:px-2.5 py-1 rounded-xl text-xs font-black transition active:scale-95 ${
+                className={`px-1.5 sm:px-2 py-0.5 rounded-lg text-[11px] font-black transition active:scale-95 ${
                   speedMultiplier === s 
                     ? 'bg-[#FF1744] text-slate-950 shadow-glow-cyan' 
                     : 'bg-[#0A0A14] text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-white'
@@ -298,79 +298,79 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
             {!isFinished && (
               <button
                 onClick={handleInstantSkip}
-                className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-black hover:bg-purple-500/30 transition shadow-glow-purple active:scale-95"
+                className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[11px] font-black hover:bg-purple-500/30 transition shadow-glow-purple active:scale-95"
                 title="Instant skip to match conclusion"
               >
-                <FastForward className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">SKIP TO END</span>
+                <FastForward className="w-3 h-3" />
+                <span className="hidden sm:inline">SKIP</span>
               </button>
             )}
           </div>
         </div>
 
         {/* Live Scoreboard Display */}
-        <div className="flex items-center justify-between gap-4 py-2">
+        <div className="flex items-center justify-between gap-2 py-1">
           {/* Home Team */}
-          <div className="flex-1 text-center sm:text-left flex items-center gap-3 sm:gap-4">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-3xl shadow-lg border border-emerald-300 flex-shrink-0">
+          <div className="flex-1 text-center sm:text-left flex items-center gap-2.5 sm:gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-2xl shadow-lg border border-emerald-300 flex-shrink-0">
               ⚡
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase text-emerald-400">HOME</span>
-              <h2 className="text-lg sm:text-2xl font-black text-white">{matchResult.homeTeamName}</h2>
-              <span className="text-xs text-slate-400 hidden sm:inline">Tactical 7 Lineup</span>
+              <span className="text-[9px] font-black uppercase text-emerald-400">HOME</span>
+              <h2 className="text-sm sm:text-lg font-black text-white">{matchResult.homeTeamName}</h2>
+              <span className="text-[10px] text-slate-400 hidden sm:inline">Tactical 7 Lineup</span>
             </div>
           </div>
 
           {/* Central Score Digits */}
-          <div className="flex flex-col items-center justify-center px-4">
-            <div className="flex items-center gap-3 sm:gap-5">
-              <span className="text-4xl sm:text-6xl font-black text-white tracking-tighter">
+          <div className="flex flex-col items-center justify-center px-2">
+            <div className="flex items-center gap-2.5 sm:gap-4">
+              <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
                 {currentHomeScore}
               </span>
-              <span className="text-2xl sm:text-4xl font-extrabold text-slate-600">-</span>
-              <span className="text-4xl sm:text-6xl font-black text-white tracking-tighter">
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-600">-</span>
+              <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
                 {currentAwayScore}
               </span>
             </div>
-            <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mt-1">
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mt-0.5">
               {isFinished ? 'FINAL SCORE' : 'LIVE MATCH'}
             </span>
             {matchResult.wentToPenalties && (isFinished || currentMinute >= 120) && matchResult.penaltyScore && (
-              <div className="mt-1.5 px-3 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[11px] font-black animate-pulse flex items-center gap-1.5 shadow-glow-amber">
+              <div className="mt-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[10px] font-black animate-pulse flex items-center gap-1 shadow-glow-amber">
                 <span>🎯 PENALTIES:</span>
                 <span>{matchResult.penaltyScore.home} - {matchResult.penaltyScore.away}</span>
               </div>
             )}
             {!matchResult.wentToPenalties && matchResult.wentToExtraTime && (isFinished || currentMinute >= 90) && (
-              <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider mt-1">
+              <span className="text-[9px] font-bold text-purple-400 uppercase tracking-wider mt-0.5">
                 (AET • 120 MINS)
               </span>
             )}
           </div>
 
           {/* Away Team */}
-          <div className="flex-1 text-center sm:text-right flex items-center justify-end gap-3 sm:gap-4 flex-row-reverse sm:flex-row">
+          <div className="flex-1 text-center sm:text-right flex items-center justify-end gap-2.5 sm:gap-3 flex-row-reverse sm:flex-row">
             <div>
-              <span className="text-[10px] font-black uppercase text-blue-400">AWAY</span>
-              <h2 className="text-lg sm:text-2xl font-black text-white">{matchResult.awayTeamName}</h2>
-              <span className="text-xs text-slate-400 hidden sm:inline">Tactical 7 Lineup</span>
+              <span className="text-[9px] font-black uppercase text-blue-400">AWAY</span>
+              <h2 className="text-sm sm:text-lg font-black text-white">{matchResult.awayTeamName}</h2>
+              <span className="text-[10px] text-slate-400 hidden sm:inline">Tactical 7 Lineup</span>
             </div>
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center text-3xl shadow-lg border border-blue-400 flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center text-2xl shadow-lg border border-blue-400 flex-shrink-0">
               🦅
             </div>
           </div>
         </div>
 
         {/* Progress Bar of the Match */}
-        <div className="mt-6 pt-4 border-t border-slate-800/80">
-          <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800 relative">
+        <div className="mt-2.5 pt-2 border-t border-slate-800/80">
+          <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800 relative">
             <div
               className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-green-400 transition-all duration-200"
               style={{ width: `${Math.min(100, (currentMinute / maxMinute) * 100)}%` }}
             />
           </div>
-          <div className="flex justify-between text-[10px] font-bold text-slate-500 mt-1">
+          <div className="flex justify-between text-[9px] font-bold text-slate-500 mt-0.5">
             <span>0' Kickoff</span>
             <span>45' Halftime</span>
             <span>90' Full Time</span>
@@ -380,29 +380,29 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
         {/* Finished Action Options */}
         {isFinished && (
-          <div className="mt-6 pt-5 border-t border-slate-800/90 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-emerald-400" />
-              <span className="text-xs font-extrabold text-white uppercase tracking-wider">
+          <div className="mt-2.5 pt-2 border-t border-slate-800/90 flex flex-col sm:flex-row items-center justify-between gap-2.5 animate-fadeIn">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle className="w-4 h-4 text-emerald-400" />
+              <span className="text-[11px] font-extrabold text-white uppercase tracking-wider">
                 Match Complete • Results Official
               </span>
             </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <button
                 onClick={handleRestart}
-                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
+                className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <RotateCcw className="w-3 h-3" />
                 <span>Replay</span>
               </button>
               <button
                 onClick={onGoToLeague}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/25 active:scale-95"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/25 active:scale-95"
               >
-                <Trophy className="w-4 h-4" />
+                <Trophy className="w-3.5 h-3.5" />
                 <span>VIEW LEAGUE TABLE</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -411,21 +411,21 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
       </div>
 
       {/* Tabs: Pitch / Overview / Events / Stats / Players */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 border-b border-slate-800 pb-1.5 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveTab('pitch')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
             activeTab === 'pitch'
               ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/60 text-emerald-300 shadow-sm shadow-emerald-500/10'
               : 'text-slate-400 hover:text-white'
           }`}
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span>2D Live Pitch</span>
         </button>
         <button
           onClick={() => setActiveTab('overview')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${
             activeTab === 'overview'
               ? 'bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 shadow-sm'
               : 'text-slate-400 hover:text-white'

@@ -404,10 +404,10 @@ export function AuctionPage({ setActiveTab }: any) {
   const timerPulse = timeLeft <= 5 ? 'animate-pulse' : '';
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-5 animate-fadeIn">
+    <div className="p-2 sm:p-4 max-w-6xl mx-auto space-y-3.5 animate-fadeIn">
       
       {/* ARENA HEADER: ROOM CODE & 3D STAGE TOGGLE */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#0E1324] border border-[#FF1744]/25 shadow-glow-cyan">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-[#0E1324] border border-[#FF1744]/25 shadow-glow-cyan">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-[#0E1324] border border-[#FF1744]/40 p-1 flex items-center justify-center shadow-glow-cyan">
             <img src="/logo.png" alt="ZBK" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(255,23,68,0.7)]" />

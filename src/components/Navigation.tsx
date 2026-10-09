@@ -62,9 +62,9 @@ export const Navigation: React.FC<NavigationProps> = ({
   return (
     <>
       {/* Desktop Top Cyber Navigation Bar */}
-      <nav className="hidden lg:block bg-[#0A0A14] border-b border-[#FF1744]/15 sticky top-16 sm:top-20 z-30 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-1.5 py-2 overflow-x-auto no-scrollbar">
+      <nav className="hidden lg:block bg-[#0A0A14] border-b border-[#FF1744]/15 sticky top-14 sm:top-16 z-30 shadow-md">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center space-x-1 py-1.5 overflow-x-auto no-scrollbar">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -72,7 +72,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleSelectTab(item.id)}
-                  className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold tracking-wider transition-all whitespace-nowrap uppercase ${
+                  className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold tracking-wider transition-all whitespace-nowrap uppercase ${
                     isActive
                       ? 'text-[#FF1744] bg-[#0E1324] border border-[#FF1744]/50 shadow-glow-cyan text-glow-cyan'
                       : 'text-slate-400 hover:text-white hover:bg-[#0E1324]/80 border border-transparent'

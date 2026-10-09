@@ -41,23 +41,23 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-[#0A0A14]/95 backdrop-blur-md border-b border-[#FF1744]/20 shadow-glow-cyan">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           
           {/* ZeroBallKnowledge Brand Logo & Identity */}
           <div 
             onClick={() => setActiveTab('dashboard')} 
-            className="flex items-center gap-3 cursor-pointer group select-none"
+            className="flex items-center gap-2.5 cursor-pointer group select-none"
           >
-            <div className="relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#0E1324] border border-[#FF1744]/50 shadow-glow-cyan p-1.5 overflow-hidden group-hover:scale-105 transition-transform flex-shrink-0">
+            <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#0E1324] border border-[#FF1744]/50 shadow-glow-cyan p-1 overflow-hidden group-hover:scale-105 transition-transform flex-shrink-0">
               <img src="/logo.png" alt="ZBK" className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,23,68,0.7)]" />
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FF1744] rounded-full animate-ping opacity-80" />
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#FF1744] rounded-full animate-ping opacity-80" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xl sm:text-2xl font-black tracking-wider uppercase text-white font-display text-glow-cyan">
+                <span className="text-lg sm:text-xl font-black tracking-wider uppercase text-white font-display text-glow-cyan">
                   ZEROBALLKNOWLEDGE
                 </span>
-                <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider">
+                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40 tracking-wider">
                   FOOTBALL
                 </span>
               </div>
