@@ -14,12 +14,27 @@ interface Props {
   setActiveTab: (tab: ActiveTab) => void;
 }
 
+import { INITIAL_PLAYERS } from '../data/initialData';
+
 const positionColor: Record<string, string> = {
   GK: 'bg-amber-500/20 text-amber-400 border-amber-500/40',
   DEF: 'bg-blue-500/20 text-blue-400 border-blue-500/40',
   MID: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40',
   ATT: 'bg-rose-500/20 text-rose-400 border-rose-500/40',
 };
+
+function getRatingBadgeStyle(ovr: number): string {
+  if (ovr >= 90) {
+    return 'bg-amber-500/25 text-amber-300 border-amber-500/50 shadow-[0_0_8px_rgba(245,158,11,0.35)]';
+  }
+  if (ovr >= 85) {
+    return 'bg-purple-500/25 text-purple-300 border-purple-500/40';
+  }
+  if (ovr >= 80) {
+    return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40';
+  }
+  return 'bg-slate-800 text-slate-300 border-slate-700';
+}
 
 function OverallBadge({ value }: { value: number }) {
   const color = value >= 90 ? 'from-[#FF1744] to-blue-500 text-slate-950' : value >= 85 ? 'from-amber-400 to-amber-600 text-slate-950' : 'from-purple-500 to-indigo-600 text-white';
@@ -32,7 +47,7 @@ function OverallBadge({ value }: { value: number }) {
 
 export function AuctionPage({ setActiveTab }: any) {
   const { user } = useAuth();
-  const { currentSession, startAuction, broadcastNavigation, finalizeAiLineups, updateSessionStatus } = useSession();
+  const { currentSession, startAuction, broadcastNavigation, finalizeAiLineups, updateSessionStatus, sessionPlayers } = useSession();
   const {
     currentAuction,
     currentPlayer,
@@ -58,6 +73,7 @@ export function AuctionPage({ setActiveTab }: any) {
   const [bidSuccess, setBidSuccess] = useState('');
   const [submittingBid, setSubmittingBid] = useState(false);
   const [show3D, setShow3D] = useState(true);
+  const [expandedTeamId, setExpandedTeamId] = useState<string | null>(null);
   const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
   const prevTimeLeftRef = useRef<number>(timeLeft);
   const prevHighestTeamIdRef = useRef<string | null>(null);
@@ -270,22 +286,31 @@ export function AuctionPage({ setActiveTab }: any) {
                   Default superstar roster assigned for tactical battle.
                 </div>
               ) : (
-                mySquad.map(sq => (
-                  <div key={sq.id} className="flex items-center justify-between bg-[#0A0A14] border border-slate-800 rounded-xl px-4 py-2.5">
-                    <div className="flex items-center gap-2.5">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${positionColor[sq.player?.position ?? 'ATT'] ?? positionColor['ATT']}`}>
-                        {sq.player?.position ?? 'ATT'}
-                      </span>
-                      <span className="font-semibold text-white text-sm">
-                        {sq.player?.name ?? sq.playerId}
-                      </span>
-                      {sq.player?.overall && (
-                        <span className="text-xs text-[#FF1744] font-mono font-bold">({sq.player.overall} OVR)</span>
-                      )}
+                mySquad.map(sq => {
+                  const rating = sq.player?.overall || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.overall || 75;
+                  const pos = sq.player?.position || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.position || 'ATT';
+                  const name = sq.player?.name || sq.player?.shortName || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.name || sq.playerId;
+                  const ratingBadgeStyle = getRatingBadgeStyle(rating);
+
+                  return (
+                    <div key={sq.id} className="flex items-center justify-between bg-[#0A0A14] border border-slate-800 rounded-xl px-4 py-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {/* Rating Badge on the LEFT of position */}
+                        <span className={`text-[10px] font-black font-mono px-1.5 py-0.5 rounded border flex-shrink-0 ${ratingBadgeStyle}`}>
+                          {rating}
+                        </span>
+                        {/* Position Badge */}
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border flex-shrink-0 ${positionColor[pos] ?? positionColor['ATT']}`}>
+                          {pos}
+                        </span>
+                        <span className="font-semibold text-white text-sm truncate">
+                          {name}
+                        </span>
+                      </div>
+                      <span className="text-emerald-400 font-mono font-bold text-sm flex-shrink-0 ml-2">€{sq.purchasePrice}M</span>
                     </div>
-                    <span className="text-emerald-400 font-mono font-bold text-sm">€{sq.purchasePrice}M</span>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -820,17 +845,29 @@ export function AuctionPage({ setActiveTab }: any) {
                   No footballers acquired yet. Bid to build your squad of up to 10!
                 </div>
               ) : (
-                mySquad.map(sq => (
-                  <div key={sq.id} className="flex items-center justify-between px-4 py-2.5">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${positionColor[sq.player?.position ?? 'ATT']}`}>
-                        {sq.player?.position ?? '?'}
-                      </span>
-                      <span className="text-xs font-bold text-white truncate">{sq.player?.shortName ?? sq.playerId.slice(0, 8)}</span>
+                mySquad.map(sq => {
+                  const rating = sq.player?.overall || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.overall || 75;
+                  const pos = sq.player?.position || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.position || 'ATT';
+                  const name = sq.player?.shortName || sq.player?.name || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.shortName || sq.playerId.slice(0, 8);
+                  const ratingBadgeStyle = getRatingBadgeStyle(rating);
+
+                  return (
+                    <div key={sq.id} className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-800/40 transition">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {/* Rating Badge on the LEFT of position */}
+                        <span className={`text-[10px] font-black font-mono px-1.5 py-0.5 rounded border flex-shrink-0 ${ratingBadgeStyle}`}>
+                          {rating}
+                        </span>
+                        {/* Position Badge */}
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border flex-shrink-0 ${positionColor[pos] ?? positionColor['ATT']}`}>
+                          {pos}
+                        </span>
+                        <span className="text-xs font-bold text-white truncate">{name}</span>
+                      </div>
+                      <span className="text-emerald-400 text-xs font-mono font-bold flex-shrink-0 ml-2">€{sq.purchasePrice}M</span>
                     </div>
-                    <span className="text-emerald-400 text-xs font-mono font-bold flex-shrink-0">€{sq.purchasePrice}M</span>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -846,16 +883,65 @@ export function AuctionPage({ setActiveTab }: any) {
               {allTeams.map(t => {
                 const isMe = myTeam && t.id === myTeam.id;
                 const squadCount = teamSquadCounts[t.id] ?? (isMe ? mySquad.length : 0);
+                const isExpanded = expandedTeamId === t.id;
+
+                const teamPlayerIds = new Set([...(t.bench || []), ...(t.startingSeven || [])]);
+                const teamPlayers = (sessionPlayers || []).filter(p => teamPlayerIds.has(p.id));
+                const resolvedPlayers = teamPlayers.length > 0
+                  ? teamPlayers
+                  : INITIAL_PLAYERS.filter(p => teamPlayerIds.has(p.id));
+
                 return (
-                  <div key={t.id} className={`flex items-center gap-3 px-4 py-2.5 ${isMe ? 'bg-[#FF1744]/10' : ''}`}>
-                    <span className="text-base">{t.badgeIcon}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-white truncate">{t.teamName}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">
-                        {squadCount}/7 min ({squadCount < 7 ? `${7 - squadCount} needed` : 'ready ✓'})
-                      </p>
+                  <div key={t.id} className="transition">
+                    <div 
+                      onClick={() => setExpandedTeamId(prev => prev === t.id ? null : t.id)}
+                      className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-slate-800/40 transition select-none ${isMe ? 'bg-[#FF1744]/10' : ''}`}
+                      title="Click to view drafted players"
+                    >
+                      <span className="text-base">{t.badgeIcon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs font-bold text-white truncate">{t.teamName}</p>
+                          <span className="text-[9px] text-slate-500">{isExpanded ? '▲' : '▼'}</span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 font-mono">
+                          {squadCount}/7 min ({squadCount < 7 ? `${7 - squadCount} needed` : 'ready ✓'})
+                        </p>
+                      </div>
+                      <span className="text-amber-400 text-xs font-mono font-black">€{t.budget}M</span>
                     </div>
-                    <span className="text-amber-400 text-xs font-mono font-black">€{t.budget}M</span>
+
+                    {isExpanded && (
+                      <div className="bg-[#0A0D1A] px-4 py-2.5 border-t border-slate-800/80 space-y-1.5 animate-fadeIn">
+                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">
+                          DRAFTED SQUAD ({resolvedPlayers.length} PLAYERS):
+                        </p>
+                        {resolvedPlayers.length === 0 ? (
+                          <p className="text-[11px] text-slate-500 italic py-1">No footballers drafted yet.</p>
+                        ) : (
+                          resolvedPlayers.map(p => {
+                            const ratingStyle = getRatingBadgeStyle(p.overall || 75);
+                            return (
+                              <div key={p.id} className="flex items-center justify-between text-xs py-0.5">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  {/* Rating Badge on the LEFT of position */}
+                                  <span className={`text-[9px] font-black font-mono px-1.5 py-0.2 rounded border flex-shrink-0 ${ratingStyle}`}>
+                                    {p.overall || 75}
+                                  </span>
+                                  {/* Position Badge */}
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded border flex-shrink-0 ${positionColor[p.position] ?? positionColor['ATT']}`}>
+                                    {p.position}
+                                  </span>
+                                  <span className="text-slate-200 text-xs font-medium truncate">
+                                    {p.shortName || p.name}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })}
