@@ -246,6 +246,11 @@ export function simulateMatch(
     awayChancesCount = Math.min(3, Math.max(1, awayChancesCount - 3));
   }
 
+  const firstHalfStoppage = Math.floor(1 + Math.random() * 3); // 1-3 mins
+  const secondHalfStoppage = Math.floor(3 + Math.random() * 4); // 3-6 mins (Fergie Time!)
+  let varReviewsCount = 0;
+  let varOverturnedCount = 0;
+
   const totalChances = Math.max(3, homeChancesCount) + Math.max(3, awayChancesCount);
   
   // Pick random distinct minutes across 90 minutes
@@ -257,9 +262,50 @@ export function simulateMatch(
     [availableMinutes[i], availableMinutes[j]] = [availableMinutes[j], availableMinutes[i]];
   }
 
-  const matchMinutes = availableMinutes.slice(0, Math.min(totalChances, 16)).sort((a, b) => a - b);
+  const matchMinutes = availableMinutes.slice(0, Math.min(totalChances, 14));
+
+  // In ~70% of matches, add a heart-stopping Fergie Time chance (91' to 90 + secondHalfStoppage)
+  if (Math.random() < 0.70) {
+    const fergieMin = 90 + Math.floor(1 + Math.random() * (secondHalfStoppage - 0.5));
+    if (!matchMinutes.includes(fergieMin)) {
+      matchMinutes.push(fergieMin);
+    }
+  }
+
+  matchMinutes.sort((a, b) => a - b);
 
   const events: MatchEvent[] = [];
+
+  // Kickoff Event
+  events.push({
+    id: 'evt-0-kickoff',
+    minute: 0,
+    type: 'KICKOFF',
+    displayMinute: "1'",
+    description: `⚽ KICKOFF! The referee gets this high-stakes clash underway between ${homeTeam.name} and ${awayTeam.name}!`
+  });
+
+  // Halftime Event
+  events.push({
+    id: 'evt-45-halftime',
+    minute: 45,
+    type: 'HALFTIME',
+    stoppageMinute: firstHalfStoppage,
+    displayMinute: "45'",
+    description: `⏸️ HALFTIME! 4th Official signals +${firstHalfStoppage} MINS added time. Tactical adjustments underway in the dressing rooms.`
+  });
+
+  // Fergie Time Board announcement at 90'
+  events.push({
+    id: 'evt-90-fergie-time-start',
+    minute: 90,
+    type: 'fergie_time_start',
+    stoppageMinute: secondHalfStoppage,
+    displayMinute: "90'",
+    isFergieTime: true,
+    description: `⏱️ 90' 4TH OFFICIAL BOARD: +${secondHalfStoppage} MINS FERGIE TIME! The stadium is electric as stoppage-time drama begins!`
+  });
+
   let homeScore = 0;
   let awayScore = 0;
 
@@ -333,6 +379,9 @@ export function simulateMatch(
 
   // Distribute chances
   matchMinutes.forEach(minute => {
+    const isFergieTime = minute > 90;
+    const displayMin = isFergieTime ? `90+${minute - 90}'` : `${minute}'`;
+
     const isHomeAttack = Math.random() < (homePossession / 100);
     const attackingTeam = isHomeAttack ? homeTeam : awayTeam;
     const defendingTeam = isHomeAttack ? awayTeam : homeTeam;
@@ -341,9 +390,15 @@ export function simulateMatch(
     const defendingHasRealGk = isHomeAttack ? awaySelection.hasRealGK : homeSelection.hasRealGK;
     const attackingRealCount = isHomeAttack ? homeSelection.realCount : awaySelection.realCount;
 
-    const attackPower = isHomeAttack ? (homeAttRating * 0.65 + homeMidRating * 0.35) : (awayAttRating * 0.65 + awayMidRating * 0.35);
+    let attackPower = isHomeAttack ? (homeAttRating * 0.65 + homeMidRating * 0.35) : (awayAttRating * 0.65 + awayMidRating * 0.35);
     const defensePower = isHomeAttack ? (awayDefRating * 0.6 + awayGkRating * 0.4) : (homeDefRating * 0.6 + homeGkRating * 0.4);
     const ratingAdvantage = isHomeAttack ? ovrDiff : -ovrDiff;
+
+    // FERGIE TIME SURGE: If attacking team is trailing or tied in stoppage time, they throw everyone forward!
+    const isTrailingOrTied = isHomeAttack ? homeScore <= awayScore : awayScore <= homeScore;
+    if (isFergieTime && isTrailingOrTied) {
+      attackPower += 15;
+    }
 
     // Goal probability per chance: higher team rating and attack power significantly boost clinical conversion
     let goalOdds = !defendingHasRealGk
@@ -389,7 +444,9 @@ export function simulateMatch(
         ? `${scorer.name} finishes clinical strike into the corner, assisted by a sublime pass from ${assister.shortName}!`
         : `${scorer.name} bursts through the defense with incredible skill and slots it past the keeper!`;
 
-      if (!defendingHasRealGk) {
+      if (isFergieTime) {
+        desc = `🔥 90+${minute - 90}' FERGIE TIME DRAMA! ${scorer.name} strikes in stoppage time to send the arena into utter delirium for ${attackingTeam.name}!`;
+      } else if (!defendingHasRealGk) {
         desc = `⚽ GOAL! ${scorer.name} fires directly into the unguarded net — disastrous penalty for ${defendingTeam.name} having no registered goalkeeper!`;
       } else if (isHomeAttack && awaySelection.realCount <= 4) {
         desc = `⚽ GOAL! ${scorer.name} completely overwhelms the severely depleted defense of ${defendingTeam.name}!`;
@@ -408,8 +465,89 @@ export function simulateMatch(
         assistPlayerId: assister?.id,
         assistPlayerName: assister?.shortName,
         scoreAfter: { home: homeScore, away: awayScore },
+        isFergieTime,
+        stoppageMinute: isFergieTime ? minute - 90 : undefined,
+        displayMinute: displayMin,
         description: desc
       });
+
+      // VAR REVIEW DRAMA (Occurs in ~20% of regular time goals)
+      const shouldTriggerVar = Math.random() < 0.20 && !isFergieTime;
+      if (shouldTriggerVar) {
+        varReviewsCount++;
+        const isOffsideCheck = Math.random() < 0.70;
+        const varReason = isOffsideCheck ? 'potential offside in the buildup' : 'a possible foul prior to the strike';
+        const isOverturned = Math.random() < 0.38; // ~38% of reviews are overturned
+
+        events.push({
+          id: `evt-${minute}-var-review-${scorer.id}`,
+          minute,
+          type: 'var_review',
+          teamId: attackingTeam.id,
+          teamName: attackingTeam.name,
+          playerId: scorer.id,
+          playerName: scorer.name,
+          displayMinute: displayMin,
+          varDetails: {
+            type: isOffsideCheck ? 'offside' : 'foul_buildup',
+            decision: isOverturned ? 'overturned' : 'confirmed',
+            targetEvent: 'goal'
+          },
+          scoreAfter: { home: homeScore, away: awayScore },
+          description: `🖥️ VAR CHECK IN PROGRESS: Referee reviewing ${varReason} for ${attackingTeam.name}'s goal...`
+        });
+
+        if (isOverturned) {
+          // Disallow goal & rollback score!
+          if (isHomeAttack) {
+            homeScore--;
+            homeShotsOnTarget--;
+          } else {
+            awayScore--;
+            awayShotsOnTarget--;
+          }
+          playerStatsTracker[scorer.id].goals--;
+          if (assister) playerStatsTracker[assister.id].assists--;
+          varOverturnedCount++;
+
+          events.push({
+            id: `evt-${minute}-var-overturned-${scorer.id}`,
+            minute,
+            type: 'var_overturned',
+            teamId: attackingTeam.id,
+            teamName: attackingTeam.name,
+            playerId: scorer.id,
+            playerName: scorer.name,
+            displayMinute: displayMin,
+            varDetails: {
+              type: isOffsideCheck ? 'offside' : 'foul_buildup',
+              decision: 'overturned',
+              targetEvent: 'goal'
+            },
+            scoreAfter: { home: homeScore, away: awayScore },
+            description: `❌ VAR DECISION: GOAL DISALLOWED! Semi-automated video review confirms ${scorer.shortName} was ${isOffsideCheck ? 'marginally offside' : 'guilty of a foul'}! Score reverts to ${homeScore} - ${awayScore}!`
+          });
+        } else {
+          // Goal confirmed!
+          events.push({
+            id: `evt-${minute}-var-confirmed-${scorer.id}`,
+            minute,
+            type: 'var_confirmed',
+            teamId: attackingTeam.id,
+            teamName: attackingTeam.name,
+            playerId: scorer.id,
+            playerName: scorer.name,
+            displayMinute: displayMin,
+            varDetails: {
+              type: isOffsideCheck ? 'offside' : 'foul_buildup',
+              decision: 'confirmed',
+              targetEvent: 'goal'
+            },
+            scoreAfter: { home: homeScore, away: awayScore },
+            description: `✅ VAR DECISION: GOAL STANDS! Replay review verifies legal goal! The strike is officially confirmed: ${homeScore} - ${awayScore}!`
+          });
+        }
+      }
     } else if (roll < goalOdds + saveOdds) {
       // GOALKEEPER SAVE!
       if (isHomeAttack) {
@@ -436,7 +574,12 @@ export function simulateMatch(
         teamName: defendingTeam.name,
         playerId: opposingGk.id,
         playerName: opposingGk.name,
-        description: `Sensational diving reflex save by ${opposingGk.shortName} to deny ${attackerShooting.shortName}!`
+        isFergieTime,
+        stoppageMinute: isFergieTime ? minute - 90 : undefined,
+        displayMinute: displayMin,
+        description: isFergieTime 
+          ? `🧤 90+${minute - 90}' CLUTCH FERGIE TIME SAVE! ${opposingGk.shortName} pulls off an unbelievable reflex parry with the match on the line!`
+          : `Sensational diving reflex save by ${opposingGk.shortName} to deny ${attackerShooting.shortName}!`
       });
     } else if (roll < goalOdds + saveOdds + cardOdds) {
       // YELLOW CARD!
@@ -457,6 +600,9 @@ export function simulateMatch(
         teamName: defendingTeam.name,
         playerId: cardedPlayer.id,
         playerName: cardedPlayer.name,
+        isFergieTime,
+        stoppageMinute: isFergieTime ? minute - 90 : undefined,
+        displayMinute: displayMin,
         description: `Tactical foul: ${cardedPlayer.name} is booked with a yellow card by the referee.`
       });
     } else {
@@ -808,5 +954,9 @@ export function simulateMatch(
     regularTimeScore,
     penaltyScore,
     penaltyShootout,
+    firstHalfStoppage,
+    secondHalfStoppage,
+    varReviewsCount,
+    varOverturnedCount,
   };
 }

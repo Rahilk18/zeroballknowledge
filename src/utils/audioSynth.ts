@@ -865,6 +865,132 @@ class StadiumAudioEngine {
     }
   }
 
+  // ==========================================
+  // 🖥️ VAR DRAMA & ⏱️ FERGIE TIME SFX
+  // ==========================================
+
+  // Pulsing sub-bass heartbeat & broadcast tension scanner for VAR review
+  playVarTensionHeartbeat() {
+    try {
+      if (!this.sfxEnabled) return;
+      const ctx = this.initCtx();
+      if (!ctx || !this.sfxGain) return;
+
+      const now = ctx.currentTime;
+      // Double heartbeat thud: "lub-dub"
+      [0, 0.22].forEach((offset, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        const startFreq = idx === 0 ? 85 : 70;
+        osc.frequency.setValueAtTime(startFreq, now + offset);
+        osc.frequency.exponentialRampToValueAtTime(32, now + offset + 0.15);
+
+        gain.gain.setValueAtTime(0.35, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.16);
+
+        osc.connect(gain);
+        gain.connect(this.sfxGain!);
+
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.17);
+      });
+
+      // Digital line scanning glitch beep
+      const beeper = ctx.createOscillator();
+      const beepGain = ctx.createGain();
+      beeper.type = 'triangle';
+      beeper.frequency.setValueAtTime(1600, now + 0.35);
+      beeper.frequency.exponentialRampToValueAtTime(800, now + 0.45);
+      beepGain.gain.setValueAtTime(0.12, now + 0.35);
+      beepGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      beeper.connect(beepGain);
+      beepGain.connect(this.sfxGain);
+      beeper.start(now + 0.35);
+      beeper.stop(now + 0.46);
+    } catch (e) {}
+  }
+
+  // Triumphant confirmation or dramatic disallowed buzzer
+  playVarDecision(decision: 'confirmed' | 'overturned') {
+    try {
+      if (!this.sfxEnabled) return;
+      const ctx = this.initCtx();
+      if (!ctx || !this.sfxGain) return;
+
+      const now = ctx.currentTime;
+      if (decision === 'confirmed') {
+        // High-pitched celebratory chime + whistle
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.08);
+          gain.gain.setValueAtTime(0.25, now + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.28);
+          osc.connect(gain);
+          gain.connect(this.sfxGain!);
+          osc.start(now + i * 0.08);
+          osc.stop(now + i * 0.08 + 0.3);
+        });
+        setTimeout(() => this.playWhistle('kickoff'), 350);
+      } else {
+        // Dissonant dramatic buzzer + crowd gasp
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = 'sawtooth';
+        osc2.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(140, now);
+        osc2.frequency.setValueAtTime(148, now); // Harsh beating frequency
+
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.setValueAtTime(0.35, now + 0.35);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.sfxGain);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.56);
+        osc2.stop(now + 0.56);
+
+        setTimeout(() => {
+          this.playWhistle('foul');
+          this.playCrowdGasp();
+        }, 300);
+      }
+    } catch (e) {}
+  }
+
+  // 4th Official LED stoppage board notification / Fergie Time Siren
+  playStoppageBoardSiren() {
+    try {
+      if (!this.sfxEnabled) return;
+      const ctx = this.initCtx();
+      if (!ctx || !this.sfxGain) return;
+
+      const now = ctx.currentTime;
+      // Modern electronic stadium stadium chime
+      [880, 1174.66].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+        gain.gain.setValueAtTime(0.28, now + idx * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.24);
+        osc.connect(gain);
+        gain.connect(this.sfxGain!);
+        osc.start(now + idx * 0.12);
+        osc.stop(now + idx * 0.12 + 0.25);
+      });
+    } catch (e) {}
+  }
+
   stopMusic() {
     this.isMusicPlaying = false;
     if (this.musicInterval) {

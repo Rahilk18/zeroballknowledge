@@ -449,7 +449,13 @@ export type EventType =
   | 'PENALTY_SAVED'
   | 'PENALTY_MISSED'
   | 'EXTRA_TIME_START'
-  | 'PENALTIES_START';
+  | 'PENALTIES_START'
+  | 'var_review'
+  | 'var_overturned'
+  | 'var_confirmed'
+  | 'var_penalty'
+  | 'fergie_time_start'
+  | 'fergie_time_goal';
 
 export interface MatchEvent {
   id?: string;
@@ -466,6 +472,15 @@ export interface MatchEvent {
     home: number;
     away: number;
   };
+  // VAR & Fergie Time enhancements
+  varDetails?: {
+    type: 'offside' | 'foul_buildup' | 'handball';
+    decision: 'confirmed' | 'overturned';
+    targetEvent: 'goal' | 'penalty';
+  };
+  isFergieTime?: boolean;
+  stoppageMinute?: number;
+  displayMinute?: string;
 }
 
 export interface TeamMatchStats {
@@ -542,6 +557,11 @@ export interface MatchResult {
     homeShots: { playerId: string; playerName: string; scored: boolean; round: number }[];
     awayShots: { playerId: string; playerName: string; scored: boolean; round: number }[];
   };
+  // Stoppage & VAR metadata
+  firstHalfStoppage?: number;
+  secondHalfStoppage?: number;
+  varReviewsCount?: number;
+  varOverturnedCount?: number;
 }
 
 // ---- Fixture (Scheduled / Played Match) ----

@@ -75,13 +75,26 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   // Filter events up to current minute
   const visibleEvents = matchResult.events.filter((e) => e.minute <= currentMinute);
 
-  // Compute live score based on visible events
-  const currentHomeScore = visibleEvents.filter(
-    (e) => e.type === 'goal' && e.teamId === matchResult.homeTeamId
-  ).length;
-  const currentAwayScore = visibleEvents.filter(
-    (e) => e.type === 'goal' && e.teamId === matchResult.awayTeamId
-  ).length;
+  const secondHalfStoppage = matchResult.secondHalfStoppage || 4;
+  const maxMinute = matchResult.wentToExtraTime ? 120 : (90 + secondHalfStoppage);
+
+  // Compute live score dynamically respecting VAR goal overturns
+  const currentHomeScore = visibleEvents.reduce((acc, e) => {
+    if (e.type === 'goal' && e.teamId === matchResult.homeTeamId) return acc + 1;
+    if (e.type === 'var_overturned' && e.teamId === matchResult.homeTeamId) return Math.max(0, acc - 1);
+    return acc;
+  }, 0);
+  const currentAwayScore = visibleEvents.reduce((acc, e) => {
+    if (e.type === 'goal' && e.teamId === matchResult.awayTeamId) return acc + 1;
+    if (e.type === 'var_overturned' && e.teamId === matchResult.awayTeamId) return Math.max(0, acc - 1);
+    return acc;
+  }, 0);
+
+  // Check if any recent event is an active VAR review, overturned, or confirmed
+  const latestVarEvent = visibleEvents
+    .filter((e) => ['var_review', 'var_overturned', 'var_confirmed'].includes(e.type))
+    .slice(-1)[0];
+  const isVarActive = latestVarEvent && (currentMinute - latestVarEvent.minute <= 2);
 
   // Stadium crowd ambience loop: runs whenever match is active & not finished
   useEffect(() => {
@@ -95,8 +108,6 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
     };
   }, [isPlaying, isFinished]);
 
-  const maxMinute = matchResult.wentToExtraTime ? 120 : 90;
-
   // Event & Whistle Audio Triggers per minute change
   useEffect(() => {
     if (prevProcessedMinute.current === currentMinute) return;
@@ -109,6 +120,10 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
     // Halftime Whistle
     else if (currentMinute === 45) {
       sound.playWhistle('halftime');
+    }
+    // 4th Official Stoppage Board (Fergie Time)
+    else if (currentMinute === 90 && !matchResult.wentToExtraTime) {
+      sound.playStoppageBoardSiren();
     }
     // Extra Time Start Whistle
     else if (currentMinute === 90 && matchResult.wentToExtraTime) {
@@ -125,7 +140,13 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
       const type = (ev.type || '').toLowerCase();
       const desc = (ev.description || '').toLowerCase();
 
-      if (type.includes('goal') || desc.includes('goal')) {
+      if (type === 'var_review') {
+        sound.playVarTensionHeartbeat();
+      } else if (type === 'var_overturned') {
+        sound.playVarDecision('overturned');
+      } else if (type === 'var_confirmed') {
+        sound.playVarDecision('confirmed');
+      } else if (type.includes('goal') || desc.includes('goal')) {
         sound.playGoalRoar();
         sound.playGoalHorn();
       } else if (desc.includes('crossbar') || desc.includes('post') || desc.includes('woodwork')) {
@@ -234,7 +255,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                     ? 'AFTER EXTRA TIME (120\')'
                     : 'FULL TIME BATTLE END')
                 : currentMinute > 90
-                ? 'EXTRA TIME IN PROGRESS'
+                ? (matchResult.wentToExtraTime ? 'EXTRA TIME IN PROGRESS' : '⏱️ FERGIE TIME STOPPAGE')
                 : currentMinute < 45
                 ? '1ST HALF IN PROGRESS'
                 : '2ND HALF CLASH'}
@@ -242,9 +263,17 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           </div>
 
           {/* Clock Display */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#0A0A14] border border-[#FF1744]/30 font-mono font-black text-xs text-[#FF1744] shadow-glow-cyan">
-            <Clock className="w-3.5 h-3.5 text-[#FF1744]" />
-            <span>{String(currentMinute).padStart(2, '0')}:00</span>
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#0A0A14] font-mono font-black text-xs transition shadow-glow-cyan ${
+            currentMinute > 90 && !matchResult.wentToExtraTime
+              ? 'border-2 border-amber-500 bg-amber-950/60 text-amber-300 animate-pulse shadow-glow-amber'
+              : 'border border-[#FF1744]/30 text-[#FF1744]'
+          }`}>
+            <Clock className={`w-3.5 h-3.5 ${currentMinute > 90 && !matchResult.wentToExtraTime ? 'text-amber-400' : 'text-[#FF1744]'}`} />
+            <span>
+              {currentMinute > 90 && !matchResult.wentToExtraTime
+                ? `90+${currentMinute - 90}'`
+                : `${String(currentMinute).padStart(2, '0')}:00`}
+            </span>
           </div>
 
           {/* Simulation Speed, Audio & Skip Controls */}
@@ -361,6 +390,61 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
             </div>
           </div>
         </div>
+
+        {/* LIVE BROADCAST ALERTS: VAR & FERGIE TIME BOARD */}
+        {isVarActive && latestVarEvent && (
+          <div className={`mt-2.5 p-3 rounded-2xl border-2 transition-all shadow-2xl animate-fadeIn ${
+            latestVarEvent.type === 'var_review'
+              ? 'bg-purple-950/80 border-purple-500/80 text-purple-200 shadow-glow-purple'
+              : latestVarEvent.type === 'var_overturned'
+              ? 'bg-rose-950/85 border-rose-500 text-rose-200 shadow-glow-cyan'
+              : 'bg-emerald-950/85 border-emerald-500 text-emerald-200 shadow-glow-emerald'
+          }`}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl">
+                  {latestVarEvent.type === 'var_review' ? '🖥️' : latestVarEvent.type === 'var_overturned' ? '❌' : '✅'}
+                </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-white">
+                      {latestVarEvent.type === 'var_review'
+                        ? 'VAR REVIEW IN PROGRESS'
+                        : latestVarEvent.type === 'var_overturned'
+                        ? 'VAR DECISION: GOAL DISALLOWED'
+                        : 'VAR DECISION: GOAL CONFIRMED'}
+                    </span>
+                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase ${
+                      latestVarEvent.type === 'var_review'
+                        ? 'bg-purple-500/30 text-purple-200 border border-purple-400/40 animate-pulse'
+                        : latestVarEvent.type === 'var_overturned'
+                        ? 'bg-rose-600 text-white'
+                        : 'bg-emerald-600 text-white'
+                    }`}>
+                      {latestVarEvent.type === 'var_review' ? 'LIVE MONITOR' : latestVarEvent.type === 'var_overturned' ? 'OVERTURNED' : 'CONFIRMED'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 mt-0.5">{latestVarEvent.description}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 4TH OFFICIAL FERGIE TIME BOARD (When 90' reached and not in extra time) */}
+        {!isVarActive && currentMinute >= 90 && !matchResult.wentToExtraTime && !isFinished && (
+          <div className="mt-2.5 p-2 rounded-xl bg-gradient-to-r from-amber-950/90 via-slate-900/90 to-amber-950/90 border-2 border-amber-500/70 shadow-glow-amber flex items-center justify-between gap-2 animate-pulse">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">⏱️</span>
+              <span className="font-mono font-black text-xs text-amber-300 tracking-wider">
+                4TH OFFICIAL BOARD: +{secondHalfStoppage} MINS FERGIE TIME
+              </span>
+            </div>
+            <span className="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px] uppercase">
+              STOPPAGE SURGE
+            </span>
+          </div>
+        )}
 
         {/* Progress Bar of the Match */}
         <div className="mt-2.5 pt-2 border-t border-slate-800/80">
@@ -494,14 +578,26 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                 <div className="space-y-2">
                   {visibleEvents
                     .filter(e => e.type === 'goal' && e.teamId === matchResult.homeTeamId)
-                    .map(e => (
-                      <div key={e.id || `${e.minute}-${e.playerId}`} className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-white flex items-center gap-1.5">
-                          <span>⚽</span> {e.playerName || 'Player'}
-                        </span>
-                        <span className="font-mono text-emerald-400 font-bold">{e.minute}'</span>
-                      </div>
-                    ))}
+                    .map(e => {
+                      const isOverturned = visibleEvents.some(
+                        ov => ov.type === 'var_overturned' && ov.minute === e.minute && ov.playerId === e.playerId
+                      );
+                      return (
+                        <div key={e.id || `${e.minute}-${e.playerId}`} className="flex items-center justify-between text-xs">
+                          <span className={`font-bold flex items-center gap-1.5 ${isOverturned ? 'line-through text-slate-500' : 'text-white'}`}>
+                            <span>⚽</span> {e.playerName || 'Player'}
+                            {isOverturned && (
+                              <span className="text-[10px] no-underline font-normal text-rose-400 bg-rose-500/10 px-1.5 py-0.2 rounded border border-rose-500/30">
+                                VAR Disallowed
+                              </span>
+                            )}
+                          </span>
+                          <span className={`font-mono font-bold ${isOverturned ? 'text-slate-500 line-through' : e.isFergieTime ? 'text-amber-400' : 'text-emerald-400'}`}>
+                            {e.displayMinute || `${e.minute}'`}
+                          </span>
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>
@@ -517,14 +613,26 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                 <div className="space-y-2">
                   {visibleEvents
                     .filter(e => e.type === 'goal' && e.teamId === matchResult.awayTeamId)
-                    .map(e => (
-                      <div key={e.id || `${e.minute}-${e.playerId}`} className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-white flex items-center gap-1.5">
-                          <span>⚽</span> {e.playerName || 'Player'}
-                        </span>
-                        <span className="font-mono text-blue-400 font-bold">{e.minute}'</span>
-                      </div>
-                    ))}
+                    .map(e => {
+                      const isOverturned = visibleEvents.some(
+                        ov => ov.type === 'var_overturned' && ov.minute === e.minute && ov.playerId === e.playerId
+                      );
+                      return (
+                        <div key={e.id || `${e.minute}-${e.playerId}`} className="flex items-center justify-between text-xs">
+                          <span className={`font-bold flex items-center gap-1.5 ${isOverturned ? 'line-through text-slate-500' : 'text-white'}`}>
+                            <span>⚽</span> {e.playerName || 'Player'}
+                            {isOverturned && (
+                              <span className="text-[10px] no-underline font-normal text-rose-400 bg-rose-500/10 px-1.5 py-0.2 rounded border border-rose-500/30">
+                                VAR Disallowed
+                              </span>
+                            )}
+                          </span>
+                          <span className={`font-mono font-bold ${isOverturned ? 'text-slate-500 line-through' : e.isFergieTime ? 'text-amber-400' : 'text-blue-400'}`}>
+                            {e.displayMinute || `${e.minute}'`}
+                          </span>
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>
@@ -643,13 +751,26 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                 const isPenStart = evt.type === 'PENALTIES_START';
                 const isPenScored = evt.type === 'PENALTY_SCORED';
                 const isPenSaved = evt.type === 'PENALTY_SAVED';
+                const isVarReview = evt.type === 'var_review';
+                const isVarOverturned = evt.type === 'var_overturned';
+                const isVarConfirmed = evt.type === 'var_confirmed';
+                const isFergieStart = evt.type === 'fergie_time_start';
+                const isFergieTime = evt.isFergieTime;
 
                 return (
                   <div
                     key={evt.id}
                     className={`flex items-start gap-3 p-3.5 rounded-2xl border transition-all animate-fadeIn ${
-                      isGoal || isPenScored
-                        ? 'bg-emerald-950/40 border-emerald-500/50 shadow-md shadow-emerald-500/10'
+                      isVarReview
+                        ? 'bg-purple-950/40 border-purple-500/60 shadow-md shadow-purple-500/20'
+                        : isVarOverturned
+                        ? 'bg-rose-950/40 border-rose-500/60 shadow-md shadow-rose-500/20'
+                        : isVarConfirmed
+                        ? 'bg-emerald-950/40 border-emerald-500/60 shadow-md shadow-emerald-500/20'
+                        : isFergieStart
+                        ? 'bg-amber-950/40 border-amber-500/60 shadow-md shadow-amber-500/20'
+                        : isGoal || isPenScored
+                        ? (isFergieTime ? 'bg-amber-950/40 border-amber-500/60 shadow-glow-amber' : 'bg-emerald-950/40 border-emerald-500/50 shadow-md shadow-emerald-500/10')
                         : isCard || isPenSaved
                         ? 'bg-amber-950/30 border-amber-500/40'
                         : isET || isPenStart
@@ -658,22 +779,36 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                     }`}
                   >
                     {/* Minute Badge */}
-                    <div className="flex-shrink-0 w-12 text-center">
-                      <span className="inline-block px-2 py-0.5 rounded-md bg-slate-950 border border-slate-800 text-xs font-black text-white">
-                        {evt.minute}'
+                    <div className="flex-shrink-0 w-14 text-center">
+                      <span className={`inline-block px-2 py-0.5 rounded-md font-mono text-xs font-black ${
+                        isFergieTime || isFergieStart
+                          ? 'bg-amber-950 border border-amber-500/50 text-amber-300'
+                          : isVarReview || isVarOverturned || isVarConfirmed
+                          ? 'bg-purple-950 border border-purple-500/50 text-purple-300'
+                          : 'bg-slate-950 border border-slate-800 text-white'
+                      }`}>
+                        {evt.displayMinute || `${evt.minute}'`}
                       </span>
                     </div>
 
                     {/* Event Icon */}
                     <div className="text-lg flex-shrink-0">
-                      {isGoal && '⚽'}
-                      {isCard && '🟨'}
-                      {isSave && '🧤'}
-                      {isET && '⏱️'}
-                      {isPenStart && '🎯'}
-                      {isPenScored && '⚽'}
-                      {isPenSaved && '🧤'}
-                      {!isGoal && !isCard && !isSave && !isET && !isPenStart && !isPenScored && !isPenSaved && '⚡'}
+                      {isVarReview && '🖥️'}
+                      {isVarOverturned && '❌'}
+                      {isVarConfirmed && '✅'}
+                      {isFergieStart && '⏱️'}
+                      {!isVarReview && !isVarOverturned && !isVarConfirmed && !isFergieStart && (
+                        <>
+                          {isGoal && (isFergieTime ? '🔥' : '⚽')}
+                          {isCard && '🟨'}
+                          {isSave && '🧤'}
+                          {isET && '⏱️'}
+                          {isPenStart && '🎯'}
+                          {isPenScored && '⚽'}
+                          {isPenSaved && '🧤'}
+                          {!isGoal && !isCard && !isSave && !isET && !isPenStart && !isPenScored && !isPenSaved && '⚡'}
+                        </>
+                      )}
                     </div>
 
                     {/* Event Details */}
@@ -689,7 +824,32 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                             {evt.teamName}
                           </span>
                         )}
-                        {isGoal && (
+                        {isVarReview && (
+                          <span className="text-[10px] font-black uppercase text-purple-400 bg-purple-500/20 px-2 py-0.5 rounded-md border border-purple-500/30 animate-pulse">
+                            VAR CHECK
+                          </span>
+                        )}
+                        {isVarOverturned && (
+                          <span className="text-[10px] font-black uppercase text-rose-400 bg-rose-500/20 px-2 py-0.5 rounded-md border border-rose-500/30">
+                            GOAL DISALLOWED
+                          </span>
+                        )}
+                        {isVarConfirmed && (
+                          <span className="text-[10px] font-black uppercase text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                            GOAL STANDS (VAR)
+                          </span>
+                        )}
+                        {isFergieStart && (
+                          <span className="text-[10px] font-black uppercase text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30">
+                            FERGIE TIME BOARD
+                          </span>
+                        )}
+                        {isGoal && isFergieTime && (
+                          <span className="text-[10px] font-black uppercase text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30 shadow-glow-amber">
+                            FERGIE TIME DRAMA!
+                          </span>
+                        )}
+                        {isGoal && !isFergieTime && (
                           <span className="text-[10px] font-black uppercase text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-500/30">
                             GOAL!
                           </span>
@@ -809,6 +969,22 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
               homeRatio={matchResult.stats.home.saves ?? 0}
               awayRatio={matchResult.stats.away.saves ?? 0}
             />
+
+            {/* VAR & Stoppage Insights */}
+            <div className="pt-4 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center text-xs">
+              <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-2xl">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">🖥️ VAR Reviews</span>
+                <span className="font-mono font-black text-sm text-purple-400">{matchResult.varReviewsCount || 0}</span>
+              </div>
+              <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-2xl">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">❌ Goals Disallowed</span>
+                <span className="font-mono font-black text-sm text-rose-400">{matchResult.varOverturnedCount || 0}</span>
+              </div>
+              <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-2xl">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">⏱️ Fergie Time Added</span>
+                <span className="font-mono font-black text-sm text-amber-400">+{matchResult.secondHalfStoppage || 4} mins</span>
+              </div>
+            </div>
           </div>
         </div>
       )}

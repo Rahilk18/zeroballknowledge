@@ -353,6 +353,30 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
         subtext: 'Dangerous set-piece whipped into the 6-yard box!',
         type: 'corner'
       });
+    } else if (event.type === 'var_review') {
+      setActiveBanner({
+        text: `🖥️ VAR CHECK IN PROGRESS`,
+        subtext: event.description,
+        type: 'action'
+      });
+    } else if (event.type === 'var_overturned') {
+      setActiveBanner({
+        text: `❌ VAR: GOAL DISALLOWED!`,
+        subtext: event.description,
+        type: 'card'
+      });
+    } else if (event.type === 'var_confirmed') {
+      setActiveBanner({
+        text: `✅ VAR: GOAL CONFIRMED!`,
+        subtext: event.description,
+        type: 'goal'
+      });
+    } else if (event.type === 'fergie_time_start') {
+      setActiveBanner({
+        text: `⏱️ 4TH OFFICIAL: +${event.stoppageMinute || 4} MINS FERGIE TIME!`,
+        subtext: 'Stoppage time surge begins!',
+        type: 'action'
+      });
     }
 
     bannerTimeoutRef.current = setTimeout(() => {
@@ -428,6 +452,10 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
               ? 'bg-gradient-to-r from-emerald-900/90 to-teal-900/90 border-emerald-400 text-white shadow-emerald-500/40'
               : activeBanner.type === 'save'
               ? 'bg-gradient-to-r from-blue-900/90 to-indigo-900/90 border-blue-400 text-white shadow-blue-500/40'
+              : activeBanner.type === 'action'
+              ? 'bg-gradient-to-r from-purple-950/90 via-slate-900/90 to-amber-950/90 border-purple-400 text-white shadow-purple-500/40'
+              : activeBanner.type === 'card'
+              ? 'bg-gradient-to-r from-rose-950/90 to-red-900/90 border-rose-400 text-white shadow-rose-500/40'
               : 'bg-gradient-to-r from-amber-950/90 to-slate-900/90 border-amber-400 text-amber-200'
           }`}>
             <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" />
