@@ -633,8 +633,11 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                             : 'bg-[#0A0D1A] border-slate-800 hover:border-amber-400/50 hover:bg-[#12182D]'
                         }`}
                       >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${badge.bg} ${badge.text} ${badge.border}`}>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                            {p.overall}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                             {p.position}
                           </span>
                           <div className="truncate">
@@ -685,8 +688,11 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                           : 'bg-[#0A0D1A] border-slate-800 hover:border-slate-700'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 truncate">
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border ${badge.bg} ${badge.text} ${badge.border}`}>
+                      <div className="flex items-center gap-2 truncate">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                          {p.overall}
+                        </span>
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                           {p.position}
                         </span>
                         <span className="text-xs font-bold text-white truncate">{p.name}</span>
@@ -725,8 +731,11 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                         : 'bg-[#0A0D1A] border-slate-800 hover:border-slate-700'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${badge.bg} ${badge.text} ${badge.border}`}>
+                    <div className="flex items-center gap-2">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                        {p.overall}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                         {p.position}
                       </span>
                       <div>
@@ -763,8 +772,11 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                         : 'bg-[#0A0D1A] border-slate-800 hover:border-slate-700'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${badge.bg} ${badge.text} ${badge.border}`}>
+                    <div className="flex items-center gap-2">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                        {p.overall}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                         {p.position}
                       </span>
                       <div>

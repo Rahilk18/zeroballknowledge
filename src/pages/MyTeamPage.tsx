@@ -493,10 +493,15 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
                           selectedPlayerId === p.id ? 'bg-[#FF1744]/10 border-[#FF1744]/50 shadow-glow-cyan' : 'bg-[#0A0A14] border-slate-800 hover:border-slate-700'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-xs font-bold text-slate-400 w-6 text-center">{p.position}</span>
-                          <div>
-                            <span className="text-xs font-bold text-white block">{p.name}</span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-xs font-black font-mono text-amber-300 bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/60 flex-shrink-0">
+                            {p.overall}
+                          </span>
+                          <span className="text-xs font-bold text-slate-300 w-7 text-center flex-shrink-0">
+                            {p.position}
+                          </span>
+                          <div className="truncate">
+                            <span className="text-xs font-bold text-white block truncate">{p.name}</span>
                             <span className="text-[10px] text-slate-500">{p.nationality}</span>
                           </div>
                         </div>

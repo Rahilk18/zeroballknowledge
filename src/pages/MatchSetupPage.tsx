@@ -318,11 +318,11 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
                     </span>
                     <span className="font-extrabold text-white">{p.name}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-black font-mono text-emerald-400 text-xs">{p.overall}</span>
                     <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">
                       {p.position}
                     </span>
-                    <span className="font-black text-emerald-400">{p.overall}</span>
                   </div>
                 </div>
               ))}
@@ -400,11 +400,11 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
                     </span>
                     <span className="font-extrabold text-white">{p.name}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-black font-mono text-blue-400 text-xs">{p.overall}</span>
                     <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">
                       {p.position}
                     </span>
-                    <span className="font-black text-blue-400">{p.overall}</span>
                   </div>
                 </div>
               ))}

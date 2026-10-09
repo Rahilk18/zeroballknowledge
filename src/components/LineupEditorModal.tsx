@@ -294,8 +294,11 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                                 : 'bg-[#101826] border-slate-800 hover:border-[#FF1744]/40'
                             }`}
                           >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border ${badge.bg} ${badge.text} ${badge.border}`}>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                                {p.overall}
+                              </span>
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                                 {p.position}
                               </span>
                               <div className="truncate">
@@ -346,8 +349,11 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                               : 'bg-[#101826] border-slate-800 hover:border-slate-700'
                           }`}
                         >
-                          <div className="flex items-center gap-2 truncate">
-                            <span className={`px-1.5 py-0.2 rounded text-[8px] font-black uppercase border ${badge.bg} ${badge.text} ${badge.border}`}>
+                          <div className="flex items-center gap-1.5 truncate">
+                            <span className="px-1.5 py-0.2 rounded text-[8px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                              {p.overall}
+                            </span>
+                            <span className={`px-1.5 py-0.2 rounded text-[8px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                               {p.position}
                             </span>
                             <span className="text-xs font-bold text-white truncate">{p.shortName}</span>
@@ -385,8 +391,11 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                             : 'bg-[#111c26] border-slate-800 hover:border-slate-700'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${badge.bg} ${badge.text} ${badge.border}`}>
+                        <div className="flex items-center gap-2">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                            {p.overall}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                             {p.position}
                           </span>
                           <div>
@@ -423,8 +432,11 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                             : 'bg-[#0f1720] border-slate-800/80 hover:border-slate-700'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${badge.bg} ${badge.text} ${badge.border}`}>
+                        <div className="flex items-center gap-2">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                            {p.overall}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                             {p.position}
                           </span>
                           <div>

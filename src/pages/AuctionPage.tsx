@@ -287,9 +287,12 @@ export function AuctionPage({ setActiveTab }: any) {
                 </div>
               ) : (
                 mySquad.map(sq => {
-                  const rating = sq.player?.overall || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.overall || 75;
-                  const pos = sq.player?.position || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.position || 'ATT';
-                  const name = sq.player?.name || sq.player?.shortName || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.name || sq.playerId;
+                  const playerObj = sq.player
+                    || (sessionPlayers || []).find(p => p.id === sq.playerId || p.shortName?.toLowerCase() === sq.playerId?.toLowerCase() || p.name?.toLowerCase() === sq.playerId?.toLowerCase())
+                    || INITIAL_PLAYERS.find(p => p.id === sq.playerId || p.shortName?.toLowerCase() === sq.playerId?.toLowerCase() || p.name?.toLowerCase() === sq.playerId?.toLowerCase());
+                  const rating = Number(sq.player?.overall) || Number(playerObj?.overall) || 75;
+                  const pos = sq.player?.position || playerObj?.position || 'MID';
+                  const name = sq.player?.shortName || sq.player?.name || playerObj?.shortName || playerObj?.name || sq.playerId;
                   const ratingBadgeStyle = getRatingBadgeStyle(rating);
 
                   return (
@@ -587,9 +590,14 @@ export function AuctionPage({ setActiveTab }: any) {
                             {(currentPlayer.shortName || currentPlayer.name || 'PL').split(' ').map(w => w[0]).join('').slice(0, 2)}
                           </span>
                         )}
-                        <span className={`absolute bottom-1 px-2 py-0.2 rounded border text-[9px] font-black z-10 backdrop-blur-sm ${positionColor[currentPlayer.position ?? 'ATT'] ?? positionColor['ATT']}`}>
-                          {currentPlayer.position ?? 'ATT'}
-                        </span>
+                        <div className="absolute bottom-1 flex items-center gap-1 z-10">
+                          <span className={`px-1.5 py-0.2 rounded border text-[9px] font-black font-mono backdrop-blur-sm ${getRatingBadgeStyle(currentPlayer.overall ?? 75)}`}>
+                            {currentPlayer.overall ?? 75}
+                          </span>
+                          <span className={`px-2 py-0.2 rounded border text-[9px] font-black backdrop-blur-sm ${positionColor[currentPlayer.position ?? 'ATT'] ?? positionColor['ATT']}`}>
+                            {currentPlayer.position ?? 'ATT'}
+                          </span>
+                        </div>
                       </div>
                     );
                   })()}
@@ -601,9 +609,16 @@ export function AuctionPage({ setActiveTab }: any) {
                         <h2 className="text-xl sm:text-2xl font-black text-white leading-tight font-display tracking-wide">
                           {currentPlayer.name}
                         </h2>
-                        <p className="text-slate-400 text-xs font-semibold mt-0.5">
-                          {currentPlayer.nationality || 'World'} • {currentPlayer.position || 'MID'}
-                        </p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className={`text-[10px] font-black font-mono px-1.5 py-0.2 rounded border flex-shrink-0 ${getRatingBadgeStyle(currentPlayer.overall ?? 75)}`}>
+                            {currentPlayer.overall ?? 75}
+                          </span>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border flex-shrink-0 ${positionColor[currentPlayer.position ?? 'ATT'] ?? positionColor['ATT']}`}>
+                            {currentPlayer.position || 'MID'}
+                          </span>
+                          <span className="text-slate-500 text-xs">•</span>
+                          <span className="text-slate-400 text-xs font-semibold truncate">{currentPlayer.nationality || 'World'}</span>
+                        </div>
                       </div>
                       <OverallBadge value={currentPlayer.overall ?? 75} />
                     </div>
@@ -846,9 +861,12 @@ export function AuctionPage({ setActiveTab }: any) {
                 </div>
               ) : (
                 mySquad.map(sq => {
-                  const rating = sq.player?.overall || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.overall || 75;
-                  const pos = sq.player?.position || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.position || 'ATT';
-                  const name = sq.player?.shortName || sq.player?.name || INITIAL_PLAYERS.find(p => p.id === sq.playerId)?.shortName || sq.playerId.slice(0, 8);
+                  const playerObj = sq.player
+                    || (sessionPlayers || []).find(p => p.id === sq.playerId || p.shortName?.toLowerCase() === sq.playerId?.toLowerCase() || p.name?.toLowerCase() === sq.playerId?.toLowerCase())
+                    || INITIAL_PLAYERS.find(p => p.id === sq.playerId || p.shortName?.toLowerCase() === sq.playerId?.toLowerCase() || p.name?.toLowerCase() === sq.playerId?.toLowerCase());
+                  const rating = Number(sq.player?.overall) || Number(playerObj?.overall) || 75;
+                  const pos = sq.player?.position || playerObj?.position || 'MID';
+                  const name = sq.player?.shortName || sq.player?.name || playerObj?.shortName || playerObj?.name || sq.playerId?.slice(0, 8);
                   const ratingBadgeStyle = getRatingBadgeStyle(rating);
 
                   return (
