@@ -575,78 +575,54 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
       {/* CREATE GAME MODAL */}
       {modal === 'create' && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6 md:p-8 overflow-y-auto">
-          <div className="bg-[#0E1324] border-2 border-[#FF1744]/40 rounded-3xl w-full max-w-2xl sm:max-w-3xl shadow-glow-cyan overflow-hidden animate-fadeIn flex flex-col my-auto max-h-[92vh]">
-            <div className="flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 border-b border-slate-800 flex-shrink-0 bg-[#0A0A14]/60">
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-2xl text-[#FF1744] shadow-glow-cyan flex-shrink-0">
-                  🚀
-                </div>
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-display text-glow-cyan">
-                    HOST BATTLE ROOM
-                  </h2>
-                  <p className="text-slate-400 text-xs sm:text-sm font-medium">
-                    Host a real-time multiplayer draft for up to 8 managers
-                  </p>
-                </div>
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-start justify-center z-50 p-3 sm:p-6 overflow-y-auto pt-6 sm:pt-10 md:pt-14">
+          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-2xl sm:rounded-3xl w-full max-w-lg sm:max-w-xl shadow-glow-cyan overflow-hidden animate-fadeIn flex flex-col flex-shrink-0">
+            <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-800 flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">🚀</span>
+                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider font-display text-glow-cyan">
+                  HOST BATTLE ROOM
+                </h2>
               </div>
-              <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-xl p-2 rounded-xl hover:bg-slate-800">✕</button>
+              <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-lg p-1.5 rounded-lg hover:bg-slate-800">✕</button>
             </div>
             
-            <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-5 sm:space-y-6">
+            <div className="p-4 sm:p-5 overflow-y-auto flex-1">
               {error && (
-                <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-400 text-xs sm:text-sm font-semibold">
+                <div className="mb-3.5 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
                   {error}
                 </div>
               )}
 
               {createdCode ? (
-                <div className="text-center space-y-4 py-4">
-                  <div className="text-5xl">🎉</div>
-                  <h3 className="text-2xl font-black text-white font-display text-glow-cyan">ROOM INITIALIZED!</h3>
-                  <div className="bg-[#FF1744]/10 border-2 border-[#FF1744]/40 rounded-2xl p-6 sm:p-8 shadow-glow-cyan max-w-md mx-auto">
-                    <p className="text-slate-400 text-xs sm:text-sm font-bold uppercase tracking-wider mb-2">YOUR 6-LETTER ARENA CODE:</p>
-                    <p className="text-4xl sm:text-5xl font-black text-[#FF1744] tracking-widest font-mono select-all text-glow-cyan">{createdCode}</p>
-                    <p className="text-slate-400 text-xs sm:text-sm mt-3">Share this code with your friends to join the live draft room.</p>
+                <div className="text-center space-y-3.5">
+                  <div className="text-4xl">🎉</div>
+                  <h3 className="text-lg font-black text-white font-display text-glow-cyan">ROOM INITIALIZED!</h3>
+                  <div className="bg-[#FF1744]/10 border border-[#FF1744]/40 rounded-2xl p-4 sm:p-5 shadow-glow-cyan">
+                    <p className="text-slate-400 text-xs mb-1">YOUR 6-LETTER ARENA CODE:</p>
+                    <p className="text-3xl sm:text-4xl font-black text-[#FF1744] tracking-widest font-mono select-all text-glow-cyan">{createdCode}</p>
+                    <p className="text-slate-400 text-xs mt-2">Share this code with your friends to join the real-time live auction.</p>
                   </div>
-                  <div className="flex gap-3 max-w-md mx-auto pt-2">
+                  <div className="flex gap-3 pt-1">
                     <button
                       onClick={() => navigator.clipboard.writeText(createdCode)}
-                      className="flex-1 py-3.5 bg-[#0A0A14] hover:bg-slate-800 text-white font-bold rounded-2xl text-xs sm:text-sm transition border border-slate-700 shadow-md"
+                      className="flex-1 py-3 bg-[#0A0A14] hover:bg-slate-800 text-white font-bold rounded-xl text-xs sm:text-sm transition border border-slate-700"
                     >
                       📋 Copy Code
                     </button>
                     <button
                       onClick={() => { setModal('none'); setActiveTab('lobby'); }}
-                      className="flex-1 py-3.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-2xl text-xs sm:text-sm transition shadow-glow-cyan uppercase tracking-wider"
+                      className="flex-1 py-3 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-glow-cyan uppercase"
                     >
                       Go to Lobby →
                     </button>
                   </div>
                 </div>
               ) : (
-                <form id="create-modal-form" onSubmit={handleCreateGame} className="space-y-5 sm:space-y-6">
-                  {/* Room Specs Pills */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    {[
-                      { icon: '💰', label: '€130M BUDGET', sub: 'Starting Funds' },
-                      { icon: '⏱️', label: '15S TIMER', sub: 'Live Buzzer' },
-                      { icon: '👥', label: '7 + 3 SQUAD', sub: 'Starters & Bench' },
-                      { icon: '🏆', label: 'LEAGUE MODE', sub: 'Multiplayer Fixtures' },
-                    ].map(pill => (
-                      <div key={pill.label} className="bg-[#0A0A14] border border-slate-800 rounded-xl p-2.5 text-center">
-                        <div className="text-base mb-0.5">{pill.icon}</div>
-                        <p className="text-[11px] font-black font-mono text-white tracking-wider">{pill.label}</p>
-                        <p className="text-[9px] text-slate-400 uppercase font-medium">{pill.sub}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Club Details Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <form id="create-modal-form" onSubmit={handleCreateGame} className="space-y-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-1.5 tracking-wider">
+                      <label className="block text-xs font-bold uppercase text-slate-300 mb-1">
                         Your Club Name <span className="text-[#FF1744]">*</span>
                       </label>
                       <input
@@ -659,14 +635,14 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                             setAbbreviation(e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase());
                           }
                         }}
-                        placeholder="e.g. Cyber City FC"
-                        className="w-full bg-[#0A0A14] border-2 border-slate-700 focus:border-[#FF1744] rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 text-white placeholder-slate-500 text-sm sm:text-base font-bold transition focus:outline-none"
+                        placeholder="e.g. Cyber FC"
+                        className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-semibold"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-1.5 tracking-wider">
-                        Club Code (3 letters)
+                      <label className="block text-xs font-bold uppercase text-slate-300 mb-1">
+                        Code (3 letters)
                       </label>
                       <input
                         type="text"
@@ -674,26 +650,21 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                         onChange={e => setAbbreviation(e.target.value.toUpperCase().slice(0, 3))}
                         placeholder="e.g. CCF"
                         maxLength={3}
-                        className="w-full bg-[#0A0A14] border-2 border-slate-700 focus:border-[#FF1744] rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 text-white placeholder-slate-500 text-sm sm:text-base font-mono uppercase tracking-widest text-center transition focus:outline-none"
+                        className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-mono uppercase tracking-widest text-center"
                       />
                     </div>
                   </div>
 
-                  {/* Crest Badge Selector */}
                   <div>
-                    <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-2 tracking-wider">
-                      Select Club Crest Badge
-                    </label>
-                    <div className="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5">
+                    <label className="block text-xs font-bold uppercase text-slate-300 mb-1.5">Club Crest Badge</label>
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                       {BADGES.map(b => (
                         <button
                           key={b}
                           type="button"
                           onClick={() => setSelectedBadge(b)}
-                          className={`aspect-square rounded-2xl flex items-center justify-center text-xl sm:text-2xl border-2 transition-all cursor-pointer ${
-                            selectedBadge === b
-                              ? 'border-[#FF1744] bg-[#FF1744]/25 shadow-glow-cyan scale-105'
-                              : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700 hover:scale-102'
+                          className={`w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center text-base rounded-xl border transition ${
+                            selectedBadge === b ? 'border-[#FF1744] bg-[#FF1744]/25 shadow-glow-cyan scale-105' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
                           }`}
                         >
                           {b}
@@ -706,12 +677,12 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
             </div>
 
             {!createdCode && (
-              <div className="p-4 sm:p-6 bg-slate-900/95 border-t border-slate-800 flex-shrink-0">
+              <div className="p-3 sm:p-4 bg-slate-900/95 border-t border-slate-800 flex-shrink-0">
                 <button
                   type="submit"
                   form="create-modal-form"
                   disabled={loadingSession}
-                  className="w-full py-4 sm:py-5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-2xl text-base sm:text-lg transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider cursor-pointer active:scale-98"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl sm:rounded-2xl text-sm transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider cursor-pointer"
                 >
                   {loadingSession ? 'GENERATING ROOM...' : '🚀 CREATE ROOM NOW'}
                 </button>
@@ -723,35 +694,28 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
       {/* JOIN GAME MODAL */}
       {modal === 'join' && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6 md:p-8 overflow-y-auto">
-          <div className="bg-[#0E1324] border-2 border-purple-500/40 rounded-3xl w-full max-w-2xl sm:max-w-3xl shadow-glow-purple overflow-hidden animate-fadeIn flex flex-col my-auto max-h-[92vh]">
-            <div className="flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 border-b border-slate-800 flex-shrink-0 bg-[#0A0A14]/60">
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-purple-500/15 border border-purple-500/40 flex items-center justify-center text-2xl text-purple-300 shadow-glow-purple flex-shrink-0">
-                  🎯
-                </div>
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-display text-glow-purple">
-                    JOIN ARENA ROOM
-                  </h2>
-                  <p className="text-slate-400 text-xs sm:text-sm font-medium">
-                    Enter the 6-letter room code from your friends or lobby host
-                  </p>
-                </div>
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-start justify-center z-50 p-3 sm:p-6 overflow-y-auto pt-6 sm:pt-10 md:pt-14">
+          <div className="bg-[#0E1324] border border-purple-500/40 rounded-2xl sm:rounded-3xl w-full max-w-lg sm:max-w-xl shadow-glow-purple overflow-hidden animate-fadeIn flex flex-col flex-shrink-0">
+            <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-800 flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">🎯</span>
+                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider font-display text-glow-purple">
+                  JOIN ARENA ROOM
+                </h2>
               </div>
-              <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-xl p-2 rounded-xl hover:bg-slate-800">✕</button>
+              <button onClick={() => setModal('none')} className="text-slate-400 hover:text-white transition text-lg p-1.5 rounded-lg hover:bg-slate-800">✕</button>
             </div>
 
-            <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-5 sm:space-y-6">
+            <div className="p-4 sm:p-5 overflow-y-auto flex-1">
               {error && (
-                <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-400 text-xs sm:text-sm font-semibold">
+                <div className="mb-3.5 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
                   {error}
                 </div>
               )}
 
-              <form id="join-modal-form" onSubmit={handleJoinGame} className="space-y-5 sm:space-y-6">
+              <form id="join-modal-form" onSubmit={handleJoinGame} className="space-y-3.5">
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-1.5 tracking-wider">
+                  <label className="block text-xs font-bold uppercase text-slate-300 mb-1">
                     Room Code (6 letters) <span className="text-[#FF1744]">*</span>
                   </label>
                   <input
@@ -761,13 +725,13 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     onChange={e => setJoinCode(e.target.value.toUpperCase())}
                     placeholder="e.g. F7K92A"
                     maxLength={6}
-                    className="w-full bg-[#0A0A14] border-2 border-purple-500/40 focus:border-purple-400 rounded-2xl px-6 py-4 text-white placeholder-slate-500 focus:outline-none text-2xl sm:text-3xl font-mono tracking-widest uppercase text-center font-black transition"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-lg font-mono tracking-widest uppercase text-center font-bold"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-1.5 tracking-wider">
+                    <label className="block text-xs font-bold uppercase text-slate-300 mb-1">
                       Your Team Name <span className="text-[#FF1744]">*</span>
                     </label>
                     <input
@@ -781,13 +745,13 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                         }
                       }}
                       placeholder="e.g. Cyber Squad"
-                      className="w-full bg-[#0A0A14] border-2 border-slate-700 focus:border-purple-400 rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 text-white placeholder-slate-500 focus:outline-none text-sm sm:text-base font-bold transition"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-semibold"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-1.5 tracking-wider">
-                      Abbreviation (3 letters)
+                    <label className="block text-xs font-bold uppercase text-slate-300 mb-1">
+                      Abbr (3 letters)
                     </label>
                     <input
                       type="text"
@@ -795,25 +759,21 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                       onChange={e => setJoinAbbr(e.target.value.toUpperCase().slice(0, 3))}
                       placeholder="e.g. CSQ"
                       maxLength={3}
-                      className="w-full bg-[#0A0A14] border-2 border-slate-700 focus:border-purple-400 rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 text-white placeholder-slate-500 focus:outline-none text-sm sm:text-base font-mono uppercase tracking-widest text-center transition"
+                      className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-mono uppercase tracking-widest text-center"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-2 tracking-wider">
-                    Select Team Badge
-                  </label>
-                  <div className="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5">
+                  <label className="block text-xs font-bold uppercase text-slate-300 mb-1.5">Team Badge</label>
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                     {BADGES.map(b => (
                       <button
                         key={b}
                         type="button"
                         onClick={() => setJoinBadge(b)}
-                        className={`aspect-square rounded-2xl flex items-center justify-center text-xl sm:text-2xl border-2 transition-all cursor-pointer ${
-                          joinBadge === b
-                            ? 'border-purple-400 bg-purple-500/25 shadow-glow-purple scale-105'
-                            : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700 hover:scale-102'
+                        className={`w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center text-base rounded-xl border transition ${
+                          joinBadge === b ? 'border-[#FF1744] bg-[#FF1744]/25 shadow-glow-cyan scale-105' : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
                         }`}
                       >
                         {b}
@@ -824,12 +784,12 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               </form>
             </div>
 
-            <div className="p-4 sm:p-6 bg-slate-900/95 border-t border-slate-800 flex-shrink-0">
+            <div className="p-3 sm:p-4 bg-slate-900/95 border-t border-slate-800 flex-shrink-0">
               <button
                 type="submit"
                 form="join-modal-form"
                 disabled={loadingSession}
-                className="w-full py-4 sm:py-5 bg-gradient-to-r from-purple-600 to-rose-700 hover:from-purple-500 hover:to-rose-600 text-white font-black rounded-2xl text-base sm:text-lg transition shadow-glow-purple disabled:opacity-50 uppercase tracking-wider cursor-pointer active:scale-98"
+                className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-rose-700 hover:from-purple-500 hover:to-rose-600 text-white font-black rounded-xl sm:rounded-2xl text-sm transition shadow-glow-purple disabled:opacity-50 uppercase tracking-wider cursor-pointer"
               >
                 {loadingSession ? 'CONNECTING...' : '🎯 ENTER ROOM NOW'}
               </button>
@@ -840,39 +800,39 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
 
       {/* PLAY VS AI MODAL */}
       {modal === 'ai' && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6 md:p-8 overflow-y-auto">
-          <div className="bg-[#0E1324] border-2 border-[#FF1744]/40 rounded-3xl w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl shadow-glow-cyan overflow-hidden animate-fadeIn flex flex-col my-auto max-h-[92vh]">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-start justify-center z-50 p-3 sm:p-6 overflow-y-auto pt-6 sm:pt-8 md:pt-12">
+          <div className="bg-[#0E1324] border border-[#FF1744]/40 rounded-2xl sm:rounded-3xl w-full max-w-xl sm:max-w-2xl shadow-glow-cyan overflow-hidden animate-fadeIn flex flex-col flex-shrink-0">
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 border-b border-slate-800 flex-shrink-0 bg-[#0A0A14]/60">
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-2xl text-[#FF1744] shadow-glow-cyan flex-shrink-0">
-                  <Bot className="w-6 h-6" />
+            <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-b border-slate-800 flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 flex items-center justify-center text-base text-[#FF1744] shadow-glow-cyan flex-shrink-0">
+                  <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-display text-glow-cyan leading-tight">
+                  <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider font-display text-glow-cyan leading-tight">
                     PLAY VS AI
                   </h2>
-                  <p className="text-slate-400 text-xs sm:text-sm font-medium">
-                    Fast solo draft match against intelligent AI bot managers
+                  <p className="text-slate-400 text-xs font-medium">
+                    Solo Match vs Intelligent Bots
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => {
                     sound.playClick();
                     setIsAudioModalOpen(true);
                   }}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-black hover:bg-emerald-900/40 transition shadow-glow-emerald"
                   title="Test Stadium Crowd Audio & SFX"
                 >
                   <Radio className="w-3.5 h-3.5 animate-pulse" />
-                  <span className="hidden sm:inline">STADIUM SOUND</span>
+                  <span className="hidden sm:inline">SOUND</span>
                 </button>
                 <button
                   onClick={() => setModal('none')}
-                  className="text-slate-400 hover:text-white transition text-xl p-2 rounded-xl hover:bg-slate-800"
+                  className="text-slate-400 hover:text-white transition text-lg p-1.5 rounded-lg hover:bg-slate-800"
                 >
                   ✕
                 </button>
@@ -880,24 +840,24 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
             </div>
 
             {/* Form Body */}
-            <form id="ai-modal-form" onSubmit={handleStartAiGame} className="p-6 sm:p-8 space-y-5 sm:space-y-6 overflow-y-auto flex-1">
+            <form id="ai-modal-form" onSubmit={handleStartAiGame} className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
               {error && (
-                <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-400 text-xs sm:text-sm font-semibold">
+                <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
                   {error}
                 </div>
               )}
 
               {/* 1. SELECT NUMBER OF AI OPPONENTS */}
               <div>
-                <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-2.5 tracking-wider">
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-2 tracking-wider">
                   CHOOSE NUMBER OF AI OPPONENTS
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div className="grid grid-cols-4 gap-2 sm:gap-3">
                   {[
-                    { count: 1, label: '1 AI BOT', players: '2 PLAYERS', desc: '1v1 Head-to-Head' },
-                    { count: 2, label: '2 AI BOTS', players: '3 PLAYERS', desc: 'Triple Threat League' },
-                    { count: 3, label: '3 AI BOTS', players: '4 PLAYERS', desc: '4-Team Tournament' },
-                    { count: 4, label: '4 AI BOTS', players: '5 PLAYERS', desc: '5-Team Full Arena' },
+                    { count: 1, label: '1 AI', players: '2P MATCH' },
+                    { count: 2, label: '2 AI', players: '3P MATCH' },
+                    { count: 3, label: '3 AI', players: '4P MATCH' },
+                    { count: 4, label: '4 AI', players: '5P MATCH' },
                   ].map(opt => {
                     const isSelected = aiOpponentCount === opt.count;
                     return (
@@ -905,20 +865,17 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                         key={opt.count}
                         type="button"
                         onClick={() => setAiOpponentCount(opt.count)}
-                        className={`p-3.5 sm:p-4 rounded-2xl border-2 transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                        className={`p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-all text-center flex flex-col items-center justify-center gap-1 ${
                           isSelected
                             ? 'bg-[#FF1744]/20 border-[#FF1744] shadow-glow-cyan scale-[1.02]'
                             : 'bg-[#0A0A14] border-slate-800 hover:border-slate-700 text-slate-400'
                         }`}
                       >
-                        <span className={`text-base sm:text-lg font-black font-display uppercase ${isSelected ? 'text-[#FF1744] text-glow-cyan' : 'text-white'}`}>
+                        <span className={`text-sm sm:text-base font-black font-display uppercase ${isSelected ? 'text-[#FF1744] text-glow-cyan' : 'text-white'}`}>
                           {opt.label}
                         </span>
-                        <span className="text-xs font-mono font-bold uppercase text-slate-300">
+                        <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-slate-400">
                           {opt.players}
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-medium hidden sm:inline">
-                          {opt.desc}
                         </span>
                       </button>
                     );
@@ -927,26 +884,26 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               </div>
 
               {/* 2. VISUAL PARTICIPANTS ROSTER */}
-              <div className="bg-[#0A0A14] border-2 border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2.5">
-                <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider">
-                  <span className="flex items-center gap-2 text-white">
-                    <Users className="w-4 h-4 text-[#FF1744]" />
-                    ROOM ROSTER ({aiOpponentCount + 1} PARTICIPANTS)
+              <div className="bg-[#0A0A14] border border-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-3.5 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <span className="flex items-center gap-1.5 text-white">
+                    <Users className="w-3.5 h-3.5 text-[#FF1744]" />
+                    ROSTER ({aiOpponentCount + 1} PARTICIPANTS)
                   </span>
-                  <span className="text-slate-500 font-mono text-xs">1 YOU + {aiOpponentCount} BOTS</span>
+                  <span className="text-slate-500 font-mono text-[10px]">1 YOU + {aiOpponentCount} BOTS</span>
                 </div>
-                <div className="flex flex-wrap gap-2.5 pt-1">
-                  <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 text-sm shadow-glow-cyan">
-                    <span className="text-lg">{aiBadge}</span>
+                <div className="flex flex-wrap gap-2 pt-0.5">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#FF1744]/15 border border-[#FF1744]/40 text-xs sm:text-sm shadow-glow-cyan">
+                    <span className="text-base">{aiBadge}</span>
                     <span className="font-black text-white">{aiTeamName.trim() || 'YOU'}</span>
-                    <span className="text-[10px] font-mono text-[#FF1744] font-bold uppercase">(YOU)</span>
+                    <span className="text-[10px] font-mono text-[#FF1744] font-bold">(YOU)</span>
                   </div>
                   {AI_BOTS.slice(0, aiOpponentCount).map(bot => (
                     <div
                       key={bot.id}
-                      className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm"
                     >
-                      <span className="text-lg">{bot.badgeIcon}</span>
+                      <span className="text-base">{bot.badgeIcon}</span>
                       <span className="font-bold text-white uppercase">{bot.name}</span>
                       <span className="text-[10px] font-mono text-slate-400">[{bot.shortCode}]</span>
                     </div>
@@ -955,10 +912,10 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
               </div>
 
               {/* 3. CLUB DETAILS IN A SINGLE ROW */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-1.5 tracking-wider">
-                    Your Club Name
+                  <label className="block text-xs font-bold uppercase text-slate-300 mb-1.5">
+                    Club Name
                   </label>
                   <input
                     type="text"
@@ -970,11 +927,11 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                       }
                     }}
                     placeholder="e.g. Apex FC"
-                    className="w-full bg-[#0A0A14] border-2 border-slate-700 focus:border-[#FF1744] rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 text-white placeholder-slate-500 focus:outline-none text-sm sm:text-base font-bold transition"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-1.5 tracking-wider">
+                  <label className="block text-xs font-bold uppercase text-slate-300 mb-1.5">
                     Code (3 letters)
                   </label>
                   <input
@@ -983,26 +940,24 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
                     onChange={e => setAiAbbreviation(e.target.value.toUpperCase().slice(0, 3))}
                     placeholder="e.g. APX"
                     maxLength={3}
-                    className="w-full bg-[#0A0A14] border-2 border-slate-700 focus:border-[#FF1744] rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 text-white placeholder-slate-500 focus:outline-none text-sm sm:text-base font-mono uppercase tracking-widest text-center transition"
+                    className="w-full bg-[#0A0A14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#FF1744] text-sm font-mono uppercase tracking-widest text-center"
                   />
                 </div>
               </div>
 
               {/* 4. CLUB CREST BADGE */}
               <div>
-                <label className="block text-xs sm:text-sm font-bold uppercase text-slate-300 mb-2 tracking-wider">
-                  Select Club Crest Badge
-                </label>
-                <div className="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5">
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-1.5">Crest Badge</label>
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                   {BADGES.map(b => (
                     <button
                       key={b}
                       type="button"
                       onClick={() => setAiBadge(b)}
-                      className={`aspect-square rounded-2xl flex items-center justify-center text-xl sm:text-2xl border-2 transition-all cursor-pointer ${
+                      className={`w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center text-base rounded-xl border transition ${
                         aiBadge === b
                           ? 'border-[#FF1744] bg-[#FF1744]/25 shadow-glow-cyan scale-105'
-                          : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700 hover:scale-102'
+                          : 'border-slate-800 bg-[#0A0A14] hover:border-slate-700'
                       }`}
                     >
                       {b}
@@ -1013,14 +968,14 @@ export function Dashboard({ setActiveTab }: DashboardProps) {
             </form>
 
             {/* STICKY FOOTER: PROMINENT PLAY BUTTON - 100% ALWAYS VISIBLE */}
-            <div className="p-4 sm:p-6 bg-slate-900/95 border-t border-slate-800 flex-shrink-0">
+            <div className="p-3.5 sm:p-4 bg-slate-900/95 border-t border-slate-800 flex-shrink-0">
               <button
                 type="submit"
                 form="ai-modal-form"
                 disabled={loadingSession}
-                className="w-full py-4 sm:py-5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-2xl text-base sm:text-lg transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider flex items-center justify-center gap-3 active:scale-98 cursor-pointer"
+                className="w-full py-3.5 sm:py-4 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 font-black rounded-xl sm:rounded-2xl text-sm sm:text-base transition shadow-glow-cyan disabled:opacity-50 uppercase tracking-wider flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
               >
-                <Bot className="w-6 h-6" />
+                <Bot className="w-5 h-5" />
                 <span>{loadingSession ? 'INITIALIZING ARENA...' : '⚡ PLAY VS AI NOW'}</span>
               </button>
             </div>
