@@ -86,19 +86,27 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Quick Team Status Chips & HeroBid Actions */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Stadium Audio & SFX Control */}
+            {/* Stadium Audio & SFX Control with Live Equalizer */}
             <button
               onClick={handleOpenAudioModal}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border transition-all ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all btn-tactile ${
                 !isMuted
-                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/25'
+                  ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/25 shadow-glow-emerald'
                   : 'bg-[#0E1324] border-slate-800 text-slate-400 hover:text-white'
               }`}
               title="Open Stadium Audio & SFX Soundboard"
             >
-              {!isMuted ? <Volume2 className="w-4 h-4 text-emerald-400 animate-pulse" /> : <VolumeX className="w-4 h-4" />}
+              {!isMuted ? (
+                <div className="flex items-end gap-0.5 h-3.5 w-3.5">
+                  <span className="w-1 bg-emerald-400 rounded-full animate-eq-1" />
+                  <span className="w-1 bg-emerald-400 rounded-full animate-eq-2" />
+                  <span className="w-1 bg-emerald-400 rounded-full animate-eq-3" />
+                </div>
+              ) : (
+                <VolumeX className="w-4 h-4 text-slate-500" />
+              )}
               <span className="text-[10px] font-black uppercase tracking-wider hidden lg:inline">
-                {!isMuted ? 'STADIUM SFX' : 'MUTED'}
+                {!isMuted ? 'AUDIO FX' : 'MUTED'}
               </span>
             </button>
 

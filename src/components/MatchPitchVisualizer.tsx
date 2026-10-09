@@ -504,11 +504,25 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
             <filter id="awayGlow" x="-40%" y="-40%" width="180%" height="180%">
               <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="#3B82F6" floodOpacity="0.8" />
             </filter>
+            {/* Stadium Floodlight Cones */}
+            <radialGradient id="floodlightLeft" cx="15%" cy="15%" r="75%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.14" />
+              <stop offset="60%" stopColor="#ffffff" stopOpacity="0.03" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="floodlightRight" cx="85%" cy="15%" r="75%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.14" />
+              <stop offset="60%" stopColor="#ffffff" stopOpacity="0.03" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+            </radialGradient>
           </defs>
 
           {/* Turf Surface */}
           <rect x="0" y="0" width="1000" height="600" fill="url(#grassGrad)" />
           <rect x="0" y="0" width="1000" height="600" fill="url(#mowingStripes)" />
+          {/* Stadium Floodlight Lighting Cones */}
+          <rect x="0" y="0" width="1000" height="600" fill="url(#floodlightLeft)" pointerEvents="none" />
+          <rect x="0" y="0" width="1000" height="600" fill="url(#floodlightRight)" pointerEvents="none" />
 
           {/* Pitch Markings (White Lines) */}
           <g stroke="#ffffff" strokeWidth="3" fill="none" opacity="0.88">

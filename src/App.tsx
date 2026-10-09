@@ -574,7 +574,12 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070b0e] text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
+    <div className="min-h-screen bg-[#0A0A14] text-slate-100 flex flex-col font-sans relative overflow-x-hidden selection:bg-[#FF1744] selection:text-white">
+      {/* Stadium Ambient Atmospheric Floodlights & Glow Mesh */}
+      <div className="fixed -top-24 -left-24 w-96 sm:w-[500px] h-96 sm:h-[500px] rounded-full bg-[#FF1744]/[0.08] blur-[120px] pointer-events-none z-0" />
+      <div className="fixed -bottom-24 -right-24 w-96 sm:w-[600px] h-96 sm:h-[600px] rounded-full bg-purple-600/[0.08] blur-[140px] pointer-events-none z-0" />
+      <div className="fixed top-1/2 right-12 w-80 h-80 rounded-full bg-emerald-500/[0.04] blur-[120px] pointer-events-none z-0" />
+      <div className="fixed inset-0 cyber-grid-bg opacity-15 pointer-events-none z-0" />
       
       {/* Top Header */}
       <Header

@@ -43,12 +43,29 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
     .substring(0, 2)
     .toUpperCase();
 
+  // Dynamic card class per rarity
+  const rarityCardStyle = player.overall >= 90
+    ? 'card-mythic foil-shimmer'
+    : player.overall >= 86
+    ? 'card-legendary foil-shimmer'
+    : player.overall >= 82
+    ? 'card-epic'
+    : '';
+
+  const shieldGradient = player.overall >= 90
+    ? 'bg-gradient-to-b from-[#FF1744] via-rose-600 to-amber-500 text-white shadow-glow-cyan border-[#FF1744]/70'
+    : player.overall >= 86
+    ? 'bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 text-slate-950 shadow-glow-gold border-amber-300/80'
+    : player.overall >= 82
+    ? 'bg-gradient-to-b from-purple-500 via-purple-600 to-indigo-800 text-white shadow-glow-purple border-purple-400/70'
+    : 'bg-gradient-to-b from-blue-500 via-blue-600 to-indigo-700 text-white border-blue-400/60';
+
   return (
     <div
-      className={`group relative flex flex-col justify-between rounded-3xl bg-[#0E1324] border transition-all duration-300 shadow-lg hover:shadow-glow-cyan hover:border-[#FF1744]/60 ${
+      className={`group relative flex flex-col justify-between rounded-3xl bg-[#0E1324]/90 backdrop-blur-md border transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1.5 ${rarityCardStyle} ${
         isSelected
-          ? 'border-[#FF1744] ring-2 ring-[#FF1744]/40 shadow-glow-cyan bg-[#12182D]'
-          : 'border-slate-800 hover:-translate-y-1'
+          ? 'border-[#FF1744] ring-2 ring-[#FF1744]/50 shadow-glow-cyan bg-[#12182D]'
+          : 'border-slate-800 hover:border-slate-700'
       } ${compact ? 'p-3' : 'p-4'}`}
     >
       {/* Card Header: Position, Rarity, & Overall Rating */}
@@ -75,9 +92,9 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
           </div>
 
           {/* Overall Rating Shield */}
-          <div className="flex flex-col items-center justify-center min-w-10 px-2 py-1 rounded-xl bg-gradient-to-b from-[#FF1744] to-rose-700 text-slate-950 font-black shadow-glow-cyan border border-[#FF1744]/50">
-            <span className="text-base leading-none font-display">{player.overall}</span>
-            <span className="text-[8px] uppercase tracking-wider font-extrabold">OVR</span>
+          <div className={`flex flex-col items-center justify-center min-w-10 px-2.5 py-1 rounded-xl font-black shadow-lg border transition-transform duration-200 group-hover:scale-105 ${shieldGradient}`}>
+            <span className="text-base sm:text-lg leading-none font-display font-black">{player.overall}</span>
+            <span className="text-[7.5px] uppercase tracking-wider font-extrabold opacity-90">OVR</span>
           </div>
         </div>
 

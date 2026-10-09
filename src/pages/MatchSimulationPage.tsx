@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { getPositionBadgeColor } from '../utils/formatters';
 import { sound } from '../utils/audioSynth';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import { MatchPitchVisualizer } from '../components/MatchPitchVisualizer';
 import { StadiumAudioModal } from '../components/StadiumAudioModal';
 
@@ -95,6 +96,14 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
     .filter((e) => ['var_review', 'var_overturned', 'var_confirmed'].includes(e.type))
     .slice(-1)[0];
   const isVarActive = latestVarEvent && (currentMinute - latestVarEvent.minute <= 2);
+
+  // Check if any goal was scored within the last 2 match minutes
+  const currentGoalEvent = visibleEvents
+    .filter(e => e.type === 'goal' && (currentMinute - e.minute <= 2))
+    .slice(-1)[0];
+  const scorerPlayer = currentGoalEvent
+    ? _allPlayers.find(p => p.id === currentGoalEvent.playerId || p.name === currentGoalEvent.playerName)
+    : undefined;
 
   // Stadium crowd ambience loop: runs whenever match is active & not finished
   useEffect(() => {
@@ -443,6 +452,69 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
             <span className="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px] uppercase">
               STOPPAGE SURGE
             </span>
+          </div>
+        )}
+
+        {/* BROADCAST GOAL SPOTLIGHT (LOWER-THIRD OVERLAY) */}
+        {currentGoalEvent && !isVarActive && (
+          <div className="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-amber-950/80 via-slate-900/90 to-emerald-950/80 border-2 border-amber-400/70 shadow-glow-gold relative overflow-hidden foil-shimmer animate-fadeIn">
+            <div className="absolute top-0 right-0 px-3 py-0.5 bg-gradient-to-l from-amber-500 to-amber-600 text-slate-950 font-black text-[9px] uppercase tracking-widest rounded-bl-xl shadow flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
+              GOAL SPOTLIGHT • {currentGoalEvent.minute}'
+            </div>
+
+            <div className="flex items-center gap-3 mt-1">
+              {/* Player Avatar with OVR Badge */}
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-emerald-500 p-0.5 shadow-lg">
+                  <img
+                    src={getPlayerAvatarUrl({
+                      id: scorerPlayer?.id || currentGoalEvent.playerId || 'unknown',
+                      name: scorerPlayer?.name || currentGoalEvent.playerName || 'Player',
+                      imageUrl: scorerPlayer?.avatarUrl || scorerPlayer?.imageUrl || '',
+                      position: scorerPlayer?.position || 'FWD'
+                    })}
+                    alt={scorerPlayer?.name || currentGoalEvent.playerName}
+                    className="w-full h-full object-cover rounded-[10px] bg-slate-900"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=150&auto=format&fit=crop&q=80';
+                    }}
+                  />
+                </div>
+                {scorerPlayer && (
+                  <div className="absolute -bottom-1 -right-1 px-1 py-0.2 rounded bg-amber-500 text-slate-950 text-[9px] font-black font-mono shadow">
+                    {scorerPlayer.overall}
+                  </div>
+                )}
+              </div>
+
+              {/* Goal & Scorer Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-base sm:text-lg font-black text-amber-300 truncate font-display">
+                    ⚽ {scorerPlayer?.name || currentGoalEvent.playerName || 'Scorer'}
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40">
+                    {currentGoalEvent.teamName || (currentGoalEvent.teamId === matchResult.homeTeamId ? matchResult.homeTeamName : matchResult.awayTeamName)}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 truncate mt-0.5">
+                  {currentGoalEvent.assistPlayerName ? (
+                    <span>🎯 Assist: <strong className="text-white">{currentGoalEvent.assistPlayerName}</strong> • {currentGoalEvent.description}</span>
+                  ) : (
+                    currentGoalEvent.description
+                  )}
+                </p>
+              </div>
+
+              {/* Live Match Score Indicator */}
+              <div className="hidden sm:flex flex-col items-end pl-2 border-l border-slate-700/60 flex-shrink-0">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">LIVE SCORE</span>
+                <span className="font-mono font-black text-sm text-white">
+                  {currentHomeScore} - {currentAwayScore}
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
