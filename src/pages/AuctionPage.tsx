@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
 import { useAuction } from '../contexts/AuctionContext';
-import { getPlayerAvatarUrl } from '../data/playerAvatars';
+import { getPlayerAvatarUrl, getPlayerAvatarFallbacks } from '../data/playerAvatars';
 import { Hero3DViewer } from '../components/Hero3DViewer';
 import { sound } from '../utils/audioSynth';
 import { StadiumAudioModal } from '../components/StadiumAudioModal';
@@ -75,6 +75,13 @@ export function AuctionPage({ setActiveTab }: any) {
   const [show3D, setShow3D] = useState(true);
   const [expandedTeamId, setExpandedTeamId] = useState<string | null>(null);
   const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
+  const [lotAvatarIdx, setLotAvatarIdx] = useState(0);
+  const lotAvatarFallbacks = useMemo(() => currentPlayer ? getPlayerAvatarFallbacks(currentPlayer) : [], [currentPlayer]);
+
+  useEffect(() => {
+    setLotAvatarIdx(0);
+  }, [currentPlayer?.id, currentPlayer?.name]);
+
   const prevTimeLeftRef = useRef<number>(timeLeft);
   const prevHighestTeamIdRef = useRef<string | null>(null);
 
@@ -572,17 +579,20 @@ export function AuctionPage({ setActiveTab }: any) {
                 <div className="flex items-start gap-4 sm:gap-5">
                   {/* Player avatar */}
                   {(() => {
-                    const avatar = getPlayerAvatarUrl(currentPlayer);
+                    const avatar = lotAvatarFallbacks[lotAvatarIdx] || getPlayerAvatarUrl(currentPlayer);
                     return (
                       <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-b from-slate-800 to-[#0A0A14] rounded-2xl flex flex-col items-center justify-center border border-[#FF1744]/30 flex-shrink-0 overflow-hidden shadow-glow-cyan">
                         {avatar ? (
                           <img
+                            key={`${currentPlayer.id || currentPlayer.name}-${lotAvatarIdx}`}
                             src={avatar}
                             alt={currentPlayer.name}
                             referrerPolicy="no-referrer"
                             className="w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
-                            onError={(e) => {
-                              (e.target as HTMLElement).style.display = 'none';
+                            onError={() => {
+                              if (lotAvatarIdx + 1 < lotAvatarFallbacks.length) {
+                                setLotAvatarIdx(prev => prev + 1);
+                              }
                             }}
                           />
                         ) : (
@@ -880,6 +890,17 @@ export function AuctionPage({ setActiveTab }: any) {
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border flex-shrink-0 ${positionColor[pos] ?? positionColor['ATT']}`}>
                           {pos}
                         </span>
+                        {/* Mini Face Avatar Thumbnail */}
+                        <div className="w-5 h-5 rounded-md bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          <img
+                            src={getPlayerAvatarUrl(playerObj || { name, position: pos, id: sq.playerId })}
+                            alt={name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
                         <span className="text-xs font-bold text-white truncate">{name}</span>
                       </div>
                       <span className="text-emerald-400 text-xs font-mono font-bold flex-shrink-0 ml-2">€{sq.purchasePrice}M</span>

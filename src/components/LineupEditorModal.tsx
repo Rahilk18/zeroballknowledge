@@ -398,6 +398,16 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                             {p.position}
                           </span>
+                          <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <img
+                              src={getPlayerAvatarUrl(p)}
+                              alt={p.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
                           <div>
                             <p className="text-xs font-black text-white">{p.name}</p>
                             <p className="text-[10px] text-slate-400">#{p.number} • Form: {p.form}</p>
@@ -439,6 +449,16 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                             {p.position}
                           </span>
+                          <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <img
+                              src={getPlayerAvatarUrl(p)}
+                              alt={p.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
                           <div>
                             <p className="text-xs font-bold text-slate-200">{p.name}</p>
                             <p className="text-[10px] text-slate-400">#{p.number} • Form: {p.form}</p>

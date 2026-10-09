@@ -3,6 +3,7 @@ import { Team, Player, ActiveTab } from '../types';
 import { PitchView } from '../components/PitchView';
 import { getPositionBadgeColor, calculateTeamOverall, getRatingBadgeStyle } from '../utils/formatters';
 import { FORMATIONS, getFormationInfo, autoPickBestLineup } from '../utils/formation';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
 import { supabase } from '../lib/supabase';
@@ -640,6 +641,16 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                           <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                             {p.position}
                           </span>
+                          <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <img
+                              src={getPlayerAvatarUrl(p)}
+                              alt={p.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
                           <div className="truncate">
                             <p className="text-xs font-black text-white truncate">{p.name}</p>
                             <p className="text-[10px] text-slate-400 font-mono">#{p.number ?? '10'} • Form: {p.form}</p>
@@ -695,6 +706,16 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                           {p.position}
                         </span>
+                        <div className="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          <img
+                            src={getPlayerAvatarUrl(p)}
+                            alt={p.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
                         <span className="text-xs font-bold text-white truncate">{p.name}</span>
                       </div>
                       <span className="text-xs font-mono font-bold text-[#FF1744]">{p.overall} OVR</span>
@@ -738,6 +759,16 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                         {p.position}
                       </span>
+                      <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        <img
+                          src={getPlayerAvatarUrl(p)}
+                          alt={p.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
                       <div>
                         <p className="text-xs font-black text-white">{p.name}</p>
                         <p className="text-[10px] text-slate-400">#{p.number ?? '10'} • Form: {p.form}</p>
@@ -779,6 +810,16 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                         {p.position}
                       </span>
+                      <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        <img
+                          src={getPlayerAvatarUrl(p)}
+                          alt={p.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
                       <div>
                         <p className="text-xs font-bold text-slate-200">{p.name}</p>
                         <p className="text-[10px] text-slate-400">#{p.number ?? '10'} • Form: {p.form}</p>

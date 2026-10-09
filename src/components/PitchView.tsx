@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Player, PlayerPosition } from '../types';
 import { getPositionBadgeColor } from '../utils/formatters';
-import { getPlayerAvatarUrl } from '../data/playerAvatars';
+import { getPlayerAvatarUrl, getPlayerAvatarFallbacks } from '../data/playerAvatars';
 import { getFormationInfo } from '../utils/formation';
 import { Flame, Plus, Shield } from 'lucide-react';
 
@@ -275,7 +275,14 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
   interactive = true,
 }) => {
   const badge = getPositionBadgeColor(player.position);
-  const avatar = getPlayerAvatarUrl(player);
+  const fallbacks = useMemo(() => getPlayerAvatarFallbacks(player), [player]);
+  const [fallbackIndex, setFallbackIndex] = useState(0);
+
+  useEffect(() => {
+    setFallbackIndex(0);
+  }, [player.id, player.name]);
+
+  const avatar = fallbacks[fallbackIndex] || getPlayerAvatarUrl(player);
 
   return (
     <div
@@ -302,13 +309,16 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
         >
           {avatar ? (
             <img
+              key={`${player.id || player.name}-${fallbackIndex}`}
               src={avatar}
               alt={player.name}
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain object-center drop-shadow-md pointer-events-none"
               loading="lazy"
-              onError={(e) => {
-                (e.target as HTMLElement).style.display = 'none';
+              onError={() => {
+                if (fallbackIndex + 1 < fallbacks.length) {
+                  setFallbackIndex(prev => prev + 1);
+                }
               }}
             />
           ) : (

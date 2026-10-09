@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Player } from '../types';
 import { StatBar } from './StatBar';
 import { getPositionBadgeColor, formatCurrency, formatThousands } from '../utils/formatters';
-import { getPlayerAvatarUrl } from '../data/playerAvatars';
+import { getPlayerAvatarUrl, getPlayerAvatarFallbacks } from '../data/playerAvatars';
 import { Hero3DViewer } from './Hero3DViewer';
 import { X, Flame, Heart, Shield, Award, DollarSign, Calendar, Glasses, BarChart2 } from 'lucide-react';
 
@@ -20,6 +20,13 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
   isStartingLineup
 }) => {
   const [activeTab, setActiveTab] = useState<'3d' | 'stats'>('3d');
+  const fallbacks = useMemo(() => player ? getPlayerAvatarFallbacks(player) : [], [player]);
+  const [fallbackIndex, setFallbackIndex] = useState(0);
+
+  useEffect(() => {
+    setFallbackIndex(0);
+  }, [player?.id, player?.name]);
+
   if (!player) return null;
 
   const posBadge = getPositionBadgeColor(player.position);
@@ -50,21 +57,24 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
           <div className="flex items-center gap-4">
             {/* Player Avatar */}
             {(() => {
-              const avatar = getPlayerAvatarUrl(player);
+              const currentAvatar = fallbacks[fallbackIndex] || getPlayerAvatarUrl(player);
               return (
                 <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-slate-800 to-[#0A0A14] border-2 border-[#FF1744]/50 flex items-center justify-center text-white font-black text-xl shadow-glow-cyan overflow-hidden flex-shrink-0">
-                  {avatar ? (
+                  {currentAvatar ? (
                     <img
-                      src={avatar}
+                      key={`${player.id || player.name}-${fallbackIndex}`}
+                      src={currentAvatar}
                       alt={player.name}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = 'none';
+                      onError={() => {
+                        if (fallbackIndex + 1 < fallbacks.length) {
+                          setFallbackIndex(prev => prev + 1);
+                        }
                       }}
                     />
                   ) : null}
-                  <span className={`tracking-wider ${avatar ? 'hidden' : ''}`}>{initials}</span>
+                  <span className={`tracking-wider ${currentAvatar ? 'hidden' : ''}`}>{initials}</span>
                   {player.number && (
                     <div className="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full bg-slate-950 border border-slate-700 text-[10px] font-bold text-slate-300 z-10">
                       #{player.number}

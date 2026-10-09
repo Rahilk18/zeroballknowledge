@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Player } from '../types';
 import { getPositionBadgeColor, formatCurrency } from '../utils/formatters';
-import { getPlayerAvatarUrl } from '../data/playerAvatars';
+import { getPlayerAvatarUrl, getPlayerAvatarFallbacks } from '../data/playerAvatars';
 import { Flame, Eye, Activity, Zap, Glasses } from 'lucide-react';
 
 interface PlayerCardProps {
@@ -23,8 +23,25 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
   compact = false
 }) => {
   const posBadge = getPositionBadgeColor(player.position);
-  const avatarUrl = getPlayerAvatarUrl(player);
+  const fallbacks = useMemo(() => getPlayerAvatarFallbacks(player), [player]);
+  const [fallbackIndex, setFallbackIndex] = useState(0);
   const [imgError, setImgError] = useState(false);
+
+  // Automatically reset fallback index and error state whenever player changes
+  useEffect(() => {
+    setFallbackIndex(0);
+    setImgError(false);
+  }, [player.id, player.name]);
+
+  const currentAvatarUrl = fallbacks[fallbackIndex] || getPlayerAvatarUrl(player);
+
+  const handleImageError = () => {
+    if (fallbackIndex + 1 < fallbacks.length) {
+      setFallbackIndex(prev => prev + 1);
+    } else {
+      setImgError(true);
+    }
+  };
 
   // HeroBid Rarity Tiers
   const rarity = player.overall >= 90 
@@ -101,13 +118,14 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
         {/* Player Identity: Silhouette / Avatar & Name */}
         <div className="flex items-center gap-3 mb-3.5">
           <div className="relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-b from-slate-800/90 to-[#0A0A14] border border-[#FF1744]/30 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-md overflow-hidden group-hover:border-[#FF1744]/60 transition">
-            {avatarUrl && !imgError ? (
+            {currentAvatarUrl && !imgError ? (
               <img
-                src={avatarUrl}
+                key={`${player.id || player.name}-${fallbackIndex}`}
+                src={currentAvatarUrl}
                 alt={player.name}
                 loading="lazy"
                 referrerPolicy="no-referrer"
-                onError={() => setImgError(true)}
+                onError={handleImageError}
                 className="w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-110"
               />
             ) : (

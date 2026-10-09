@@ -1,5 +1,6 @@
 import { Player, Team, LeagueStanding, MatchResult, AuctionPlayer, UserAccount } from '../types';
 import { INITIAL_PLAYERS, INITIAL_TEAMS, INITIAL_STANDINGS, UPCOMING_AUCTIONS } from '../data/initialData';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 
 const STORAGE_KEY = 'football_draft_manager_v2';
 
@@ -51,7 +52,11 @@ export function loadInitialState(): GameState {
               imageUrl: fresh.imageUrl
             };
           }
-          return p;
+          return {
+            ...p,
+            avatarUrl: getPlayerAvatarUrl(p) || p.avatarUrl,
+            imageUrl: getPlayerAvatarUrl(p) || p.imageUrl
+          };
         });
 
         const existingNames = new Set(updatedExisting.map((p: any) => p.name?.toLowerCase()));
