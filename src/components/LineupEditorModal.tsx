@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Player, Team, PlayerPosition } from '../types';
-import { getPositionBadgeColor } from '../utils/formatters';
+import { getPositionBadgeColor, getRatingBadgeStyle } from '../utils/formatters';
 import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import { FORMATIONS, getFormationInfo, autoPickBestLineup } from '../utils/formation';
 import { PitchView } from './PitchView';
@@ -295,7 +295,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                             }`}
                           >
                             <div className="flex items-center gap-2 min-w-0">
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
                                 {p.overall}
                               </span>
                               <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
@@ -321,8 +321,8 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                 </div>
 
                 {/* Starting 7 Roster List */}
-                <div className="bg-[#0A0D1A] rounded-2xl border border-[#FF1744]/30 p-4 shadow-lg">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                <div className="bg-[#0A0D1A] rounded-2xl border border-[#FF1744]/30 p-3 sm:p-4 shadow-lg">
+                  <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800">
                     <h3 className="text-xs font-black uppercase tracking-wider text-[#FF1744] flex items-center gap-2">
                       <Shield className="w-3.5 h-3.5 text-[#FF1744]" />
                       STARTING 7 ({starting.length}/7)
@@ -350,7 +350,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                           }`}
                         >
                           <div className="flex items-center gap-1.5 truncate">
-                            <span className="px-1.5 py-0.2 rounded text-[8px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                            <span className={`px-1.5 py-0.2 rounded text-[8px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
                               {p.overall}
                             </span>
                             <span className={`px-1.5 py-0.2 rounded text-[8px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
@@ -392,7 +392,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
                             {p.overall}
                           </span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
@@ -433,7 +433,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-black font-mono bg-slate-800 text-amber-300 border border-slate-700 flex-shrink-0">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono border flex-shrink-0 ${getRatingBadgeStyle(p.overall)}`}>
                             {p.overall}
                           </span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
@@ -455,22 +455,22 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
 
         </div>
 
-        {/* Footer */}
-        <div className="p-3 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between gap-3">
-          <div className="text-[11px] sm:text-xs text-slate-400 font-mono">
+        {/* STICKY FOOTER: Always visible on mobile & laptop screens without hidden fold */}
+        <div className="sticky bottom-0 z-20 p-2.5 sm:p-3 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 flex-shrink-0">
+          <div className="text-[11px] sm:text-xs text-slate-400 font-mono text-center sm:text-left">
             Lineup: <strong className="text-white">{starting.length}</strong> Starters • <strong className="text-white">{bench.length}</strong> Bench • Formation <strong className="text-[#FF1744]">{formation}</strong>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
+              className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition text-center"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan active:scale-95"
+              className="flex-1 sm:flex-initial px-5 py-2 rounded-xl bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan active:scale-95 text-center whitespace-nowrap"
             >
               CONFIRM LINEUP & TACTICS
             </button>

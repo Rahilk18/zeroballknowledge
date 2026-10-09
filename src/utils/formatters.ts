@@ -28,6 +28,19 @@ export function getPositionBadgeColor(pos: string): { bg: string; text: string; 
   }
 }
 
+export function getRatingBadgeStyle(ovr: number = 75): string {
+  if (ovr >= 90) {
+    return 'bg-amber-500/25 text-amber-300 border-amber-500/50 shadow-[0_0_8px_rgba(245,158,11,0.35)]';
+  }
+  if (ovr >= 85) {
+    return 'bg-purple-500/25 text-purple-300 border-purple-500/40';
+  }
+  if (ovr >= 80) {
+    return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40';
+  }
+  return 'bg-slate-800 text-slate-300 border-slate-700';
+}
+
 export function getRatingColor(rating: number): string {
   if (rating >= 90) return 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10';
   if (rating >= 85) return 'text-teal-400 border-teal-500/40 bg-teal-500/10';
