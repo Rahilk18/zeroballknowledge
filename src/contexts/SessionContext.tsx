@@ -170,8 +170,43 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         const t = teamFromRow(r as TeamRow);
         const mySquadRows = (squadRows || []).filter((sq: any) => sq.team_id === t.id);
         const playerIds = mySquadRows.map((sq: any) => sq.player_id).filter(Boolean);
-        t.startingSeven = playerIds.slice(0, 7);
-        t.bench = playerIds.slice(7);
+        const boughtSet = new Set(playerIds);
+
+        // Check if manager already customized their lineup in memory ref or localStorage
+        const existingInMemory = allTeamsRef.current?.find(curr => curr.id === t.id);
+        let savedLineup: { startingSeven?: string[]; bench?: string[]; formation?: string } | null = null;
+        try {
+          const raw = localStorage.getItem(`football_team_lineup_${sessionId}_${t.id}`)
+            || localStorage.getItem(`football_team_lineup_${t.id}`);
+          if (raw) savedLineup = JSON.parse(raw);
+        } catch (_) {}
+
+        const candidateStarting = existingInMemory?.startingSeven?.length
+          ? existingInMemory.startingSeven
+          : savedLineup?.startingSeven;
+        const candidateBench = existingInMemory?.bench?.length
+          ? existingInMemory.bench
+          : savedLineup?.bench;
+        const candidateFormation = existingInMemory?.formation
+          || savedLineup?.formation
+          || t.formation
+          || '1-2-2-2';
+
+        if (
+          candidateStarting &&
+          candidateStarting.length === 7 &&
+          candidateStarting.every(id => boughtSet.has(id))
+        ) {
+          t.startingSeven = candidateStarting;
+          t.bench = candidateBench
+            ? candidateBench.filter(id => boughtSet.has(id) && !candidateStarting.includes(id))
+            : playerIds.filter(id => !candidateStarting.includes(id));
+          t.formation = candidateFormation;
+        } else {
+          t.startingSeven = playerIds.slice(0, 7);
+          t.bench = playerIds.slice(7);
+          t.formation = candidateFormation;
+        }
 
         // Dynamically compute exact budget from starting budget minus actual purchases
         const totalSpent = mySquadRows.reduce((sum: number, sq: any) => sum + (sq.purchase_price || 0), 0);
@@ -342,12 +377,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       .on('broadcast', { event: 'lineup_updated' }, ({ payload }) => {
         recordActivity();
         if (payload?.teamId) {
-          setAllTeams((prev) => prev.map(t => t.id === payload.teamId ? {
-            ...t,
-            startingSeven: payload.startingSeven || t.startingSeven,
-            bench: payload.bench || t.bench,
-            formation: payload.formation || t.formation,
-          } : t));
+          setAllTeams((prev) => {
+            const next = prev.map(t => t.id === payload.teamId ? {
+              ...t,
+              startingSeven: payload.startingSeven || t.startingSeven,
+              bench: payload.bench || t.bench,
+              formation: payload.formation || t.formation,
+            } : t);
+            allTeamsRef.current = next;
+            return next;
+          });
           if (myTeam && myTeam.id === payload.teamId) {
             setMyTeam(prev => prev ? {
               ...prev,
@@ -887,12 +926,26 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   const updateLineup = async (teamId: string, startingSeven: string[], bench: string[], formation?: string) => {
-    setAllTeams((prev) => prev.map(t => t.id === teamId ? {
-      ...t,
-      startingSeven,
-      bench,
-      formation: formation || t.formation || '1-2-2-2',
-    } : t));
+    // Persist to localStorage for guaranteed session persistence across navigation & page reloads
+    try {
+      const payload = JSON.stringify({ startingSeven, bench, formation });
+      if (currentSession?.id) {
+        localStorage.setItem(`football_team_lineup_${currentSession.id}_${teamId}`, payload);
+      }
+      localStorage.setItem(`football_team_lineup_${teamId}`, payload);
+    } catch (_) {}
+
+    // Update state & memory refs immediately
+    setAllTeams((prev) => {
+      const next = prev.map(t => t.id === teamId ? {
+        ...t,
+        startingSeven,
+        bench,
+        formation: formation || t.formation || '1-2-2-2',
+      } : t);
+      allTeamsRef.current = next;
+      return next;
+    });
 
     if (myTeam && myTeam.id === teamId) {
       setMyTeam((prev) => prev ? {

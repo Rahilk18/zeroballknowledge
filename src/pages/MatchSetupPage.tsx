@@ -139,6 +139,12 @@ export const MatchSetupPage: React.FC<MatchSetupPageProps> = ({
       : activeOpponents[0]?.id || fallbackOpponent.id
   );
 
+  useEffect(() => {
+    if (preselectedOpponentId && preselectedOpponentId !== currentTeam.id) {
+      setSelectedOpponentId(preselectedOpponentId);
+    }
+  }, [preselectedOpponentId, currentTeam.id]);
+
   const opponentTeam =
     allTeams.find((t) => t && t.id === selectedOpponentId) ||
     activeOpponents.find((t) => t && t.id === selectedOpponentId) ||

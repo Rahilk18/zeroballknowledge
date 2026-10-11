@@ -288,10 +288,11 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     if (!draggedId) return;
 
     if (starting.includes(draggedId) && starting.length > 1) {
-      setStarting(prev => prev.filter(id => id !== draggedId));
-      if (!bench.includes(draggedId)) {
-        setBench(prev => [...prev, draggedId]);
-      }
+      const nextStarting = starting.filter(id => id !== draggedId);
+      const nextBench = bench.includes(draggedId) ? bench : [...bench, draggedId];
+      setStarting(nextStarting);
+      setBench(nextBench);
+      onUpdateLineup(nextStarting, nextBench, formation);
       sound.playClick();
     }
   };

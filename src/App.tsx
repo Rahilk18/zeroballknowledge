@@ -647,29 +647,27 @@ export function App() {
           />
         )}
 
-        {activeTab === 'matches' && (
-          <MatchSetupPage
-            currentTeam={
-              nextUnplayedFixture
-                ? (activeAllTeams.find(t => t.id === nextUnplayedFixture.homeTeamId) || userTeam)
-                : userTeam
-            }
-            allTeams={activeAllTeams}
-            allPlayers={combinedPlayers}
-            preselectedOpponentId={
-              nextUnplayedFixture
-                ? nextUnplayedFixture.awayTeamId
-                : (targetOpponentId || opponentOptions[0]?.id)
-            }
-            onSimulate={handleExecuteSimulation}
-            onBack={() => {
-              setActiveTab('league');
-              if (currentSession && isHost) broadcastNavigation('league');
-            }}
-            onGoToDashboard={() => setActiveTab('dashboard')}
-            isHost={isHost}
-          />
-        )}
+        {activeTab === 'matches' && (() => {
+          const fixtureOpponentId = nextUnplayedFixture
+            ? (nextUnplayedFixture.homeTeamId === userTeam?.id ? nextUnplayedFixture.awayTeamId : nextUnplayedFixture.homeTeamId)
+            : (targetOpponentId || opponentOptions[0]?.id);
+
+          return (
+            <MatchSetupPage
+              currentTeam={userTeam}
+              allTeams={activeAllTeams}
+              allPlayers={combinedPlayers}
+              preselectedOpponentId={fixtureOpponentId}
+              onSimulate={handleExecuteSimulation}
+              onBack={() => {
+                setActiveTab('league');
+                if (currentSession && isHost) broadcastNavigation('league');
+              }}
+              onGoToDashboard={() => setActiveTab('dashboard')}
+              isHost={isHost}
+            />
+          );
+        })()}
 
         {activeTab === 'simulation' && (
           activeMatchResult ? (
