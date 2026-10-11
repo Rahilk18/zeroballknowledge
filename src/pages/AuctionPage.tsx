@@ -7,6 +7,7 @@ import { getPlayerAvatarUrl, getPlayerAvatarFallbacks } from '../data/playerAvat
 import { Hero3DViewer } from '../components/Hero3DViewer';
 import { sound } from '../utils/audioSynth';
 import { StadiumAudioModal } from '../components/StadiumAudioModal';
+import { MobileBiddingDock } from '../components/MobileBiddingDock';
 import type { ActiveTab } from '../types';
 import { Gavel, Sparkles, Zap, Award, Flame, Volume2, VolumeX, Radio, Shield, ArrowRight, Brain, Clock, Users } from 'lucide-react';
 
@@ -154,11 +155,9 @@ export function AuctionPage({ setActiveTab }: any) {
     return `ZEROBALL AI: Squad depth signing. Value target: €5M - €7M.`;
   }, [currentPlayer]);
 
-  const handleBid = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDirectBid = async (amount: number) => {
     setBidError('');
     setBidSuccess('');
-    const amount = parseInt(bidAmount);
     if (isNaN(amount) || amount < minBid) {
       setBidError(`Bid must be at least €${minBid}M`);
       return;
@@ -175,6 +174,12 @@ export function AuctionPage({ setActiveTab }: any) {
       setTimeout(() => setBidSuccess(''), 3000);
     }
     setSubmittingBid(false);
+  };
+
+  const handleBid = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amount = parseInt(bidAmount);
+    await handleDirectBid(amount);
   };
 
   const handleNext = async () => {
@@ -411,7 +416,7 @@ export function AuctionPage({ setActiveTab }: any) {
   const timerPulse = timeLeft <= 5 ? 'animate-pulse' : '';
 
   return (
-    <div className="p-2 sm:p-4 max-w-6xl mx-auto space-y-3.5 animate-fadeIn">
+    <div className="p-2 sm:p-4 max-w-6xl mx-auto space-y-3.5 animate-fadeIn pb-28 sm:pb-8">
       
       {/* ARENA HEADER: ROOM CODE & 3D STAGE TOGGLE */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-[#0E1324] border border-[#FF1744]/25 shadow-glow-cyan">
@@ -989,6 +994,31 @@ export function AuctionPage({ setActiveTab }: any) {
 
         </div>
       </div>
+
+      {/* Mobile Floating Action Dock & Popup Drawer */}
+      <MobileBiddingDock
+        currentPlayer={currentPlayer}
+        currentAuction={currentAuction}
+        timeLeft={timeLeft}
+        effectiveCurrentBid={effectiveCurrentBid}
+        highestBidTeam={highestBidTeam}
+        myTeamIsHighest={myTeamIsHighest}
+        myTeam={myTeam}
+        minBid={minBid}
+        bidAmount={bidAmount}
+        setBidAmount={setBidAmount}
+        onSubmitBid={handleBid}
+        onDirectBid={handleDirectBid}
+        submittingBid={submittingBid}
+        bidError={bidError}
+        bidSuccess={bidSuccess}
+        aiThinking={aiThinking}
+        aiAdvice={aiAdvice}
+        isHost={isHost}
+        onNextPlayer={handleNext}
+        onSkipPlayer={handleSkip}
+        mySquadLength={mySquad.length}
+      />
 
       {/* Stadium Audio & Soundboard Modal */}
       <StadiumAudioModal

@@ -195,6 +195,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     setStarting(result.startingSeven);
     setBench(result.bench);
     setSelectedToSwap(null);
+    onUpdateLineup(result.startingSeven, result.bench, formation);
     setSaveSuccessNotice('⚡ Lineup auto-optimized for best chemistry!');
     setTimeout(() => setSaveSuccessNotice(''), 3000);
   };
@@ -217,21 +218,28 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     const isSecondInStarting = starting.includes(playerId);
 
     if (isFirstInStarting && !isSecondInStarting) {
-      setStarting(prev => prev.map(id => (id === selectedToSwap ? playerId : id)));
-      setBench(prev => prev.map(id => (id === playerId ? selectedToSwap : id)));
+      const nextStarting = starting.map(id => (id === selectedToSwap ? playerId : id));
+      const nextBench = bench.map(id => (id === playerId ? selectedToSwap : id));
+      setStarting(nextStarting);
+      setBench(nextBench);
       setSelectedToSwap(null);
+      onUpdateLineup(nextStarting, nextBench, formation);
     } else if (!isFirstInStarting && isSecondInStarting) {
-      setStarting(prev => prev.map(id => (id === playerId ? selectedToSwap : id)));
-      setBench(prev => prev.map(id => (id === selectedToSwap ? playerId : id)));
+      const nextStarting = starting.map(id => (id === playerId ? selectedToSwap : id));
+      const nextBench = bench.map(id => (id === selectedToSwap ? playerId : id));
+      setStarting(nextStarting);
+      setBench(nextBench);
       setSelectedToSwap(null);
+      onUpdateLineup(nextStarting, nextBench, formation);
     } else if (isFirstInStarting && isSecondInStarting) {
       const firstIdx = starting.indexOf(selectedToSwap);
       const secondIdx = starting.indexOf(playerId);
-      const newStarters = [...starting];
-      newStarters[firstIdx] = playerId;
-      newStarters[secondIdx] = selectedToSwap;
-      setStarting(newStarters);
+      const nextStarting = [...starting];
+      nextStarting[firstIdx] = playerId;
+      nextStarting[secondIdx] = selectedToSwap;
+      setStarting(nextStarting);
       setSelectedToSwap(null);
+      onUpdateLineup(nextStarting, bench, formation);
     } else {
       setSelectedToSwap(playerId);
     }
@@ -246,18 +254,25 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     const isTargetInStarting = starting.includes(targetId);
 
     if (isDraggedInStarting && !isTargetInStarting) {
-      setStarting(prev => prev.map(id => (id === draggedId ? targetId : id)));
-      setBench(prev => prev.map(id => (id === targetId ? draggedId : id)));
+      const nextStarting = starting.map(id => (id === draggedId ? targetId : id));
+      const nextBench = bench.map(id => (id === targetId ? draggedId : id));
+      setStarting(nextStarting);
+      setBench(nextBench);
+      onUpdateLineup(nextStarting, nextBench, formation);
     } else if (!isDraggedInStarting && isTargetInStarting) {
-      setStarting(prev => prev.map(id => (id === targetId ? draggedId : id)));
-      setBench(prev => prev.map(id => (id === draggedId ? targetId : id)));
+      const nextStarting = starting.map(id => (id === targetId ? draggedId : id));
+      const nextBench = bench.map(id => (id === draggedId ? targetId : id));
+      setStarting(nextStarting);
+      setBench(nextBench);
+      onUpdateLineup(nextStarting, nextBench, formation);
     } else if (isDraggedInStarting && isTargetInStarting) {
       const firstIdx = starting.indexOf(draggedId);
       const secondIdx = starting.indexOf(targetId);
-      const newStarters = [...starting];
-      newStarters[firstIdx] = targetId;
-      newStarters[secondIdx] = draggedId;
-      setStarting(newStarters);
+      const nextStarting = [...starting];
+      nextStarting[firstIdx] = targetId;
+      nextStarting[secondIdx] = draggedId;
+      setStarting(nextStarting);
+      onUpdateLineup(nextStarting, bench, formation);
     }
   };
 
@@ -515,6 +530,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                 onClick={() => {
                   sound.playClick();
                   setFormation(f.id);
+                  onUpdateLineup(starting, bench, f.id);
                 }}
                 className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all ${
                   isSelected

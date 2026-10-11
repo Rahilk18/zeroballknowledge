@@ -24,6 +24,8 @@ import { sound } from '../utils/audioSynth';
 import { getPlayerAvatarUrl } from '../data/playerAvatars';
 import { MatchPitchVisualizer } from '../components/MatchPitchVisualizer';
 import { StadiumAudioModal } from '../components/StadiumAudioModal';
+import { VARDramaOverlay } from '../components/VARDramaOverlay';
+import { FergieTimeBanner } from '../components/FergieTimeBanner';
 
 interface MatchSimulationPageProps {
   matchResult: MatchResult;
@@ -31,6 +33,7 @@ interface MatchSimulationPageProps {
   onFinishMatch: () => void;
   onGoToLeague: () => void;
   onReturnToAuction?: () => void;
+  onOpenLineup?: () => void;
 }
 
 export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
@@ -38,10 +41,12 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   allPlayers: _allPlayers,
   onFinishMatch,
   onGoToLeague,
-  onReturnToAuction
+  onReturnToAuction,
+  onOpenLineup
 }) => {
   const [currentMinute, setCurrentMinute] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [dismissedVarId, setDismissedVarId] = useState<string | null>(null);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(() => {
     try {
       const saved = localStorage.getItem('zeroball_match_speed');
@@ -150,7 +155,8 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
       const desc = (ev.description || '').toLowerCase();
 
       if (type === 'var_review') {
-        sound.playVarTensionHeartbeat();
+        sound.playVarBuzzer();
+        sound.playHeartbeat();
       } else if (type === 'var_overturned') {
         sound.playVarDecision('overturned');
       } else if (type === 'var_confirmed') {
@@ -237,6 +243,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
     setCurrentMinute(0);
     setIsFinished(false);
     setIsPlaying(true);
+    setDismissedVarId(null);
     confettiFired.current = false;
     prevGoalCount.current = 0;
     prevProcessedMinute.current = -1;
@@ -402,13 +409,17 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
         {/* LIVE BROADCAST ALERTS: VAR & FERGIE TIME BOARD */}
         {isVarActive && latestVarEvent && (
-          <div className={`mt-2.5 p-3 rounded-2xl border-2 transition-all shadow-2xl animate-fadeIn ${
-            latestVarEvent.type === 'var_review'
-              ? 'bg-purple-950/80 border-purple-500/80 text-purple-200 shadow-glow-purple'
-              : latestVarEvent.type === 'var_overturned'
-              ? 'bg-rose-950/85 border-rose-500 text-rose-200 shadow-glow-cyan'
-              : 'bg-emerald-950/85 border-emerald-500 text-emerald-200 shadow-glow-emerald'
-          }`}>
+          <div 
+            onClick={() => setDismissedVarId(null)}
+            className={`mt-2.5 p-3 rounded-2xl border-2 transition-all shadow-2xl animate-fadeIn cursor-pointer ${
+              latestVarEvent.type === 'var_review'
+                ? 'bg-purple-950/80 border-purple-500/80 text-purple-200 shadow-glow-purple'
+                : latestVarEvent.type === 'var_overturned'
+                ? 'bg-rose-950/85 border-rose-500 text-rose-200 shadow-glow-cyan'
+                : 'bg-emerald-950/85 border-emerald-500 text-emerald-200 shadow-glow-emerald'
+            }`}
+            title="Click to view cinematic VAR monitor"
+          >
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
                 <span className="text-xl">
@@ -432,6 +443,9 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
                     }`}>
                       {latestVarEvent.type === 'var_review' ? 'LIVE MONITOR' : latestVarEvent.type === 'var_overturned' ? 'OVERTURNED' : 'CONFIRMED'}
                     </span>
+                    <span className="text-[10px] text-slate-400 hidden sm:inline underline decoration-dotted">
+                      (Open Cinematic Replay)
+                    </span>
                   </div>
                   <p className="text-[11px] text-slate-300 mt-0.5">{latestVarEvent.description}</p>
                 </div>
@@ -442,16 +456,18 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
         {/* 4TH OFFICIAL FERGIE TIME BOARD (When 90' reached and not in extra time) */}
         {!isVarActive && currentMinute >= 90 && !matchResult.wentToExtraTime && !isFinished && (
-          <div className="mt-2.5 p-2 rounded-xl bg-gradient-to-r from-amber-950/90 via-slate-900/90 to-amber-950/90 border-2 border-amber-500/70 shadow-glow-amber flex items-center justify-between gap-2 animate-pulse">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">⏱️</span>
-              <span className="font-mono font-black text-xs text-amber-300 tracking-wider">
-                4TH OFFICIAL BOARD: +{secondHalfStoppage} MINS FERGIE TIME
-              </span>
-            </div>
-            <span className="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px] uppercase">
-              STOPPAGE SURGE
-            </span>
+          <div className="mt-2.5">
+            <FergieTimeBanner
+              currentMinute={currentMinute}
+              stoppageMinutes={secondHalfStoppage}
+              homeTeamName={matchResult.homeTeamName}
+              awayTeamName={matchResult.awayTeamName}
+              homeScore={currentHomeScore}
+              awayScore={currentAwayScore}
+              recentEvent={visibleEvents.slice(-1)[0]}
+              wentToExtraTime={matchResult.wentToExtraTime}
+              isFinished={isFinished}
+            />
           </div>
         )}
 
@@ -623,7 +639,20 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
       {/* TAB 0: 2D PITCH VISUALIZER */}
       {activeTab === 'pitch' && (
-        <div className="animate-fadeIn">
+        <div className="space-y-3 animate-fadeIn">
+          {currentMinute >= 90 && !matchResult.wentToExtraTime && !isFinished && (
+            <FergieTimeBanner
+              currentMinute={currentMinute}
+              stoppageMinutes={secondHalfStoppage}
+              homeTeamName={matchResult.homeTeamName}
+              awayTeamName={matchResult.awayTeamName}
+              homeScore={currentHomeScore}
+              awayScore={currentAwayScore}
+              recentEvent={visibleEvents.slice(-1)[0]}
+              wentToExtraTime={matchResult.wentToExtraTime}
+              isFinished={isFinished}
+            />
+          )}
           <MatchPitchVisualizer
             matchResult={matchResult}
             currentMinute={currentMinute}
@@ -1205,6 +1234,14 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
               <span>🔙 Return to Auction</span>
             </button>
           )}
+          {onOpenLineup && (
+            <button
+              onClick={onOpenLineup}
+              className="px-4 py-2.5 rounded-xl bg-purple-900/60 hover:bg-purple-800/80 border border-purple-500/50 text-purple-200 text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-purple-900/30 active:scale-95"
+            >
+              <span>🔄 Change Playing 7 / Subs</span>
+            </button>
+          )}
         </div>
         <button
           onClick={onGoToLeague}
@@ -1220,6 +1257,20 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
         isOpen={isAudioModalOpen}
         onClose={() => setIsAudioModalOpen(false)}
       />
+
+      {/* Cinematic VAR Review Drama Overlay */}
+      {isVarActive && latestVarEvent && dismissedVarId !== (latestVarEvent.id || `${latestVarEvent.minute}-${latestVarEvent.type}`) && (
+        <VARDramaOverlay
+          varEvent={latestVarEvent}
+          homeTeamName={matchResult.homeTeamName}
+          awayTeamName={matchResult.awayTeamName}
+          homeScore={currentHomeScore}
+          awayScore={currentAwayScore}
+          currentMinute={currentMinute}
+          speedMultiplier={speedMultiplier}
+          onDismiss={() => setDismissedVarId(latestVarEvent.id || `${latestVarEvent.minute}-${latestVarEvent.type}`)}
+        />
+      )}
 
     </div>
   );

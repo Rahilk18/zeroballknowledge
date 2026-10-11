@@ -85,6 +85,24 @@
     transform: scale(0.96) translateY(1px);
   }
 
+  /* =========================================================
+     🌟 KEYFRAMES: FOIL SHIMMER, NEON GLOW, BORDER BEAM
+     ========================================================= */
+
+  @keyframes foil-shimmer {
+    0% {
+      transform: translateX(-180%) translateY(-25%) rotate(25deg);
+      opacity: 0.15;
+    }
+    50% {
+      opacity: 0.95;
+    }
+    100% {
+      transform: translateX(280%) translateY(25%) rotate(25deg);
+      opacity: 0.15;
+    }
+  }
+
   /* Foil Sheen Shimmer Animation for Collectible Cards */
   @keyframes foilShimmer {
     0% {
@@ -95,11 +113,111 @@
     }
   }
 
+  @keyframes neon-pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 15px rgba(255, 23, 68, 0.4), 0 0 32px rgba(255, 77, 109, 0.22);
+      filter: drop-shadow(0 0 6px rgba(255, 23, 68, 0.3));
+    }
+    50% {
+      box-shadow: 0 0 28px rgba(255, 23, 68, 0.75), 0 0 55px rgba(255, 77, 109, 0.45);
+      filter: drop-shadow(0 0 14px rgba(255, 23, 68, 0.6));
+    }
+  }
+
+  @keyframes neon-gold-glow {
+    0%, 100% {
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.45), inset 0 0 15px rgba(251, 191, 36, 0.15);
+      filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.3));
+    }
+    50% {
+      box-shadow: 0 0 35px rgba(251, 191, 36, 0.8), inset 0 0 24px rgba(254, 240, 138, 0.28);
+      filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.65));
+    }
+  }
+
+  @keyframes neon-violet-glow {
+    0%, 100% {
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.35), inset 0 0 14px rgba(192, 132, 252, 0.12);
+      filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.25));
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(192, 132, 252, 0.72), inset 0 0 22px rgba(216, 180, 254, 0.25);
+      filter: drop-shadow(0 0 14px rgba(192, 132, 252, 0.55));
+    }
+  }
+
+  @keyframes neon-cyan-glow {
+    0%, 100% {
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.32), inset 0 0 12px rgba(34, 211, 238, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 26px rgba(34, 211, 238, 0.65), inset 0 0 18px rgba(34, 211, 238, 0.25);
+    }
+  }
+
+  @keyframes border-beam {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* =========================================================
+     🃏 SPECIALIZED CARD BORDERS (EA FC / FIFA TIERS)
+     ========================================================= */
+
+  /* Gold Foil Border for 90+ Superstars */
+  .card-border-gold-foil {
+    border: 1.5px solid rgba(251, 191, 36, 0.85) !important;
+    background-image: 
+      radial-gradient(ellipse at 50% 0%, rgba(251, 191, 36, 0.18) 0%, transparent 70%),
+      linear-gradient(180deg, #131122 0%, #0a0b16 100%);
+    box-shadow: 0 0 22px rgba(245, 158, 11, 0.35), inset 0 0 20px rgba(251, 191, 36, 0.1);
+    animation: neon-gold-glow 3.5s ease-in-out infinite;
+  }
+
+  /* Iridescent Violet Border for 85-89 */
+  .card-border-violet {
+    border: 1.5px solid rgba(192, 132, 252, 0.75) !important;
+    background-image: 
+      radial-gradient(ellipse at 50% 0%, rgba(168, 85, 247, 0.18) 0%, transparent 70%),
+      linear-gradient(180deg, #140d28 0%, #0a0a16 100%);
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.3), inset 0 0 16px rgba(168, 85, 247, 0.08);
+    animation: neon-violet-glow 4s ease-in-out infinite;
+  }
+
+  /* Electric Cyan Border for 80-84 */
+  .card-border-cyan {
+    border: 1.5px solid rgba(34, 211, 238, 0.65) !important;
+    background-image: 
+      radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.14) 0%, transparent 70%),
+      linear-gradient(180deg, #09192c 0%, #0a0a16 100%);
+    box-shadow: 0 0 16px rgba(6, 182, 212, 0.28), inset 0 0 14px rgba(6, 182, 212, 0.06);
+    animation: neon-cyan-glow 4.5s ease-in-out infinite;
+  }
+
+  /* Carbon Dark Border for Standard (<80) */
+  .card-border-carbon {
+    border: 1.5px solid rgba(51, 65, 85, 0.7) !important;
+    background-color: #0b0e1a;
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+      linear-gradient(180deg, #0f1424 0%, #080a12 100%);
+    background-size: 16px 16px, 100% 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  }
+
+  /* =========================================================
+     🌈 HOLOGRAPHIC PRISM FOIL OVERLAYS
+     ========================================================= */
+
+  /* Legacy Foil Shimmer */
   .foil-shimmer {
     position: relative;
     overflow: hidden;
   }
-
   .foil-shimmer::after {
     content: '';
     position: absolute;
@@ -117,6 +235,162 @@
     );
     transform: rotate(25deg);
     animation: foilShimmer 4.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* 90+ Dynamic Holographic Gold & Prism Foil Sweep */
+  .holo-foil-90 {
+    position: relative;
+    overflow: hidden;
+  }
+  .holo-foil-90::before {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    background: linear-gradient(
+      115deg,
+      transparent 20%,
+      rgba(255, 215, 0, 0.15) 32%,
+      rgba(255, 77, 109, 0.28) 42%,
+      rgba(0, 255, 255, 0.35) 50%,
+      rgba(255, 215, 0, 0.38) 58%,
+      rgba(168, 85, 247, 0.28) 68%,
+      transparent 80%
+    );
+    animation: foil-shimmer 3.8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+    mix-blend-mode: screen;
+  }
+
+  /* 85-89 Dynamic Iridescent Violet & Sapphire Foil Sweep */
+  .holo-foil-85 {
+    position: relative;
+    overflow: hidden;
+  }
+  .holo-foil-85::before {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    background: linear-gradient(
+      115deg,
+      transparent 25%,
+      rgba(168, 85, 247, 0.15) 38%,
+      rgba(236, 72, 153, 0.28) 48%,
+      rgba(59, 130, 246, 0.3) 55%,
+      rgba(168, 85, 247, 0.25) 65%,
+      transparent 78%
+    );
+    animation: foil-shimmer 4.6s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+    mix-blend-mode: screen;
+  }
+
+  /* Roving Animated Border Beams */
+  .border-beam-active {
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      transparent 270deg,
+      rgba(255, 215, 0, 0.2) 300deg,
+      rgba(255, 215, 0, 0.95) 345deg,
+      rgba(255, 77, 109, 0.95) 360deg
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: border-beam 3.5s linear infinite;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .border-beam-violet {
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      transparent 270deg,
+      rgba(168, 85, 247, 0.2) 300deg,
+      rgba(192, 132, 252, 0.95) 345deg,
+      rgba(236, 72, 153, 0.95) 360deg
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: border-beam 4.5s linear infinite;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* =========================================================
+     🏟️ STADIUM HUD & GLASSMORPHISM STYLING HELPERS
+     ========================================================= */
+
+  .hud-glass {
+    background: rgba(10, 14, 28, 0.78);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .hud-glass-gold {
+    background: rgba(22, 18, 12, 0.82);
+    backdrop-filter: blur(18px) saturate(190%);
+    -webkit-backdrop-filter: blur(18px) saturate(190%);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55), 0 0 15px rgba(245, 158, 11, 0.15);
+  }
+
+  .hud-glass-cyan {
+    background: rgba(8, 20, 32, 0.82);
+    backdrop-filter: blur(18px) saturate(190%);
+    -webkit-backdrop-filter: blur(18px) saturate(190%);
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55), 0 0 15px rgba(6, 182, 212, 0.15);
+  }
+
+  .hud-glass-violet {
+    background: rgba(18, 12, 30, 0.82);
+    backdrop-filter: blur(18px) saturate(190%);
+    -webkit-backdrop-filter: blur(18px) saturate(190%);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55), 0 0 15px rgba(168, 85, 247, 0.15);
+  }
+
+  .hud-glass-crimson {
+    background: rgba(28, 10, 18, 0.82);
+    backdrop-filter: blur(18px) saturate(190%);
+    -webkit-backdrop-filter: blur(18px) saturate(190%);
+    border: 1px solid rgba(255, 23, 68, 0.35);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55), 0 0 15px rgba(255, 23, 68, 0.2);
+  }
+
+  .stadium-hud-panel {
+    position: relative;
+    background: linear-gradient(135deg, rgba(14, 19, 36, 0.85) 0%, rgba(8, 11, 22, 0.92) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.6);
+  }
+
+  .stadium-scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.15) 2px,
+      rgba(0, 0, 0, 0.15) 4px
+    );
     pointer-events: none;
   }
 

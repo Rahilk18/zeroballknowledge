@@ -290,6 +290,26 @@ export function App() {
 
     if (!homeTeam) return;
 
+    // Guarantee user's custom Playing 7 and Formation are always used in match simulation
+    if (userTeam) {
+      if (homeTeam && homeTeam.id === userTeam.id) {
+        homeTeam = {
+          ...homeTeam,
+          startingSeven: userTeam.startingSeven?.length ? userTeam.startingSeven : homeTeam.startingSeven,
+          bench: userTeam.bench || homeTeam.bench,
+          formation: userTeam.formation || homeTeam.formation || '1-2-2-2',
+        };
+      }
+      if (awayTeam && awayTeam.id === userTeam.id) {
+        awayTeam = {
+          ...awayTeam,
+          startingSeven: userTeam.startingSeven?.length ? userTeam.startingSeven : awayTeam.startingSeven,
+          bench: userTeam.bench || awayTeam.bench,
+          formation: userTeam.formation || awayTeam.formation || '1-2-2-2',
+        };
+      }
+    }
+
     try {
       // Extract ONLY the players that genuinely belong to homeTeam and awayTeam
       const getTeamRoster = (team: Team): Player[] => {
@@ -688,6 +708,10 @@ export function App() {
                 setActiveTab('league');
                 if (currentSession && isHost) broadcastNavigation('league');
               }}
+              onOpenLineup={() => {
+                setActiveTab('lineup');
+                if (currentSession && isHost) broadcastNavigation('lineup');
+              }}
             />
           ) : (
             <div className="max-w-md mx-auto py-20 text-center space-y-4 animate-fadeIn">
@@ -713,6 +737,10 @@ export function App() {
             completedFixtures={effectiveMatches.length}
             isTournamentComplete={isTournamentComplete || (effectiveFixtures.length > 0 && effectiveMatches.length >= effectiveFixtures.length)}
             isHost={isHost}
+            onOpenLineup={() => {
+              setActiveTab('lineup');
+              if (currentSession && isHost) broadcastNavigation('lineup');
+            }}
             onPlayNextMatch={() => {
               if (nextUnplayedFixture) {
                 const oppId = nextUnplayedFixture.homeTeamId === userTeam?.id

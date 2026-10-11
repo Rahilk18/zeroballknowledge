@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Player } from '../types';
 import { getPositionBadgeColor, formatCurrency } from '../utils/formatters';
 import { getPlayerAvatarUrl, getPlayerAvatarFallbacks } from '../data/playerAvatars';
-import { Flame, Eye, Activity, Zap, Glasses } from 'lucide-react';
+import { Flame, Eye, Activity, Zap, Glasses, Sparkles } from 'lucide-react';
 
 interface PlayerCardProps {
   player: Player;
@@ -27,6 +27,12 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
   const [fallbackIndex, setFallbackIndex] = useState(0);
   const [imgError, setImgError] = useState(false);
 
+  // Tilt and interactive shine state
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
+  const [shine, setShine] = useState({ x: 50, y: 50 });
+  const [isHovered, setIsHovered] = useState(false);
+
   // Automatically reset fallback index and error state whenever player changes
   useEffect(() => {
     setFallbackIndex(0);
@@ -43,14 +49,101 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
     }
   };
 
-  // HeroBid Rarity Tiers
-  const rarity = player.overall >= 90 
-    ? { name: 'MYTHIC', badge: 'bg-[#FF1744]/20 text-[#FF1744] border-[#FF1744]/40 text-glow-cyan' }
-    : player.overall >= 86
-    ? { name: 'LEGENDARY', badge: 'bg-amber-500/20 text-amber-300 border-amber-500/40' }
-    : player.overall >= 82
-    ? { name: 'EPIC', badge: 'bg-purple-500/20 text-purple-300 border-purple-500/40' }
-    : { name: 'RARE', badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40' };
+  // Interactive mouse tilt and radial shine calculation
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const px = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    const py = Math.max(0, Math.min(100, (y / rect.height) * 100));
+
+    // Subtle 3D tilt: -7deg to +7deg
+    const tiltX = ((py - 50) / 50) * -7;
+    const tiltY = ((px - 50) / 50) * 7;
+
+    setTilt({ rotateX: tiltX, rotateY: tiltY });
+    setShine({ x: px, y: py });
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setTilt({ rotateX: 0, rotateY: 0 });
+    setShine({ x: 50, y: 50 });
+  };
+
+  const handleTouchStart = () => {
+    setIsHovered(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!cardRef.current || e.touches.length === 0) return;
+    const touch = e.touches[0];
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    const px = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    const py = Math.max(0, Math.min(100, (y / rect.height) * 100));
+
+    const tiltX = ((py - 50) / 50) * -5;
+    const tiltY = ((px - 50) / 50) * 5;
+
+    setTilt({ rotateX: tiltX, rotateY: tiltY });
+    setShine({ x: px, y: py });
+  };
+
+  const handleTouchEnd = () => {
+    setIsHovered(false);
+    setTilt({ rotateX: 0, rotateY: 0 });
+    setShine({ x: 50, y: 50 });
+  };
+
+  // HeroBid EA FC / FIFA Tier Configuration
+  // 90+ Superstars: Gold foil border, holographic rainbow prism sweep, gold glow & border beam
+  // 85-89: Iridescent violet border, iridescent violet-cyan foil sweep & beam
+  // 80-84: Electric cyan border
+  // <80: Carbon dark border
+  const tier = useMemo(() => {
+    if (player.overall >= 90) {
+      return {
+        name: 'MYTHIC',
+        badge: 'bg-gradient-to-r from-amber-500/20 via-[#FF1744]/20 to-amber-500/20 text-amber-300 border-amber-400/50 shadow-glow-gold',
+        borderClass: 'card-border-gold-foil',
+        foilClass: 'holo-foil-90',
+        shieldGradient: 'bg-gradient-to-b from-amber-300 via-amber-500 to-[#FF1744] text-slate-950 shadow-glow-gold border-amber-200',
+      };
+    } else if (player.overall >= 85) {
+      return {
+        name: 'LEGENDARY',
+        badge: 'bg-purple-500/20 text-purple-300 border-purple-400/50 shadow-glow-purple',
+        borderClass: 'card-border-violet',
+        foilClass: 'holo-foil-85',
+        shieldGradient: 'bg-gradient-to-b from-purple-400 via-purple-600 to-indigo-800 text-white shadow-glow-purple border-purple-300/80',
+      };
+    } else if (player.overall >= 80) {
+      return {
+        name: 'EPIC',
+        badge: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50',
+        borderClass: 'card-border-cyan',
+        foilClass: '',
+        shieldGradient: 'bg-gradient-to-b from-cyan-400 via-blue-600 to-indigo-700 text-white border-cyan-300/70',
+      };
+    } else {
+      return {
+        name: 'RARE',
+        badge: 'bg-slate-700/40 text-slate-300 border-slate-600/40',
+        borderClass: 'card-border-carbon',
+        foilClass: '',
+        shieldGradient: 'bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 text-slate-200 border-slate-600/60',
+      };
+    }
+  }, [player.overall]);
 
   // Initials for player silhouette/badge
   const initials = player.name
@@ -60,33 +153,78 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
     .substring(0, 2)
     .toUpperCase();
 
-  // Dynamic card class per rarity
-  const rarityCardStyle = player.overall >= 90
-    ? 'card-mythic foil-shimmer'
-    : player.overall >= 86
-    ? 'card-legendary foil-shimmer'
-    : player.overall >= 82
-    ? 'card-epic'
-    : '';
-
-  const shieldGradient = player.overall >= 90
-    ? 'bg-gradient-to-b from-[#FF1744] via-rose-600 to-amber-500 text-white shadow-glow-cyan border-[#FF1744]/70'
-    : player.overall >= 86
-    ? 'bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 text-slate-950 shadow-glow-gold border-amber-300/80'
-    : player.overall >= 82
-    ? 'bg-gradient-to-b from-purple-500 via-purple-600 to-indigo-800 text-white shadow-glow-purple border-purple-400/70'
-    : 'bg-gradient-to-b from-blue-500 via-blue-600 to-indigo-700 text-white border-blue-400/60';
-
   return (
     <div
-      className={`group relative flex flex-col justify-between rounded-3xl bg-[#0E1324]/90 backdrop-blur-md border transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1.5 ${rarityCardStyle} ${
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      style={{
+        transform: `perspective(1000px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) ${
+          isHovered ? 'translateY(-4px)' : 'translateY(0)'
+        }`,
+        transition: isHovered
+          ? 'transform 0.08s ease-out'
+          : 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease',
+        transformStyle: 'preserve-3d',
+      }}
+      className={`group relative flex flex-col justify-between rounded-3xl backdrop-blur-md transition-all duration-300 shadow-xl hover:shadow-2xl ${
+        tier.borderClass
+      } ${tier.foilClass} ${
         isSelected
-          ? 'border-[#FF1744] ring-2 ring-[#FF1744]/50 shadow-glow-cyan bg-[#12182D]'
-          : 'border-slate-800 hover:border-slate-700'
+          ? 'ring-2 ring-[#FF1744] shadow-glow-cyan bg-[#12182D]'
+          : ''
       } ${compact ? 'p-3' : 'p-4'}`}
     >
+      {/* 90+ Superstar Animated Border Beam & Particle Glow */}
+      {player.overall >= 90 && (
+        <>
+          <div className="border-beam-active" />
+          <div className="pointer-events-none absolute -inset-1 rounded-3xl bg-gradient-to-r from-amber-500/25 via-[#FF1744]/25 to-amber-500/25 blur-xl opacity-75 animate-pulse -z-10" />
+          <div className="pointer-events-none absolute top-2 right-2 text-amber-300 text-xs animate-ping opacity-75 z-20">✦</div>
+          <div className="pointer-events-none absolute bottom-4 left-3 text-rose-400 text-[10px] animate-pulse opacity-60 z-20">★</div>
+        </>
+      )}
+
+      {/* 85-89 Iridescent Violet Border Beam & Particle Glow */}
+      {player.overall >= 85 && player.overall < 90 && (
+        <>
+          <div className="border-beam-violet" />
+          <div className="pointer-events-none absolute -inset-1 rounded-3xl bg-gradient-to-r from-purple-500/20 via-fuchsia-500/20 to-indigo-500/20 blur-lg opacity-60 animate-pulse -z-10" />
+          <div className="pointer-events-none absolute top-2 right-2 text-purple-300 text-xs animate-pulse opacity-75 z-20">✧</div>
+        </>
+      )}
+
+      {/* Interactive Mouse / Touch Radial Shine Overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 rounded-3xl transition-opacity duration-300 z-20"
+        style={{
+          opacity: isHovered ? 1 : 0,
+          background: `radial-gradient(circle at ${shine.x}% ${shine.y}%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.08) 28%, transparent 65%)`,
+          mixBlendMode: 'overlay',
+        }}
+      />
+
+      {/* High-Tier Dynamic Holographic Prismatic Color-Dodge Tilt Layer */}
+      {player.overall >= 85 && (
+        <div
+          className="pointer-events-none absolute inset-0 rounded-3xl transition-opacity duration-300 z-15 overflow-hidden"
+          style={{
+            opacity: isHovered
+              ? (player.overall >= 90 ? 0.75 : 0.55)
+              : (player.overall >= 90 ? 0.3 : 0.18),
+            background: player.overall >= 90
+              ? `radial-gradient(circle at ${shine.x}% ${shine.y}%, rgba(255, 215, 0, 0.45) 0%, rgba(255, 23, 68, 0.35) 32%, rgba(0, 240, 255, 0.3) 55%, transparent 75%)`
+              : `radial-gradient(circle at ${shine.x}% ${shine.y}%, rgba(192, 132, 252, 0.45) 0%, rgba(236, 72, 153, 0.32) 35%, rgba(59, 130, 246, 0.25) 60%, transparent 75%)`,
+            mixBlendMode: 'color-dodge',
+          }}
+        />
+      )}
       {/* Card Header: Position, Rarity, & Overall Rating */}
-      <div>
+      <div className="relative z-20">
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-1.5 flex-wrap">
             {/* Position Badge */}
@@ -97,8 +235,8 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
             </span>
 
             {/* Rarity Pill */}
-            <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-wider uppercase border ${rarity.badge}`}>
-              {rarity.name}
+            <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-wider uppercase border ${tier.badge}`}>
+              {tier.name}
             </span>
 
             {/* Form Pill */}
@@ -109,7 +247,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
           </div>
 
           {/* Overall Rating Shield */}
-          <div className={`flex flex-col items-center justify-center min-w-10 px-2.5 py-1 rounded-xl font-black shadow-lg border transition-transform duration-200 group-hover:scale-105 ${shieldGradient}`}>
+          <div className={`flex flex-col items-center justify-center min-w-10 px-2.5 py-1 rounded-xl font-black shadow-lg border transition-transform duration-200 group-hover:scale-105 ${tier.shieldGradient}`}>
             <span className="text-base sm:text-lg leading-none font-display font-black">{player.overall}</span>
             <span className="text-[7.5px] uppercase tracking-wider font-extrabold opacity-90">OVR</span>
           </div>
@@ -211,7 +349,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-2 pt-1 border-t border-slate-800">
+      <div className="relative z-30 flex items-center gap-2 pt-1 border-t border-slate-800">
         {onView && (
           <button
             onClick={() => onView(player)}

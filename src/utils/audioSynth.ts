@@ -869,6 +869,93 @@ class StadiumAudioEngine {
   // 🖥️ VAR DRAMA & ⏱️ FERGIE TIME SFX
   // ==========================================
 
+  // Harsh referee review buzzer tone (VAR broadcast review alert)
+  playVarBuzzer() {
+    try {
+      if (!this.sfxEnabled) return;
+      const ctx = this.initCtx();
+      if (!ctx || !this.sfxGain) return;
+
+      const now = ctx.currentTime;
+      const masterBuzzerGain = ctx.createGain();
+
+      // Resonant stadium horn filter for harsh broadcast buzz
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1400, now);
+      filter.Q.setValueAtTime(3.2, now);
+
+      masterBuzzerGain.gain.setValueAtTime(0.38, now);
+      masterBuzzerGain.gain.setValueAtTime(0.38, now + 0.38);
+      masterBuzzerGain.gain.exponentialRampToValueAtTime(0.001, now + 0.52);
+
+      // Dual dissonant sawtooth frequencies for harsh arena buzzer rasp
+      [154, 163].forEach((f) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f, now);
+        osc.connect(filter);
+        osc.start(now);
+        osc.stop(now + 0.53);
+      });
+
+      // Sub-harmonic grit oscillator
+      const subOsc = ctx.createOscillator();
+      subOsc.type = 'square';
+      subOsc.frequency.setValueAtTime(77, now);
+      const subGain = ctx.createGain();
+      subGain.gain.setValueAtTime(0.18, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+      subOsc.connect(subGain);
+      subGain.connect(filter);
+      subOsc.start(now);
+      subOsc.stop(now + 0.53);
+
+      filter.connect(masterBuzzerGain);
+      masterBuzzerGain.connect(this.sfxGain);
+    } catch (e) {}
+  }
+
+  // Low-frequency dramatic thud for suspense (VAR & critical decisions)
+  playHeartbeat() {
+    try {
+      if (!this.sfxEnabled) return;
+      const ctx = this.initCtx();
+      if (!ctx || !this.sfxGain) return;
+
+      const now = ctx.currentTime;
+      // Dramatic sub-bass double-pulse: "lub-dub"
+      const pulses = [
+        { offset: 0, startFreq: 64, endFreq: 26, dur: 0.16, vol: 0.45 },
+        { offset: 0.22, startFreq: 52, endFreq: 22, dur: 0.18, vol: 0.38 },
+      ];
+
+      pulses.forEach(({ offset, startFreq, endFreq, dur, vol }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(startFreq, now + offset);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + offset + dur);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(130, now + offset);
+
+        gain.gain.setValueAtTime(0.001, now + offset);
+        gain.gain.linearRampToValueAtTime(vol, now + offset + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + dur + 0.05);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.sfxGain!);
+
+        osc.start(now + offset);
+        osc.stop(now + offset + dur + 0.06);
+      });
+    } catch (e) {}
+  }
+
   // Pulsing sub-bass heartbeat & broadcast tension scanner for VAR review
   playVarTensionHeartbeat() {
     try {
@@ -876,27 +963,10 @@ class StadiumAudioEngine {
       const ctx = this.initCtx();
       if (!ctx || !this.sfxGain) return;
 
+      // Trigger low-frequency heartbeat thud
+      this.playHeartbeat();
+
       const now = ctx.currentTime;
-      // Double heartbeat thud: "lub-dub"
-      [0, 0.22].forEach((offset, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.type = 'sine';
-        const startFreq = idx === 0 ? 85 : 70;
-        osc.frequency.setValueAtTime(startFreq, now + offset);
-        osc.frequency.exponentialRampToValueAtTime(32, now + offset + 0.15);
-
-        gain.gain.setValueAtTime(0.35, now + offset);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.16);
-
-        osc.connect(gain);
-        gain.connect(this.sfxGain!);
-
-        osc.start(now + offset);
-        osc.stop(now + offset + 0.17);
-      });
-
       // Digital line scanning glitch beep
       const beeper = ctx.createOscillator();
       const beepGain = ctx.createGain();
@@ -1005,3 +1075,5 @@ class StadiumAudioEngine {
 }
 
 export const sound = new StadiumAudioEngine();
+export const playVarBuzzer = () => sound.playVarBuzzer();
+export const playHeartbeat = () => sound.playHeartbeat();

@@ -15,6 +15,7 @@ interface LeaguePageProps {
   completedFixtures?: number;
   isTournamentComplete?: boolean;
   isHost?: boolean;
+  onOpenLineup?: () => void;
 }
 
 export const LeaguePage: React.FC<LeaguePageProps> = ({
@@ -29,6 +30,7 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
   completedFixtures,
   isTournamentComplete,
   isHost = true,
+  onOpenLineup,
 }) => {
   const userStanding = currentTeam ? standings.find((s) => s.teamId === currentTeam.id) : null;
   const currentLeader = standings[0];
@@ -110,19 +112,29 @@ export const LeaguePage: React.FC<LeaguePageProps> = ({
             </div>
           </div>
 
-          {isHost ? (
-            <button
-              onClick={onPlayNextMatch}
-              className="flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-md shadow-emerald-500/20 active:scale-95 whitespace-nowrap"
-            >
-              <Play className="w-3.5 h-3.5 fill-slate-950" />
-              <span>Simulate Match</span>
-            </button>
-          ) : (
-            <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0A0D1A] border border-[#FF1744]/30 text-[#FF1744] text-xs font-bold font-mono whitespace-nowrap">
-              <span>HOST WILL LAUNCH FIXTURE</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {onOpenLineup && (
+              <button
+                onClick={onOpenLineup}
+                className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-purple-900/50 hover:bg-purple-800/70 border border-purple-500/40 text-purple-200 font-bold text-xs uppercase tracking-wider transition active:scale-95 whitespace-nowrap"
+              >
+                <span>🔄 Change Playing 7</span>
+              </button>
+            )}
+            {isHost ? (
+              <button
+                onClick={onPlayNextMatch}
+                className="flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-md shadow-emerald-500/20 active:scale-95 whitespace-nowrap"
+              >
+                <Play className="w-3.5 h-3.5 fill-slate-950" />
+                <span>Simulate Match</span>
+              </button>
+            ) : (
+              <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0A0D1A] border border-[#FF1744]/30 text-[#FF1744] text-xs font-bold font-mono whitespace-nowrap">
+                <span>HOST WILL LAUNCH FIXTURE</span>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

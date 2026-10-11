@@ -28,9 +28,15 @@ function ensureStartingSeven(team: Team, availablePlayers: Player[]): StarterSel
 
   let starters: Player[] = [];
 
-  // 1. If startingSeven is configured, match from real available players first
+  // 1. If startingSeven is configured, match from available players in exact order
   if (teamPlayerIds.length > 0) {
-    starters = realPlayers.filter(p => teamPlayerIds.includes(p.id));
+    const pMap = new Map(availablePlayers.map(p => [p.id, p]));
+    for (const id of teamPlayerIds) {
+      const found = pMap.get(id);
+      if (found && !starters.some(s => s.id === found.id)) {
+        starters.push(found);
+      }
+    }
   }
 
   // 2. If fewer than 7, pull remaining from this team's bench/pool
@@ -958,5 +964,9 @@ export function simulateMatch(
     secondHalfStoppage,
     varReviewsCount,
     varOverturnedCount,
+    homeFormation: homeTeam.formation || '1-2-2-2',
+    awayFormation: awayTeam.formation || '1-2-2-2',
+    homeStarters: homeStarting.map(p => p.id),
+    awayStarters: awayStarting.map(p => p.id),
   };
 }

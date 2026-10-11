@@ -89,29 +89,47 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
     const awayRatings = ratings.filter(r => r.teamId === matchResult.awayTeamId);
 
     const buildRoster = (teamRatings: PlayerMatchRating[], side: 'home' | 'away'): PitchPlayer[] => {
-      // Group by position
-      const gks = teamRatings.filter(r => r.position === 'GK');
-      const defs = teamRatings.filter(r => r.position === 'DEF');
-      const mids = teamRatings.filter(r => r.position === 'MID');
-      const atts = teamRatings.filter(r => r.position === 'ATT');
+      const starterIds = side === 'home' ? matchResult.homeStarters : matchResult.awayStarters;
+      const fmt = side === 'home'
+        ? (matchResult.homeFormation || '1-2-2-2')
+        : (matchResult.awayFormation || '1-2-2-2');
 
-      // Guarantee 7 players
-      const ordered: PlayerMatchRating[] = [];
-      if (gks.length > 0) ordered.push(gks[0]);
-      ordered.push(...defs);
-      ordered.push(...mids);
-      ordered.push(...atts);
+      let final7: PlayerMatchRating[] = [];
 
-      // If missing GK, place one
-      if (!ordered.some(p => p.position === 'GK')) {
-        const first = teamRatings[0];
-        if (first) {
-          ordered.unshift({ ...first, position: 'GK' });
+      if (starterIds && starterIds.length >= 7) {
+        final7 = starterIds.slice(0, 7).map(id => {
+          const found = teamRatings.find(r => r.playerId === id);
+          if (found) return found;
+          const p = allPlayers.find(pl => pl.id === id);
+          return {
+            playerId: id,
+            playerName: p?.name || 'Player',
+            teamId: side === 'home' ? matchResult.homeTeamId : matchResult.awayTeamId,
+            position: p?.position || 'MID',
+            rating: 7.0,
+            goals: 0,
+            assists: 0,
+            shots: 0,
+            saves: 0,
+            tackles: 0,
+          };
+        });
+      } else {
+        // Fallback grouping by position
+        const gks = teamRatings.filter(r => r.position === 'GK');
+        const defs = teamRatings.filter(r => r.position === 'DEF');
+        const mids = teamRatings.filter(r => r.position === 'MID');
+        const atts = teamRatings.filter(r => r.position === 'ATT');
+        const ordered: PlayerMatchRating[] = [];
+        if (gks.length > 0) ordered.push(gks[0]);
+        ordered.push(...defs);
+        ordered.push(...mids);
+        ordered.push(...atts);
+        if (!ordered.some(p => p.position === 'GK') && teamRatings[0]) {
+          ordered.unshift({ ...teamRatings[0], position: 'GK' });
         }
+        final7 = ordered.slice(0, 7);
       }
-
-      // Slice to 7
-      const final7 = ordered.slice(0, 7);
 
       // Calculate anchor positions on pitch (1000 x 600)
       const gkX = side === 'home' ? 75 : 925;
@@ -119,12 +137,19 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
       const midX = side === 'home' ? 350 : 650;
       const attX = side === 'home' ? 450 : 550;
 
+      // Group starters by tactical line
+      const teamGks = final7.filter(p => p.position === 'GK');
       const teamDefs = final7.filter(p => p.position === 'DEF');
       const teamMids = final7.filter(p => p.position === 'MID');
       const teamAtts = final7.filter(p => p.position === 'ATT');
 
+      // Guarantee at least one GK token slot
+      if (teamGks.length === 0 && final7.length > 0) {
+        teamGks.push(final7[0]);
+      }
+
       const getYPositions = (count: number): number[] => {
-        if (count === 1) return [300];
+        if (count <= 1) return [300];
         if (count === 2) return [200, 400];
         if (count === 3) return [170, 300, 430];
         if (count === 4) return [140, 245, 355, 460];
@@ -408,9 +433,14 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
             <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}`} />
             <span>2D TACTICAL MATCH RADAR</span>
           </div>
-          <span className="text-[11px] font-bold text-slate-400 hidden sm:inline">
-            7v7 Real-Time Simulation
+          <span className="text-[11px] font-bold text-slate-400 hidden md:inline">
+            7v7 Simulation
           </span>
+          <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900/90 border border-slate-800">
+            <span className="text-emerald-400 font-bold">{matchResult.homeTeamName} ({matchResult.homeFormation || '1-2-2-2'})</span>
+            <span className="text-slate-500">vs</span>
+            <span className="text-blue-400 font-bold">{matchResult.awayTeamName} ({matchResult.awayFormation || '1-2-2-2'})</span>
+          </div>
         </div>
 
         {/* Action Toggles */}

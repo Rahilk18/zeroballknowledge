@@ -320,16 +320,26 @@ export const StadiumAudioModal: React.FC<StadiumAudioModalProps> = ({ isOpen, on
               </button>
 
               <button
-                onClick={() => sound.playOutbidWarning()}
+                onClick={() => sound.playVarBuzzer()}
                 className="p-2.5 rounded-xl bg-[#0E1324] hover:bg-slate-800 border border-slate-800 text-left transition group"
               >
-                <div className="flex items-center justify-between text-[11px] font-black text-red-500">
-                  <span>🚨 Outbid Warning</span>
+                <div className="flex items-center justify-between text-[11px] font-black text-rose-500">
+                  <span>📺 VAR Review Buzzer</span>
                   <Play className="w-3 h-3 opacity-0 group-hover:opacity-100 transition" />
                 </div>
-                <span className="text-[9px] text-slate-500">Urgent alarm chirp</span>
+                <span className="text-[9px] text-slate-500">Harsh arena review horn</span>
               </button>
 
+              <button
+                onClick={() => sound.playHeartbeat()}
+                className="p-2.5 rounded-xl bg-[#0E1324] hover:bg-slate-800 border border-slate-800 text-left transition group"
+              >
+                <div className="flex items-center justify-between text-[11px] font-black text-purple-400">
+                  <span>💓 Dramatic Heartbeat</span>
+                  <Play className="w-3 h-3 opacity-0 group-hover:opacity-100 transition" />
+                </div>
+                <span className="text-[9px] text-slate-500">Low-freq tension thud</span>
+              </button>
             </div>
           </div>
 

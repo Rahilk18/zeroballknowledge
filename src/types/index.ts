@@ -543,6 +543,10 @@ export interface MatchResult {
   date?: string;
   completed?: boolean;
   wentToExtraTime?: boolean;
+  homeFormation?: string;
+  awayFormation?: string;
+  homeStarters?: string[];
+  awayStarters?: string[];
   wentToPenalties?: boolean;
   isDecider?: boolean;
   regularTimeScore?: {
