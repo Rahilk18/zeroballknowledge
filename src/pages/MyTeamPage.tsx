@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Team, Player, ActiveTab } from '../types';
 import { PitchView } from '../components/PitchView';
 import { PlayerCard } from '../components/PlayerCard';
@@ -6,6 +6,8 @@ import { PlayerDetailModal } from '../components/PlayerDetailModal';
 import { LineupEditorModal } from '../components/LineupEditorModal';
 import { formatCurrency, calculateTeamOverall } from '../utils/formatters';
 import { useAuth } from '../contexts/AuthContext';
+import { useSession } from '../contexts/SessionContext';
+import { supabase } from '../lib/supabase';
 import { fetchUserTeams, fetchTeamSquad, UserPastTeamItem } from '../services/userService';
 import { FOOTBALL_GEARS, FootballGear } from '../data/gearData';
 import { sound } from '../utils/audioSynth';
@@ -39,10 +41,12 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
   onNavigateTab
 }) => {
   const { user } = useAuth();
+  const { currentSession, sessionPlayers } = useSession();
   const [inspectModalPlayer, setInspectModalPlayer] = useState<Player | null>(null);
   const [isLineupEditorOpen, setIsLineupEditorOpen] = useState(false);
   const [showBenchSection, setShowBenchSection] = useState(true);
   const [equippedGear, setEquippedGear] = useState<FootballGear>(FOOTBALL_GEARS[0]);
+  const [sessionSquadIds, setSessionSquadIds] = useState<string[]>([]);
 
   // Past teams history for user
   const [pastTeams, setPastTeams] = useState<UserPastTeamItem[]>([]);
@@ -90,7 +94,78 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
     createdAt: activePastTeam.createdAt
   } : currentTeam;
 
+  // Real-time synchronization of true bought squad from squads table
+  useEffect(() => {
+    if (isViewingPast || !displayTeam?.id || !currentSession?.id) return;
+
+    supabase
+      .from('squads')
+      .select('player_id')
+      .eq('session_id', currentSession.id)
+      .eq('team_id', displayTeam.id)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const boughtIds = data.map((d: any) => d.player_id).filter(Boolean);
+          setSessionSquadIds(boughtIds);
+
+          const boughtSet = new Set(boughtIds);
+          const currentStarters = displayTeam.startingSeven || [];
+          const currentBench = displayTeam.bench || [];
+          const totalAssigned = [...currentStarters, ...currentBench];
+
+          // Check if contaminated by unbought players (or corrupted bench with 10+ players)
+          const hasUnbought = totalAssigned.some(id => !boughtSet.has(id));
+          const isMissingBought = boughtIds.some(id => !totalAssigned.includes(id));
+
+          if (hasUnbought || isMissingBought || currentBench.length > 10) {
+            // Clean up roster to strictly contain only bought players
+            const cleanStarters = currentStarters.filter(id => boughtSet.has(id));
+            const remainingBought = boughtIds.filter(id => !cleanStarters.includes(id));
+
+            let finalStarters = [...cleanStarters];
+            let finalBench = [...remainingBought];
+
+            if (finalStarters.length < 7 && finalBench.length > 0) {
+              const needed = 7 - finalStarters.length;
+              finalStarters = [...finalStarters, ...finalBench.slice(0, needed)];
+              finalBench = finalBench.slice(needed);
+            }
+
+            onUpdateLineup(finalStarters, finalBench, displayTeam.formation);
+          }
+        }
+      });
+  }, [currentSession?.id, displayTeam?.id]);
+
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+
+  // Global player catalog dictionary to resolve player metadata by ID
+  const playerCatalogMap = useMemo(() => {
+    const map = new Map<string, Player>();
+    (allPlayers || []).forEach(p => map.set(p.id, p));
+    (sessionPlayers || []).forEach(p => map.set(p.id, p));
+    (pastTeamPlayers || []).forEach(p => map.set(p.id, p));
+    return map;
+  }, [allPlayers, sessionPlayers, pastTeamPlayers]);
+
+  const getPlayer = (id: string): Player | undefined => playerCatalogMap.get(id);
+
+  // Strictly owned squad players (NEVER unbought players from catalog)
+  const ownedSquadIds = useMemo(() => {
+    if (isViewingPast) return pastTeamPlayers.map(p => p.id);
+    if (sessionSquadIds.length > 0) return sessionSquadIds;
+    return Array.from(new Set([
+      ...(displayTeam?.startingSeven || []),
+      ...(displayTeam?.bench || [])
+    ].filter(Boolean)));
+  }, [isViewingPast, pastTeamPlayers, sessionSquadIds, displayTeam?.startingSeven, displayTeam?.bench]);
+
+  const mySquadPlayers = useMemo(() => {
+    if (isViewingPast) return pastTeamPlayers;
+    return ownedSquadIds
+      .map(id => getPlayer(id))
+      .filter((p): p is Player => Boolean(p));
+  }, [isViewingPast, pastTeamPlayers, ownedSquadIds, playerCatalogMap]);
 
   if (!displayTeam || !displayTeam.id) {
     return (
@@ -118,19 +193,17 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
     );
   }
 
-  const playerSourceList = isViewingPast ? pastTeamPlayers : allPlayers;
-
   const startingPlayers = (displayTeam.startingSeven || [])
-    .map((id) => playerSourceList.find((p) => p.id === id))
+    .map((id) => getPlayer(id))
     .filter((p): p is Player => p !== undefined);
 
   const benchPlayers = (displayTeam.bench || [])
-    .map((id) => playerSourceList.find((p) => p.id === id))
+    .map((id) => getPlayer(id))
     .filter((p): p is Player => p !== undefined);
 
   const teamOverall = calculateTeamOverall(startingPlayers);
   const squadSize = startingPlayers.length + benchPlayers.length;
-  const selectedPlayer = playerSourceList.find((p) => p.id === selectedPlayerId) || startingPlayers[0];
+  const selectedPlayer = (selectedPlayerId ? getPlayer(selectedPlayerId) : null) || startingPlayers[0];
 
   const handleBenchOrSwap = (player: Player) => {
     if (isViewingPast) return;
@@ -188,7 +261,8 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
   const handleAutoOptimize = () => {
     if (isViewingPast) return;
     sound.playPowerUp();
-    const result = autoPickBestLineup(playerSourceList, displayTeam.formation || '1-2-2-2');
+    if (mySquadPlayers.length === 0) return;
+    const result = autoPickBestLineup(mySquadPlayers, displayTeam.formation || '1-2-2-2');
     onUpdateLineup(result.startingSeven, result.bench, displayTeam.formation);
   };
 
@@ -529,7 +603,7 @@ export const MyTeamPage: React.FC<MyTeamPageProps> = ({
       {isLineupEditorOpen && (
         <LineupEditorModal
           team={displayTeam}
-          allPlayers={playerSourceList}
+          allPlayers={allPlayers}
           onSaveLineup={(newStarters: string[], newBench: string[], newFormation: string) => {
             onUpdateLineup(newStarters, newBench, newFormation);
             setIsLineupEditorOpen(false);

@@ -336,8 +336,7 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
               }`}
               loading="lazy"
               onLoad={() => setImgLoaded(true)}
-              onError={(e) => {
-                (e.target as HTMLElement).style.display = 'none';
+              onError={() => {
                 setImgLoaded(false);
                 if (fallbackIndex + 1 < fallbacks.length) {
                   setFallbackIndex(prev => prev + 1);

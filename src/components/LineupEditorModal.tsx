@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Player, Team, PlayerPosition } from '../types';
 import { getPositionBadgeColor, getRatingBadgeStyle } from '../utils/formatters';
@@ -40,10 +40,16 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
 
   const activeFormationInfo = getFormationInfo(formation);
 
+  const teamSquadPlayers = useMemo(() => {
+    const ids = Array.from(new Set([...starting, ...bench]));
+    return ids.map(id => getPlayer(id)).filter((p): p is Player => Boolean(p));
+  }, [starting, bench, allPlayers]);
+
   // Auto pick best 7 players
   const handleAutoOptimize = () => {
     sound.playPowerUp();
-    const result = autoPickBestLineup(allPlayers, formation);
+    if (teamSquadPlayers.length === 0) return;
+    const result = autoPickBestLineup(teamSquadPlayers, formation);
     setStarting(result.startingSeven);
     setBench(result.bench);
     setSelectedToSwap(null);

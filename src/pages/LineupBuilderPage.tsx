@@ -72,9 +72,9 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
   const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
   const [squadPoolIds, setSquadPoolIds] = useState<string[]>([]);
 
-  // Synchronize squad IDs from squads table to guarantee all acquired players appear
+  // Synchronize squad IDs from squads table to guarantee only acquired players appear
   useEffect(() => {
-    if (!currentSession || !currentTeam?.id || currentSession.gameMode === 'ai') {
+    if (!currentSession || !currentTeam?.id) {
       const existingIds = Array.from(new Set([
         ...(currentTeam?.startingSeven || []),
         ...(currentTeam?.bench || [])
@@ -104,7 +104,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
       return;
     }
 
-    // In a multiplayer session: ALWAYS query squads table to get all acquired players!
+    // Always query squads table in active sessions to verify genuine bought players!
     supabase
       .from('squads')
       .select('player_id')
@@ -113,13 +113,18 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
       .then(({ data }) => {
         if (data && data.length > 0) {
           const ids = data.map((d: any) => d.player_id).filter(Boolean);
+          const boughtSet = new Set(ids);
           setSquadPoolIds(ids);
+
+          // Purge any leaked unbought players (e.g. from corrupted bench)
           setStarting(prev => {
-            if (prev.length === 7 && prev.every(id => ids.includes(id))) return prev;
+            const valid = prev.filter(id => boughtSet.has(id));
+            if (valid.length === 7) return valid;
             return ids.slice(0, 7);
           });
           setBench(prev => {
-            if (prev.length > 0 && prev.every(id => ids.includes(id))) return prev;
+            const valid = prev.filter(id => boughtSet.has(id));
+            if (valid.length > 0 && valid.length <= 5) return valid;
             return ids.slice(7);
           });
         } else {
