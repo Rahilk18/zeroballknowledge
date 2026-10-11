@@ -587,7 +587,7 @@ class StadiumAudioEngine {
   // 🔨 AUCTION ARENA BUZZER, GAVEL & BIDDING SFX
   // ==========================================
 
-  // Ticking buzzer that increases in pitch and urgency as seconds count down
+  // Dramatic high-stakes ticking & suspense heartbeat pulse as seconds count down
   playAuctionCountdownBeep(secondsRemaining: number) {
     try {
       if (!this.sfxEnabled) return;
@@ -600,32 +600,67 @@ class StadiumAudioEngine {
         return;
       }
 
-      // Pitch rises as timer drops: 5s -> 650Hz, 1s -> 1400Hz
+      const now = ctx.currentTime;
+
+      // 1. Dramatic Deep Heartbeat / Sub-bass Thud (Suspense impact)
+      const sub = ctx.createOscillator();
+      const subGain = ctx.createGain();
+      sub.type = 'sine';
+      // Sub pitch drops rapidly: 90Hz -> 38Hz (chest thump feeling)
+      const subStartFreq = secondsRemaining <= 2 ? 110 : 85;
+      sub.frequency.setValueAtTime(subStartFreq, now);
+      sub.frequency.exponentialRampToValueAtTime(36, now + 0.12);
+
+      const subVol = secondsRemaining <= 2 ? 0.38 : 0.22;
+      subGain.gain.setValueAtTime(subVol, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      sub.connect(subGain);
+      subGain.connect(this.sfxGain);
+      sub.start(now);
+      sub.stop(now + 0.16);
+
+      // 2. Crisp Studio Broadcast Ticking / Tension Chime
+      // Pitch rises as the lot countdown drops: 5s -> 880Hz (A5), 1s -> 1760Hz (A6 double octave)
       const pitchMap: Record<number, number> = {
-        5: 650,
-        4: 780,
-        3: 950,
-        2: 1150,
-        1: 1400,
+        5: 880,
+        4: 1046.5, // C6
+        3: 1318.5, // E6
+        2: 1567.98, // G6
+        1: 1760, // A6 (Urgent peak alert)
       };
 
-      const freq = pitchMap[secondsRemaining] || 800;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      const baseFreq = pitchMap[secondsRemaining] || 900;
+      const chime = ctx.createOscillator();
+      const chimeGain = ctx.createGain();
+      chime.type = 'sine';
+      chime.frequency.setValueAtTime(baseFreq, now);
+      // Slight decay for rich bell/metallic tick characteristic
+      chime.frequency.exponentialRampToValueAtTime(baseFreq * 0.96, now + 0.08);
 
-      osc.type = secondsRemaining <= 2 ? 'sawtooth' : 'triangle';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(freq * 0.8, ctx.currentTime + 0.08);
+      const chimeVol = secondsRemaining <= 2 ? 0.28 : 0.16;
+      chimeGain.gain.setValueAtTime(chimeVol, now);
+      chimeGain.gain.exponentialRampToValueAtTime(0.001, now + (secondsRemaining <= 2 ? 0.14 : 0.10));
 
-      const volume = secondsRemaining <= 2 ? 0.28 : 0.18;
-      gain.gain.setValueAtTime(volume, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+      chime.connect(chimeGain);
+      chimeGain.connect(this.sfxGain);
+      chime.start(now);
+      chime.stop(now + 0.15);
 
-      osc.connect(gain);
-      gain.connect(this.sfxGain);
+      // 3. For critical final 3 seconds (3, 2, 1), layer a high overtone harmonic ping
+      if (secondsRemaining <= 3) {
+        const ping = ctx.createOscillator();
+        const pingGain = ctx.createGain();
+        ping.type = 'triangle';
+        ping.frequency.setValueAtTime(baseFreq * 1.5, now);
+        pingGain.gain.setValueAtTime(0.12, now);
+        pingGain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
 
-      osc.start();
-      osc.stop(ctx.currentTime + 0.1);
+        ping.connect(pingGain);
+        pingGain.connect(this.sfxGain);
+        ping.start(now);
+        ping.stop(now + 0.08);
+      }
     } catch (e) {}
   }
 
