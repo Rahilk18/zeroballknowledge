@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Player, Team, Auction } from '../types';
 import { getPlayerAvatarUrl, getPlayerAvatarFallbacks } from '../data/playerAvatars';
 import { sound } from '../utils/audioSynth';
@@ -127,7 +128,7 @@ export const MobileBiddingDock: React.FC<MobileBiddingDockProps> = ({
   return (
     <>
       {/* ===== 1. FLOATING BOTTOM DOCK BAR (COLLAPSED) ===== */}
-      <div className="fixed bottom-[60px] left-2 right-2 z-40 lg:hidden">
+      <div className="fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px)+8px)] left-2 right-2 z-40 lg:hidden">
         <div
           onClick={() => {
             sound.playClick();
@@ -138,21 +139,23 @@ export const MobileBiddingDock: React.FC<MobileBiddingDockProps> = ({
           {/* Left: Player Avatar & Details */}
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="relative w-10 h-10 rounded-xl bg-slate-900 border border-[#FF1744]/40 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
-              {avatarUrl ? (
+              <span className="text-xs font-black text-white font-display select-none">{currentPlayer.name.slice(0, 2).toUpperCase()}</span>
+              {avatarUrl && (
                 <img
                   src={avatarUrl}
                   alt={currentPlayer.name}
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover object-center"
-                  onError={() => {
+                  className="absolute inset-0 w-full h-full object-contain object-center"
+                  onError={(e) => {
                     if (avatarIdx + 1 < fallbacks.length) {
                       setAvatarIdx(prev => prev + 1);
+                    } else {
+                      (e.target as HTMLElement).style.display = 'none';
                     }
                   }}
                 />
-              ) : (
-                <span className="text-xs font-black text-white">{currentPlayer.name.slice(0, 2)}</span>
               )}
+
               <span className={`absolute bottom-0 right-0 text-[8px] font-black px-1 rounded-tl border ${posBadge}`}>
                 {pos}
               </span>
@@ -199,7 +202,7 @@ export const MobileBiddingDock: React.FC<MobileBiddingDockProps> = ({
                 onDirectBid(minBid);
               }}
               disabled={submittingBid || !myTeam || minBid > (myTeam?.budget ?? 0) || mySquadLength >= 10}
-              className="px-2.5 py-1.5 bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 active:scale-95 text-slate-950 font-black text-[11px] rounded-xl transition-all disabled:opacity-40 shadow-glow-cyan flex items-center gap-1 uppercase whitespace-nowrap"
+              className="px-2.5 py-1.5 min-h-[38px] bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 active:scale-95 text-slate-950 font-black text-[11px] rounded-xl transition-all disabled:opacity-40 shadow-glow-cyan flex items-center gap-1 uppercase whitespace-nowrap"
             >
               <Gavel className="w-3.5 h-3.5" />
               <span>€{minBid}M</span>
@@ -213,7 +216,7 @@ export const MobileBiddingDock: React.FC<MobileBiddingDockProps> = ({
                 sound.playClick();
                 setIsOpen(true);
               }}
-              className="p-1.5 bg-[#0A0D1A] hover:bg-slate-800 border border-slate-700 rounded-xl text-slate-300 hover:text-white transition"
+              className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-[#0A0D1A] hover:bg-slate-800 border border-slate-700 rounded-xl text-slate-300 hover:text-white transition"
               title="Open Quick Bid & Scouting Drawer"
             >
               <ChevronUp className="w-4 h-4 text-[#FF1744]" />
@@ -223,8 +226,8 @@ export const MobileBiddingDock: React.FC<MobileBiddingDockProps> = ({
       </div>
 
       {/* ===== 2. POPUP BOTTOM SHEET DRAWER ===== */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col justify-end lg:hidden animate-fadeIn">
+      {isOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex flex-col justify-end lg:hidden animate-fadeIn">
           {/* Backdrop Tap to Close */}
           <div
             className="absolute inset-0"
@@ -232,7 +235,7 @@ export const MobileBiddingDock: React.FC<MobileBiddingDockProps> = ({
           />
 
           {/* Drawer Container */}
-          <div className="relative bg-[#0E1324] border-t-2 border-[#FF1744]/40 rounded-t-3xl p-4 sm:p-5 max-h-[85vh] overflow-y-auto shadow-[0_-10px_40px_rgba(0,0,0,0.9)] space-y-3.5">
+          <div className="relative bg-[#0E1324] border-t-2 border-[#FF1744]/40 rounded-t-3xl p-4 sm:p-5 pb-[max(1.75rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] max-h-[88vh] overflow-y-auto shadow-[0_-10px_40px_rgba(0,0,0,0.9)] space-y-3.5">
             {/* Handle bar */}
             <div className="w-12 h-1 bg-slate-700 rounded-full mx-auto" />
 
@@ -294,21 +297,23 @@ export const MobileBiddingDock: React.FC<MobileBiddingDockProps> = ({
             {/* Player Scouting Summary Card */}
             <div className="bg-[#0A0D1A] border border-slate-800 rounded-2xl p-3 flex items-center gap-3">
               <div className="relative w-16 h-16 rounded-xl bg-slate-900 border border-[#FF1744]/30 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
-                {avatarUrl ? (
+                <span className="text-base font-black text-white font-display select-none">{currentPlayer.name.slice(0, 2).toUpperCase()}</span>
+                {avatarUrl && (
                   <img
                     src={avatarUrl}
                     alt={currentPlayer.name}
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover object-center"
-                    onError={() => {
+                    className="absolute inset-0 w-full h-full object-contain object-center"
+                    onError={(e) => {
                       if (avatarIdx + 1 < fallbacks.length) {
                         setAvatarIdx(prev => prev + 1);
+                      } else {
+                        (e.target as HTMLElement).style.display = 'none';
                       }
                     }}
                   />
-                ) : (
-                  <span className="text-base font-black text-white">{currentPlayer.name.slice(0, 2)}</span>
                 )}
+
                 <span className={`absolute bottom-0 right-0 text-[9px] font-black px-1.5 py-0.2 rounded-tl border ${posBadge}`}>
                   {pos}
                 </span>
@@ -502,7 +507,8 @@ export const MobileBiddingDock: React.FC<MobileBiddingDockProps> = ({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

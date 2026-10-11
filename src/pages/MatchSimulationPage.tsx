@@ -253,7 +253,7 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
   const potm = matchResult.playerOfTheMatch;
 
   return (
-    <div className="p-2 sm:p-4 max-w-6xl mx-auto space-y-3 pb-6 animate-fadeIn">
+    <div className="p-2 sm:p-4 max-w-6xl mx-auto space-y-3 pb-32 sm:pb-8 animate-fadeIn">
       
       {/* SCOREBOARD HERO HEADER */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#0E1324] via-[#0A0A14] to-[#12182D] border-2 border-[#FF1744]/40 p-3 sm:p-4 shadow-glow-cyan">
@@ -552,30 +552,72 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
 
         {/* Finished Action Options */}
         {isFinished && (
-          <div className="mt-2.5 pt-2 border-t border-slate-800/90 flex flex-col sm:flex-row items-center justify-between gap-2.5 animate-fadeIn">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle className="w-4 h-4 text-emerald-400" />
-              <span className="text-[11px] font-extrabold text-white uppercase tracking-wider">
-                Match Complete • Results Official
-              </span>
-            </div>
+          <div className="mt-2.5 pt-2 border-t border-slate-800/90 space-y-2 animate-fadeIn">
+            {/* MOTM Honors Spotlight Banner */}
+            {potm && (
+              <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-950/70 via-[#141b24] to-purple-950/60 border-2 border-amber-500/50 shadow-glow-amber flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 shadow-md font-black text-xl flex-shrink-0">
+                    ⭐
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                        ★ OFFICIAL MAN OF THE MATCH
+                      </span>
+                      <span className="text-xs font-mono font-black text-emerald-400">
+                        {potm.rating} ★
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-black text-white mt-0.5">
+                      {potm.playerName} ({potm.teamId === matchResult.homeTeamId ? matchResult.homeTeamName : matchResult.awayTeamName})
+                    </h4>
+                    <p className="text-[11px] text-slate-300 line-clamp-1">{potm.reason}</p>
+                  </div>
+                </div>
 
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
-              <button
-                onClick={handleRestart}
-                className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
-              >
-                <RotateCcw className="w-3 h-3" />
-                <span>Replay</span>
-              </button>
-              <button
-                onClick={onGoToLeague}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/25 active:scale-95"
-              >
-                <Trophy className="w-3.5 h-3.5" />
-                <span>VIEW LEAGUE TABLE</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+                <button
+                  onClick={() => setActiveTab('players')}
+                  className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition whitespace-nowrap active:scale-95"
+                >
+                  Full Ratings →
+                </button>
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <span className="text-[11px] font-extrabold text-white uppercase tracking-wider">
+                  Match Complete • Results Official
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <button
+                  onClick={handleRestart}
+                  className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Replay</span>
+                </button>
+                {onOpenLineup && (
+                  <button
+                    onClick={onOpenLineup}
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-900/60 hover:bg-purple-800/80 border border-purple-500/40 text-purple-200 text-xs font-bold transition active:scale-95 shadow-md shadow-purple-900/30 whitespace-nowrap"
+                  >
+                    <span>🔄 Adjust Tactics / Subs</span>
+                  </button>
+                )}
+                <button
+                  onClick={onGoToLeague}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/25 active:scale-95 whitespace-nowrap"
+                >
+                  <Trophy className="w-3.5 h-3.5" />
+                  <span>LEAGUE TABLE</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -1250,6 +1292,83 @@ export const MatchSimulationPage: React.FC<MatchSimulationPageProps> = ({
           <Trophy className="w-4 h-4" />
           <span>Go to League Table</span>
         </button>
+      </div>
+
+      {/* ===== MOBILE FLOATING SIMULATION CONTROLLER DOCK ===== */}
+      <div className="fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px)+8px)] left-2 right-2 z-40 lg:hidden">
+        <div className="bg-[#0E1324]/95 backdrop-blur-xl border border-[#FF1744]/40 rounded-2xl p-2 sm:p-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.85)] flex items-center justify-between gap-2 ring-1 ring-white/5">
+          {/* Match Score & Minute */}
+          <div className="flex items-center gap-2 min-w-0">
+            <span className={`px-2 py-0.5 rounded-lg text-xs font-mono font-black border ${
+              currentMinute > 90 && !matchResult.wentToExtraTime
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
+                : 'bg-[#0A0D1A] text-[#FF1744] border-[#FF1744]/30'
+            }`}>
+              {currentMinute > 90 && !matchResult.wentToExtraTime ? `90+${currentMinute - 90}'` : `${currentMinute}'`}
+            </span>
+            <div className="flex items-center gap-1 font-mono text-xs font-black text-white truncate">
+              <span className="truncate max-w-[65px]">{matchResult.homeTeamName.slice(0, 5)}</span>
+              <span className="text-[#FF1744] font-black">{currentHomeScore}</span>
+              <span className="text-slate-500">-</span>
+              <span className="text-cyan-400 font-black">{currentAwayScore}</span>
+              <span className="truncate max-w-[65px]">{matchResult.awayTeamName.slice(0, 5)}</span>
+            </div>
+          </div>
+
+          {/* Quick Playback Actions */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {!isFinished ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playClick();
+                    setIsPlaying(prev => !prev);
+                  }}
+                  className={`p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-xl border transition active:scale-95 ${
+                    isPlaying
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-glow-emerald'
+                  }`}
+                  title={isPlaying ? 'Pause' : 'Play'}
+                >
+                  {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = speedMultiplier === 1 ? 2 : speedMultiplier === 2 ? 4 : speedMultiplier === 4 ? 0.5 : 1;
+                    handleSpeedChange(next);
+                  }}
+                  className="px-2 py-1.5 min-h-[38px] bg-[#0A0D1A] border border-slate-700 text-slate-200 rounded-xl text-xs font-mono font-black active:scale-95 transition"
+                  title="Cycle Speed"
+                >
+                  {speedMultiplier}x
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleInstantSkip}
+                  className="px-2.5 py-1.5 min-h-[38px] bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/50 text-purple-200 rounded-xl text-xs font-black uppercase transition active:scale-95 flex items-center gap-1"
+                  title="Skip to end"
+                >
+                  <FastForward className="w-3.5 h-3.5" />
+                  <span>Skip</span>
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={onGoToLeague}
+                className="px-3 py-1.5 min-h-[38px] bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-black uppercase tracking-wider transition active:scale-95 flex items-center gap-1 shadow-md shadow-emerald-500/30"
+              >
+                <Trophy className="w-3.5 h-3.5" />
+                <span>Standings</span>
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Stadium Audio & Crowd Soundboard Modal */}

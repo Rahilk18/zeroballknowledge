@@ -27,7 +27,7 @@ import SeasonCompleteModal from './components/SeasonCompleteModal';
 import { saveMatchToSupabase } from './services/sessionService';
 import { useSession } from './contexts/SessionContext';
 import { useAuth } from './contexts/AuthContext';
-import { computeTournamentStandings, generateTournamentFixtures, getHeadToHeadRecord } from './utils/tournament';
+import { computeTournamentStandings, generateTournamentFixtures, getHeadToHeadRecord, applyMatchToPlayerStats } from './utils/tournament';
 import { syncPlayersToSupabase } from './services/playerSyncService';
 
 export function App() {
@@ -205,6 +205,10 @@ export function App() {
   useEffect(() => {
     if (latestMatchResult) {
       setActiveMatchResult(latestMatchResult);
+      setGameState((prev) => ({
+        ...prev,
+        players: applyMatchToPlayerStats(prev.players, latestMatchResult),
+      }));
       setActiveTab('simulation');
     }
   }, [latestMatchResult]);
@@ -242,6 +246,10 @@ export function App() {
           { isDecider }
         );
         result.matchweek = effectiveMatches.length + 1;
+        setGameState((prev) => ({
+          ...prev,
+          players: applyMatchToPlayerStats(prev.players, result),
+        }));
         broadcastSimulatedMatch(result);
       }
     }
@@ -337,30 +345,8 @@ export function App() {
 
       result.matchweek = effectiveMatches.length + 1;
 
-      // Update player season stats
-      const updatedPlayers = gameState.players.map((p) => {
-        const matchRating = result.playerRatings[p.id];
-        if (!matchRating) return p;
-
-        const prevMatches = p.stats.matches;
-        const newMatches = prevMatches + 1;
-        const newGoals = p.stats.goals + matchRating.goals;
-        const newAssists = p.stats.assists + matchRating.assists;
-        const newRating = Number(
-          (((p.stats.avgRating * prevMatches) + matchRating.rating) / newMatches).toFixed(1)
-        );
-
-        return {
-          ...p,
-          stats: {
-            ...p.stats,
-            matches: newMatches,
-            goals: newGoals,
-            assists: newAssists,
-            avgRating: newRating
-          }
-        };
-      });
+      // Update player season stats (goals, assists, MOTM honors, clean sheets, and ratings)
+      const updatedPlayers = applyMatchToPlayerStats(gameState.players, result);
 
       if (currentSession) {
         await broadcastSimulatedMatch(result);
@@ -737,6 +723,7 @@ export function App() {
             completedFixtures={effectiveMatches.length}
             isTournamentComplete={isTournamentComplete || (effectiveFixtures.length > 0 && effectiveMatches.length >= effectiveFixtures.length)}
             isHost={isHost}
+            allPlayers={combinedPlayers}
             onOpenLineup={() => {
               setActiveTab('lineup');
               if (currentSession && isHost) broadcastNavigation('lineup');
@@ -766,8 +753,8 @@ export function App() {
 
         {activeTab === 'statistics' && (
           <StatisticsPage
-            players={gameState.players}
-            teams={gameState.teams}
+            players={combinedPlayers}
+            teams={activeAllTeams}
           />
         )}
 

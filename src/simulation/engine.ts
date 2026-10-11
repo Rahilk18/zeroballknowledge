@@ -624,6 +624,53 @@ export function simulateMatch(
     }
   });
 
+  // 2nd Half In-Match Tactical Substitutions (Between 58' and 74')
+  // Simulates manager bench adjustments to fresh tactics during match progression
+  const homeBench = (homePlayers || []).filter(
+    p => !homeStarting.some(s => s.id === p.id) &&
+      !p.id.includes('empty-') && !p.id.includes('trialist') && !p.id.includes('filler')
+  );
+  const awayBench = (awayPlayers || []).filter(
+    p => !awayStarting.some(s => s.id === p.id) &&
+      !p.id.includes('empty-') && !p.id.includes('trialist') && !p.id.includes('filler')
+  );
+
+  if (homeBench.length > 0) {
+    const subMin = Math.floor(59 + Math.random() * 9);
+    const subIn = homeBench[Math.floor(Math.random() * homeBench.length)];
+    const outfieldStarters = homeStarting.filter(p => p.position !== 'GK');
+    const subOut = outfieldStarters[Math.floor(Math.random() * outfieldStarters.length)] || homeStarting[1];
+    events.push({
+      id: `evt-${subMin}-sub-home-${subIn.id}`,
+      minute: subMin,
+      type: 'substitution',
+      teamId: homeTeam.id,
+      teamName: homeTeam.name,
+      playerId: subIn.id,
+      playerName: subIn.name,
+      displayMinute: `${subMin}'`,
+      description: `🔄 Tactical Substitution (${subMin}'): ${subIn.name} comes ON for ${subOut.name} to reinforce ${homeTeam.name}'s setup.`
+    });
+  }
+
+  if (awayBench.length > 0) {
+    const subMin = Math.floor(66 + Math.random() * 8);
+    const subIn = awayBench[Math.floor(Math.random() * awayBench.length)];
+    const outfieldStarters = awayStarting.filter(p => p.position !== 'GK');
+    const subOut = outfieldStarters[Math.floor(Math.random() * outfieldStarters.length)] || awayStarting[1];
+    events.push({
+      id: `evt-${subMin}-sub-away-${subIn.id}`,
+      minute: subMin,
+      type: 'substitution',
+      teamId: awayTeam.id,
+      teamName: awayTeam.name,
+      playerId: subIn.id,
+      playerName: subIn.name,
+      displayMinute: `${subMin}'`,
+      description: `🔄 Tactical Substitution (${subMin}'): ${subIn.name} comes ON for ${subOut.name} to adjust ${awayTeam.name}'s shape.`
+    });
+  }
+
   let wentToExtraTime = false;
   let wentToPenalties = false;
   let regularTimeScore: { home: number; away: number } | undefined = undefined;
@@ -891,19 +938,30 @@ export function simulateMatch(
   });
 
   // Determine Player of the Match
+  // Weight rating, goal contributions, decisive assists, and clutch goalkeeper saves
   const ratingsList = Object.values(playerRatings);
-  ratingsList.sort((a, b) => b.rating - a.rating);
+  ratingsList.sort((a, b) => {
+    const scoreB = b.rating + (b.goals * 0.45) + (b.assists * 0.25) + ((b.saves ?? 0) * 0.15);
+    const scoreA = a.rating + (a.goals * 0.45) + (a.assists * 0.25) + ((a.saves ?? 0) * 0.15);
+    return scoreB - scoreA || b.rating - a.rating;
+  });
   const best = ratingsList[0];
 
   let potmReason = `Outstanding all-around display with an influential ${best.rating} match rating.`;
-  if (best.goals >= 2) {
+  if (best.goals >= 3) {
+    potmReason = `Sensational hat-trick hero! Slotted ${best.goals} brilliant goals to claim undisputed match honors!`;
+  } else if (best.goals >= 2) {
     potmReason = `Decisive match-winner with ${best.goals} brilliant goals and constant threat!`;
   } else if (best.goals === 1 && best.assists >= 1) {
     potmReason = `Masterful performance with 1 goal and 1 assist dominating the pitch!`;
-  } else if ((best.saves ?? 0) >= 3) {
+  } else if ((best.saves ?? 0) >= 4) {
     potmReason = `Rock-solid goalkeeping with ${best.saves ?? 0} vital match-saving stops!`;
   } else if (best.goals === 1) {
-    potmReason = `Scored the crucial goal with high work rate and tactical discipline.`;
+    potmReason = `Scored the crucial match-defining goal with high work rate and tactical discipline.`;
+  } else if (best.assists >= 2) {
+    potmReason = `Visionary playmaker with 2 assists creating chances at will!`;
+  } else if (best.position === 'DEF' || best.position === 'GK') {
+    potmReason = `Commanding defensive display anchoring the backline to stifle the opponent.`;
   }
 
   const homeStats: TeamMatchStats = {
@@ -952,6 +1010,7 @@ export function simulateMatch(
       rating: best.rating,
       reason: potmReason
     },
+    potmPlayerId: best.playerId,
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     completed: true,
     wentToExtraTime,

@@ -25,6 +25,7 @@ import {
   Radio
 } from 'lucide-react';
 import { StadiumAudioModal } from '../components/StadiumAudioModal';
+import { MobileLineupDrawer } from '../components/MobileLineupDrawer';
 
 interface LineupBuilderPageProps {
   currentTeam: Team | null;
@@ -321,6 +322,22 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     setTimeout(() => setSaveSuccessNotice(''), 4000);
   };
 
+  // Synchronize team formation and lineup if updated externally
+  useEffect(() => {
+    if (currentTeam?.formation && currentTeam.formation !== formation) {
+      setFormation(currentTeam.formation);
+    }
+  }, [currentTeam?.formation]);
+
+  useEffect(() => {
+    if (currentTeam?.startingSeven && currentTeam.startingSeven.length > 0) {
+      setStarting(currentTeam.startingSeven);
+    }
+    if (currentTeam?.bench && currentTeam.bench.length > 0) {
+      setBench(currentTeam.bench);
+    }
+  }, [currentTeam?.startingSeven, currentTeam?.bench]);
+
   // Return to auction if clicked by mistake or more players are needed
   const handleReturnToAuction = async () => {
     sound.playClick();
@@ -334,9 +351,9 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
     setActiveTab('auction');
   };
 
-  // Host launches the match arena
+  // Host launches or resumes the match arena
   const handleHostLaunchMatches = async () => {
-    if (!currentSession || !isHost) return;
+    if (currentSession && !isHost) return;
     setAdvancingToMatches(true);
     sound.playPowerUp();
 
@@ -351,12 +368,15 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
       setBench(finalBench);
     }
 
-    if (currentSession.gameMode === 'ai') {
+    // Persist latest lineup & tactical formation
+    onUpdateLineup(finalStarting, finalBench, formation);
+
+    // If offline, AI sparring mode, or single-player tournament, advance directly to matches/league
+    if (!currentSession || currentSession.gameMode === 'ai') {
       if (typeof finalizeAiLineups === 'function') {
         finalizeAiLineups();
       }
-      onUpdateLineup(finalStarting, finalBench, formation);
-      if (typeof updateSessionStatus === 'function') {
+      if (currentSession && typeof updateSessionStatus === 'function') {
         await updateSessionStatus('MATCHES');
       }
       setAdvancingToMatches(false);
@@ -404,7 +424,7 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
   };
 
   return (
-    <div className="p-2 sm:p-4 max-w-7xl mx-auto space-y-3 animate-fadeIn pb-24 sm:pb-8">
+    <div className="p-2 sm:p-4 max-w-7xl mx-auto space-y-3 animate-fadeIn pb-32 sm:pb-8">
       
       {/* ===== HERO BANNER: STAGE INFORMATION & ROOM CODE ===== */}
       <div className="bg-gradient-to-r from-[#0E1324] via-[#10182E] to-[#0E1324] border border-[#FF1744]/30 rounded-2xl p-3.5 sm:p-4 shadow-glow-cyan">
@@ -850,8 +870,8 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
         </div>
       )}
 
-      {/* ===== STICKY BOTTOM ACTION PANEL & MULTIPLAYER READY SYNC ===== */}
-      <div className="sticky bottom-2 z-30 bg-[#0E1324]/95 backdrop-blur-md border border-[#FF1744]/40 rounded-2xl p-2.5 sm:p-3.5 shadow-2xl shadow-black/90 flex flex-col md:flex-row items-center justify-between gap-2.5 sm:gap-3">
+      {/* ===== STICKY BOTTOM ACTION PANEL & MULTIPLAYER READY SYNC (DESKTOP) ===== */}
+      <div className="hidden lg:flex sticky bottom-2 z-30 bg-[#0E1324]/95 backdrop-blur-md border border-[#FF1744]/40 rounded-2xl p-2.5 sm:p-3.5 shadow-2xl shadow-black/90 flex-col md:flex-row items-center justify-between gap-2.5 sm:gap-3">
         
         {/* Left: Lock-in Summary */}
         <div className="space-y-0.5 text-center md:text-left">
@@ -900,25 +920,72 @@ export const LineupBuilderPage: React.FC<LineupBuilderPageProps> = ({
                 <span>🔙 AUCTION</span>
               </button>
               <button
+                onClick={() => {
+                  sound.playClick();
+                  onUpdateLineup(starting, bench, formation);
+                  setActiveTab('league');
+                }}
+                className="flex-1 sm:flex-initial px-4 py-2.5 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 hover:from-purple-800 hover:to-indigo-800 border border-purple-500/50 text-purple-200 text-xs font-black uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap shadow-md shadow-purple-900/30"
+                title="Return to tournament standings and fixtures"
+              >
+                <Trophy className="w-3.5 h-3.5" />
+                <span>🏆 TOURNAMENT</span>
+              </button>
+              <button
                 onClick={handleHostLaunchMatches}
                 disabled={advancingToMatches}
                 className="flex-1 sm:flex-initial px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition shadow-lg flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50 whitespace-nowrap"
               >
                 <Swords className="w-4 h-4" />
-                <span>{advancingToMatches ? 'LAUNCHING ARENA...' : '⚔️ LAUNCH MATCH ARENA →'}</span>
+                <span>{advancingToMatches ? 'LAUNCHING ARENA...' : (currentSession?.status === 'MATCHES' ? '⚔️ CONTINUE TO MATCHES →' : '⚔️ LAUNCH MATCH ARENA →')}</span>
               </button>
             </div>
           ) : (
             currentSession && (
-              <div className="px-3.5 py-2.5 bg-[#0A0D1A] border border-slate-800 rounded-xl text-xs text-slate-400 flex items-center gap-2">
-                <RefreshCw className="w-3.5 h-3.5 text-[#FF1744] animate-spin" />
-                <span>Waiting for Host to launch fixtures...</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    sound.playClick();
+                    onUpdateLineup(starting, bench, formation);
+                    setActiveTab('league');
+                  }}
+                  className="px-3.5 py-2.5 bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/40 text-purple-300 text-xs font-black uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 active:scale-95"
+                >
+                  <Trophy className="w-3.5 h-3.5" />
+                  <span>TOURNAMENT</span>
+                </button>
+                <div className="px-3.5 py-2.5 bg-[#0A0D1A] border border-slate-800 rounded-xl text-xs text-slate-400 flex items-center gap-2">
+                  <RefreshCw className="w-3.5 h-3.5 text-[#FF1744] animate-spin" />
+                  <span>Waiting for Host to launch fixtures...</span>
+                </div>
               </div>
             )
           )}
         </div>
 
       </div>
+
+      {/* ===== MOBILE BOTTOM DOCK & SWAP / BENCH DRAWER ===== */}
+      <MobileLineupDrawer
+        starting={starting}
+        bench={bench}
+        selectedToSwap={selectedToSwap}
+        setSelectedToSwap={setSelectedToSwap}
+        onSwap={handleSwap}
+        getPlayer={getPlayer}
+        teamOvr={teamOvr}
+        formation={formation}
+        setFormation={(f) => {
+          setFormation(f);
+          onUpdateLineup(starting, bench, f);
+        }}
+        onAutoOptimize={handleAutoOptimize}
+        isLockedIn={isLockedIn}
+        onLockIn={handleLockInLineup}
+        isHost={isHost}
+        onLaunchMatches={handleHostLaunchMatches}
+        advancingToMatches={advancingToMatches}
+      />
 
       {/* Stadium Audio & Crowd Soundboard Modal */}
       <StadiumAudioModal

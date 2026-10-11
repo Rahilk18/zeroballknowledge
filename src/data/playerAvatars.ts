@@ -353,12 +353,17 @@ export const POSITION_FALLBACK_PORTRAITS: Record<string, string[]> = {
 
 /**
  * Returns prioritized array of authentic face URLs for any player:
- * 1. Primary official EA Sports FC 25 portrait
- * 2. Cloudflare web proxy of FC 25 (bypasses mobile/WebView CORS and hotlink blockers)
- * 3. FIFA 24 portrait from Futbin
- * 4. FIFA 23 portrait from Futbin
- * 5. SoFIFA CDN portrait
- * 6. Position-based authentic football portrait backup
+ * 1. Primary verified authentic URL from player object or PLAYER_AVATARS catalog
+ * 2. High-availability global Cloudflare edge proxy (wsrv.nl) of primary URL
+ * 3. Official EA Sports FC 25 portrait CDN (ratings-images-prod.pulse.ea.com)
+ * 4. High-availability proxy of FC 25 portrait
+ * 5. Authentic EA Sports FIFA 24 headshot from Futbin CDN
+ * 6. High-availability proxy of FIFA 24 headshot
+ * 7. Authentic EA Sports FIFA 23 headshot from Futbin CDN
+ * 8. High-availability proxy of FIFA 23 headshot
+ * 9. Authentic EA Sports FIFA 22 headshot from Futbin CDN
+ * 10. High-availability proxy of FIFA 22 headshot
+ * 11. Position-based authentic football portrait backup
  */
 export function getPlayerAvatarFallbacks(player: any): string[] {
   if (!player) return [];
@@ -390,29 +395,45 @@ export function getPlayerAvatarFallbacks(player: any): string[] {
     eaId = EA_PLAYER_IDS[slug] || EA_PLAYER_IDS[slug.split(' ').pop() || ''];
   }
 
-  // 2. Build multi-tier FIFA URLs if EA ID is known
-  if (eaId) {
-    // Tier 1: FC 25 official portrait
-    urls.push(`https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p${eaId}.png?padding=0.7`);
-    // Tier 2: Cloudflare web proxy (wsrv.nl) to guarantee 100% loadability without CORS or mobile webview issues
-    urls.push(`https://wsrv.nl/?url=https%3A%2F%2Fratings-images-prod.pulse.ea.com%2FFC25%2Ffull%2Fplayer-portraits%2Fp${eaId}.png%3Fpadding%3D0.7&output=png`);
-    // Tier 3: FIFA 24 Futbin
-    urls.push(`https://cdn.futbin.com/content/fifa24/img/players/${eaId}.png`);
-    // Tier 4: FIFA 23 Futbin
-    urls.push(`https://cdn.futbin.com/content/fifa23/img/players/${eaId}.png`);
-    // Tier 5: SoFIFA CDN
-    const padded = eaId.padStart(6, '0');
-    urls.push(`https://cdn.sofifa.net/players/${padded.slice(0, 3)}/${padded.slice(3, 6)}/24_120.png`);
+  // Helper to safely add URL and its high-availability wsrv proxy
+  const addUrlWithProxy = (url: string) => {
+    if (!url || urls.includes(url)) return;
+    urls.push(url);
+    const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(url)}&output=png`;
+    if (!urls.includes(proxyUrl)) {
+      urls.push(proxyUrl);
+    }
+  };
+
+  // 2. Add verified curated URL from PLAYER_AVATARS or player object first!
+  const curated = PLAYER_AVATARS[cleanName] || NORMALIZED_AVATARS[normName] || (typeof player === 'object' && player ? (PLAYER_AVATARS[player.shortName] || NORMALIZED_AVATARS[player.shortName?.toLowerCase()?.trim()]) : undefined);
+  if (curated) {
+    addUrlWithProxy(curated);
   }
 
-  // 3. Fallbacks from object properties (avatarUrl, imageUrl)
   if (typeof player === 'object' && player) {
     const candidate = player.avatarUrl || player.avatar_url || player.imageUrl || player.image_url;
     if (candidate && !urls.includes(candidate)) {
-      urls.push(candidate);
-      if (candidate.includes('pulse.ea.com')) {
-        urls.push(`https://wsrv.nl/?url=${encodeURIComponent(candidate)}&output=png`);
-      }
+      addUrlWithProxy(candidate);
+    }
+  }
+
+  // 3. Multi-tier FIFA generational cascade if EA ID is known:
+  // FC 25 -> FIFA 24 -> FIFA 23 -> FIFA 22 -> SoFIFA
+  if (eaId) {
+    // Tier A: Official EA FC 25 portrait
+    addUrlWithProxy(`https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p${eaId}.png?padding=0.7`);
+    // Tier B: FIFA 24 Futbin
+    addUrlWithProxy(`https://cdn.futbin.com/content/fifa24/img/players/${eaId}.png`);
+    // Tier C: FIFA 23 Futbin
+    addUrlWithProxy(`https://cdn.futbin.com/content/fifa23/img/players/${eaId}.png`);
+    // Tier D: FIFA 22 Futbin
+    addUrlWithProxy(`https://cdn.futbin.com/content/fifa22/img/players/${eaId}.png`);
+    // Tier E: SoFIFA CDN (via wsrv proxy to avoid hotlink blocks)
+    const padded = eaId.padStart(6, '0');
+    const sofifaUrl = `https://wsrv.nl/?url=${encodeURIComponent(`https://cdn.sofifa.net/players/${padded.slice(0, 3)}/${padded.slice(3, 6)}/24_120.png`)}&output=png`;
+    if (!urls.includes(sofifaUrl)) {
+      urls.push(sofifaUrl);
     }
   }
 
@@ -423,6 +444,7 @@ export function getPlayerAvatarFallbacks(player: any): string[] {
   const posUrl = posFallbacks[hash % posFallbacks.length];
   if (!urls.includes(posUrl)) {
     urls.push(posUrl);
+    urls.push(`https://wsrv.nl/?url=${encodeURIComponent(posUrl)}&output=png`);
   }
 
   return urls;
@@ -434,10 +456,15 @@ export function getPlayerAvatarUrl(player: any): string {
 }
 
 export function getCORSPlayerAvatarUrl(player: any): string {
-  const url = getPlayerAvatarUrl(player);
-  if (url.includes('pulse.ea.com')) {
-    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&output=png`;
+  const fallbacks = getPlayerAvatarFallbacks(player);
+  // Prefer wsrv.nl proxy URL for CORS safety in WebGL / 3D Canvas textures
+  const proxyUrl = fallbacks.find(u => u.includes('wsrv.nl'));
+  if (proxyUrl) return proxyUrl;
+  const primary = fallbacks[0] || getPlayerAvatarUrl(player);
+  if (primary.includes('pulse.ea.com') || primary.includes('futbin.com')) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(primary)}&output=png`;
   }
-  return url;
+  return primary;
 }
+
 

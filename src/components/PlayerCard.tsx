@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Player } from '../types';
 import { getPositionBadgeColor, formatCurrency } from '../utils/formatters';
 import { getPlayerAvatarUrl, getPlayerAvatarFallbacks } from '../data/playerAvatars';
-import { Flame, Eye, Activity, Zap, Glasses, Sparkles } from 'lucide-react';
+import { Flame, Eye, Activity, Zap, Glasses, Sparkles, Shield } from 'lucide-react';
 
 interface PlayerCardProps {
   player: Player;
@@ -26,6 +26,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
   const fallbacks = useMemo(() => getPlayerAvatarFallbacks(player), [player]);
   const [fallbackIndex, setFallbackIndex] = useState(0);
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   // Tilt and interactive shine state
   const cardRef = useRef<HTMLDivElement>(null);
@@ -37,11 +38,13 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
   useEffect(() => {
     setFallbackIndex(0);
     setImgError(false);
+    setImgLoaded(false);
   }, [player.id, player.name]);
 
   const currentAvatarUrl = fallbacks[fallbackIndex] || getPlayerAvatarUrl(player);
 
   const handleImageError = () => {
+    setImgLoaded(false);
     if (fallbackIndex + 1 < fallbacks.length) {
       setFallbackIndex(prev => prev + 1);
     } else {
@@ -255,26 +258,75 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
 
         {/* Player Identity: Silhouette / Avatar & Name */}
         <div className="flex items-center gap-3 mb-3.5">
-          <div className="relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-b from-slate-800/90 to-[#0A0A14] border border-[#FF1744]/30 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-md overflow-hidden group-hover:border-[#FF1744]/60 transition">
-            {currentAvatarUrl && !imgError ? (
+          <div
+            className={`relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-md overflow-hidden transition-all duration-300 ${
+              player.overall >= 90
+                ? 'bg-gradient-to-b from-amber-500/20 via-slate-900 to-[#0A0A14] border-amber-400/40 group-hover:border-amber-400/80 shadow-glow-gold'
+                : player.overall >= 85
+                ? 'bg-gradient-to-b from-purple-500/20 via-slate-900 to-[#0A0A14] border-purple-400/40 group-hover:border-purple-400/80 shadow-glow-purple'
+                : player.overall >= 80
+                ? 'bg-gradient-to-b from-cyan-500/20 via-slate-900 to-[#0A0A14] border-cyan-400/40 group-hover:border-cyan-400/80 shadow-glow-cyan'
+                : 'bg-gradient-to-b from-slate-800/90 via-slate-900 to-[#0A0A14] border-slate-700/60 group-hover:border-[#FF1744]/60'
+            }`}
+          >
+            {/* Authentic Club Crest / Silhouette Badge (Always rendered cleanly as backdrop and final fallback) */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
+              <Shield
+                className={`w-9 h-9 sm:w-10 sm:h-10 opacity-20 absolute ${
+                  player.overall >= 90
+                    ? 'text-amber-400'
+                    : player.overall >= 85
+                    ? 'text-purple-400'
+                    : player.overall >= 80
+                    ? 'text-cyan-400'
+                    : 'text-slate-400'
+                }`}
+              />
+              <span
+                className={`font-display font-black text-sm sm:text-base tracking-wider drop-shadow-md z-0 ${
+                  player.overall >= 90
+                    ? 'text-amber-200'
+                    : player.overall >= 85
+                    ? 'text-purple-200'
+                    : player.overall >= 80
+                    ? 'text-cyan-200'
+                    : 'text-slate-300'
+                }`}
+              >
+                {initials}
+              </span>
+              <span className="text-[7.5px] font-black uppercase tracking-widest text-slate-500/80 mt-0.5">
+                {player.position}
+              </span>
+            </div>
+
+            {/* High-Resolution EA Sports Authentic Player Portrait */}
+            {currentAvatarUrl && !imgError && (
               <img
                 key={`${player.id || player.name}-${fallbackIndex}`}
                 src={currentAvatarUrl}
                 alt={player.name}
                 loading="lazy"
                 referrerPolicy="no-referrer"
-                onError={handleImageError}
-                className="w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-110"
+                onLoad={() => setImgLoaded(true)}
+                onError={(e) => {
+                  // Suppress browser default broken image icon immediately
+                  (e.target as HTMLElement).style.display = 'none';
+                  handleImageError();
+                }}
+                className={`absolute inset-0 w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] transition-all duration-300 group-hover:scale-110 z-10 ${
+                  imgLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
               />
-            ) : (
-              <span className="tracking-wider">{initials}</span>
             )}
+
             {player.number && (
-              <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-slate-950 border border-slate-700 text-[9px] font-bold text-slate-300 z-10 shadow">
+              <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-slate-950 border border-slate-700 text-[9px] font-bold text-slate-300 z-20 shadow">
                 #{player.number}
               </div>
             )}
           </div>
+
 
           <div className="overflow-hidden">
             <h3 className="font-black text-white text-base leading-tight truncate group-hover:text-[#FF1744] transition font-display">

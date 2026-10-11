@@ -810,13 +810,13 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
 
         {/* ===== INTERACTIVE PLAYER SPOTLIGHT OVERLAY (ON TOKEN CLICK) ===== */}
         {selectedPlayer && (
-          <div className="absolute bottom-4 left-4 z-40 max-w-sm w-[90%] sm:w-80 bg-slate-950/95 backdrop-blur-xl border-2 border-emerald-500/50 rounded-2xl p-4 shadow-2xl animate-fadeIn">
+          <div className="absolute bottom-3 left-2 right-2 sm:left-4 sm:right-auto z-40 max-w-sm sm:w-80 bg-slate-950/95 backdrop-blur-xl border-2 border-emerald-500/50 rounded-2xl p-3.5 sm:p-4 shadow-2xl animate-fadeIn">
             <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-3">
               <div className="flex items-center gap-2">
                 <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${getPositionBadgeColor(selectedPlayer.position).bg} ${getPositionBadgeColor(selectedPlayer.position).text} ${getPositionBadgeColor(selectedPlayer.position).border}`}>
                   {selectedPlayer.position}
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                <span className="text-[10px] font-bold text-slate-400 uppercase truncate max-w-[150px]">
                   {selectedPlayer.teamSide === 'home' ? matchResult.homeTeamName : matchResult.awayTeamName}
                 </span>
               </div>
@@ -829,19 +829,22 @@ export const MatchPitchVisualizer: React.FC<MatchPitchVisualizerProps> = ({
             </div>
 
             <div className="flex items-center gap-3.5 mb-3">
-              <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-900 border border-slate-700 flex-shrink-0">
-                {selectedPlayer.avatarUrl ? (
+              <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-slate-900 border border-slate-700 flex-shrink-0 flex items-center justify-center">
+                <span className="text-sm font-black text-slate-300 font-display select-none">
+                  {selectedPlayer.name ? selectedPlayer.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : selectedPlayer.position}
+                </span>
+                {selectedPlayer.avatarUrl && (
                   <img
                     src={selectedPlayer.avatarUrl}
-                    alt={selectedPlayer.name}
-                    className="w-full h-full object-cover"
+                    alt={selectedPlayer.name || 'Player'}
+                    className="absolute inset-0 w-full h-full object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center font-black text-xl text-emerald-400">
-                    {selectedPlayer.position}
-                  </div>
                 )}
               </div>
+
               <div className="flex-1">
                 <h4 className="text-sm font-black text-white leading-tight">{selectedPlayer.name}</h4>
                 <div className="flex items-center gap-2 mt-1">

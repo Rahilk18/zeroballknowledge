@@ -277,9 +277,13 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
   const badge = getPositionBadgeColor(player.position);
   const fallbacks = useMemo(() => getPlayerAvatarFallbacks(player), [player]);
   const [fallbackIndex, setFallbackIndex] = useState(0);
+  const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   useEffect(() => {
     setFallbackIndex(0);
+    setImgError(false);
+    setImgLoaded(false);
   }, [player.id, player.name]);
 
   const avatar = fallbacks[fallbackIndex] || getPlayerAvatarUrl(player);
@@ -301,39 +305,50 @@ const PitchPlayerToken: React.FC<PitchPlayerTokenProps> = ({
     >
       <div className="relative">
         <div
-          className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center font-black transition-all shadow-lg overflow-hidden ${
+          className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center font-black transition-all shadow-lg overflow-hidden ${
             isSelected
               ? 'bg-[#FF1744] text-slate-950 ring-2 ring-[#FF1744]/80 shadow-glow-cyan'
               : 'bg-gradient-to-b from-[#0E1324] to-[#0A0A14] text-white border border-slate-700/80 group-hover:border-[#FF1744] shadow-glow-cyan'
           }`}
         >
-          {avatar ? (
+          {/* Silhouette / Initials Backdrop */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
+            <span className="text-[11px] sm:text-xs font-black font-display tracking-tight text-slate-200">
+              {player.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+            </span>
+            <span
+              className={`text-[7px] font-black uppercase tracking-wider px-1 py-0.2 rounded mt-0.5 ${
+                isSelected ? 'bg-slate-950 text-[#FF1744]' : `${badge.bg} ${badge.text}`
+              }`}
+            >
+              {player.position}
+            </span>
+          </div>
+
+          {avatar && !imgError && (
             <img
               key={`${player.id || player.name}-${fallbackIndex}`}
               src={avatar}
               alt={player.name}
               referrerPolicy="no-referrer"
-              className="w-full h-full object-contain object-center drop-shadow-md pointer-events-none"
+              className={`absolute inset-0 w-full h-full object-contain object-center drop-shadow-md pointer-events-none transition-all duration-300 z-10 ${
+                imgLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
               loading="lazy"
-              onError={() => {
+              onLoad={() => setImgLoaded(true)}
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+                setImgLoaded(false);
                 if (fallbackIndex + 1 < fallbacks.length) {
                   setFallbackIndex(prev => prev + 1);
+                } else {
+                  setImgError(true);
                 }
               }}
             />
-          ) : (
-            <>
-              <span className="text-xs sm:text-sm leading-none font-mono">#{player.number ?? 7}</span>
-              <span
-                className={`text-[8px] font-black uppercase tracking-wider px-1 py-0.2 rounded mt-0.5 ${
-                  isSelected ? 'bg-slate-950 text-[#FF1744]' : `${badge.bg} ${badge.text}`
-                }`}
-              >
-                {player.position}
-              </span>
-            </>
           )}
         </div>
+
 
         {/* Overall Rating Pill */}
         <div className="absolute -top-1 -right-1.5 px-1 py-0.2 rounded-full bg-[#FF1744] text-slate-950 text-[9px] font-black shadow-glow-cyan border border-[#FF1744]/60 leading-none z-10 font-display">

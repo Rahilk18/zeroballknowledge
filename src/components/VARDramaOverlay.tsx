@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { MatchEvent } from '../types';
 import { sound } from '../utils/audioSynth';
 import { 
@@ -103,14 +104,14 @@ export const VARDramaOverlay: React.FC<VARDramaOverlayProps> = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn">
+  return typeof document !== 'undefined' ? createPortal(
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn overflow-y-auto">
       {/* Cinematic Television Broadcast Frame */}
-      <div className={`relative w-full max-w-2xl rounded-3xl overflow-hidden border-2 transition-all duration-500 shadow-2xl ${
+      <div className={`relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-3xl border-2 transition-all duration-500 shadow-2xl my-auto ${
         stage === 'verdict'
           ? isOverturned
             ? 'border-rose-500 bg-gradient-to-b from-rose-950/90 via-[#0C060B] to-[#14080F] shadow-[0_0_50px_rgba(244,63,94,0.45)]'
-            : 'border-emerald-500 bg-gradient-to-b from-emerald-950/90 via-[#05110E] to-[#081813] shadow-[0_0_50px_rgba(16,185,129,0.45)]'
+            : 'border-emerald-500 bg-gradient-to-b from-emerald-950/90 via-[#05110E] to-[#081813] shadow-[0_0_50px_rgba(168,85,247,0.45)]'
           : 'border-purple-500/80 bg-gradient-to-b from-purple-950/90 via-[#0A0714] to-[#0E0C20] shadow-[0_0_50px_rgba(168,85,247,0.4)]'
       }`}>
 
@@ -397,6 +398,7 @@ export const VARDramaOverlay: React.FC<VARDramaOverlayProps> = ({
 
         </div>
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 };

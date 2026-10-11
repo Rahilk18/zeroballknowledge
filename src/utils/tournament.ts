@@ -1,4 +1,4 @@
-import { Team, MatchResult, LeagueStanding } from '../types';
+import { Team, MatchResult, LeagueStanding, Player } from '../types';
 
 export interface TournamentFixture {
   id: string;
@@ -250,3 +250,263 @@ export function computeTournamentStandings(
     return a.teamName.localeCompare(b.teamName);
   });
 }
+
+export interface TournamentPlayerLeader {
+  playerId: string;
+  playerName: string;
+  shortName: string;
+  position: string;
+  teamId: string;
+  teamName: string;
+  badge: string;
+  avatarUrl?: string;
+  overall: number;
+  goals: number;
+  assists: number;
+  motmCount: number;
+  matchesPlayed: number;
+  avgRating: number;
+  cleanSheets: number;
+}
+
+/**
+ * Computes official tournament player statistics aggregated across all completed matches.
+ * Scans match events, player ratings, and official MOTM honors directly from match records
+ * to guarantee 100% data integrity and consistency across tournament legs.
+ */
+export function computeTournamentPlayerStats(
+  allPlayers: Player[],
+  matches: MatchResult[],
+  teams: Team[]
+): TournamentPlayerLeader[] {
+  const teamMap = new Map<string, Team>();
+  (teams || []).forEach(t => teamMap.set(t.id, t));
+
+  const statsMap = new Map<string, {
+    player: Player;
+    teamId: string;
+    goals: number;
+    assists: number;
+    motmCount: number;
+    matchesPlayed: number;
+    ratingSum: number;
+    cleanSheets: number;
+  }>();
+
+  // Initialize from allPlayers
+  (allPlayers || []).forEach(p => {
+    statsMap.set(p.id, {
+      player: p,
+      teamId: p.teamId || '',
+      goals: 0,
+      assists: 0,
+      motmCount: 0,
+      matchesPlayed: 0,
+      ratingSum: 0,
+      cleanSheets: 0,
+    });
+  });
+
+  (matches || []).forEach(match => {
+    const isHomeCleanSheet = match.awayScore === 0;
+    const isAwayCleanSheet = match.homeScore === 0;
+
+    // Check Player of the Match honors
+    const potmId = match.playerOfTheMatch?.playerId || match.potmPlayerId;
+
+    // Process player ratings
+    if (match.playerRatings) {
+      Object.entries(match.playerRatings).forEach(([pId, pr]) => {
+        let entry = statsMap.get(pId);
+        if (!entry) {
+          const fallbackPlayer: Player = {
+            id: pId,
+            name: pr.playerName,
+            shortName: pr.playerName.split(' ').slice(-1)[0] || pr.playerName,
+            position: (pr.position as any) || 'MID',
+            nationality: 'Club',
+            overall: 78,
+            pace: 75,
+            shooting: 75,
+            passing: 75,
+            dribbling: 75,
+            defending: 75,
+            physical: 75,
+            goalkeeping: 15,
+            form: 80,
+            stats: { matches: 0, goals: 0, assists: 0, cleanSheets: 0, yellowCards: 0, redCards: 0, avgRating: 7.0 }
+          };
+          entry = {
+            player: fallbackPlayer,
+            teamId: pr.teamId || '',
+            goals: 0,
+            assists: 0,
+            motmCount: 0,
+            matchesPlayed: 0,
+            ratingSum: 0,
+            cleanSheets: 0,
+          };
+          statsMap.set(pId, entry);
+        }
+
+        entry.matchesPlayed += 1;
+        entry.goals += pr.goals || 0;
+        entry.assists += pr.assists || 0;
+        entry.ratingSum += pr.rating || 7.0;
+        if (pr.teamId) entry.teamId = pr.teamId;
+
+        // Clean sheet tracking
+        const isHome = pr.teamId === match.homeTeamId;
+        const earnedCleanSheet = (pr.position === 'GK' || pr.position === 'DEF') && (isHome ? isHomeCleanSheet : isAwayCleanSheet);
+        if (earnedCleanSheet) {
+          entry.cleanSheets += 1;
+        }
+      });
+    }
+
+    // Award MOTM
+    if (potmId && statsMap.has(potmId)) {
+      statsMap.get(potmId)!.motmCount += 1;
+    }
+  });
+
+  // Convert to TournamentPlayerLeader list
+  const results: TournamentPlayerLeader[] = [];
+  statsMap.forEach((entry, pId) => {
+    const p = entry.player;
+    const team = teamMap.get(entry.teamId) || teamMap.get(p.teamId || '');
+    const teamName = team?.name || team?.teamName || 'Free Agent';
+    const badge = team?.badgeIcon || team?.badge || '⚽';
+
+    // If no matches yet, fall back to player's existing stats
+    const goals = matches.length > 0 ? entry.goals : (p.stats?.goals || p.goals || 0);
+    const assists = matches.length > 0 ? entry.assists : (p.stats?.assists || p.assists || 0);
+    const motmCount = matches.length > 0 ? entry.motmCount : (p.stats?.motm || 0);
+    const matchesPlayed = matches.length > 0 ? entry.matchesPlayed : (p.stats?.matches || p.appearances || 0);
+    const avgRating = entry.matchesPlayed > 0
+      ? Number((entry.ratingSum / entry.matchesPlayed).toFixed(1))
+      : (p.stats?.avgRating || p.rating || 7.0);
+    const cleanSheets = matches.length > 0 ? entry.cleanSheets : (p.stats?.cleanSheets || p.cleanSheets || 0);
+
+    results.push({
+      playerId: pId,
+      playerName: p.name,
+      shortName: p.shortName || p.name,
+      position: p.position,
+      teamId: entry.teamId || p.teamId || '',
+      teamName,
+      badge,
+      avatarUrl: p.avatarUrl || p.imageUrl,
+      overall: p.overall,
+      goals,
+      assists,
+      motmCount,
+      matchesPlayed,
+      avgRating,
+      cleanSheets,
+    });
+  });
+
+  return results;
+}
+
+/**
+ * Computes Tournament Top Scorers (Golden Boot) Leaderboard.
+ * Prioritizes goals scored, then assists, then fewest matches played, then player overall.
+ */
+export function computeTournamentGoldenBoot(
+  allPlayers: Player[],
+  matches: MatchResult[],
+  teams: Team[]
+): TournamentPlayerLeader[] {
+  const allStats = computeTournamentPlayerStats(allPlayers, matches, teams);
+
+  return allStats
+    .filter(p => p.goals > 0 || (matches.length === 0 && p.overall >= 88))
+    .sort((a, b) => {
+      if (b.goals !== a.goals) return b.goals - a.goals;
+      if (b.assists !== a.assists) return b.assists - a.assists;
+      if (a.matchesPlayed !== b.matchesPlayed && a.matchesPlayed > 0 && b.matchesPlayed > 0) {
+        return a.matchesPlayed - b.matchesPlayed;
+      }
+      return b.overall - a.overall;
+    });
+}
+
+/**
+ * Computes Tournament Man of the Match (MOTM Honors) Leaderboard.
+ * Ranks players by total MOTM awards, then average match rating.
+ */
+export function computeTournamentMotmLeaders(
+  allPlayers: Player[],
+  matches: MatchResult[],
+  teams: Team[]
+): TournamentPlayerLeader[] {
+  const allStats = computeTournamentPlayerStats(allPlayers, matches, teams);
+
+  return allStats
+    .filter(p => p.motmCount > 0 || p.matchesPlayed > 0)
+    .sort((a, b) => {
+      if (b.motmCount !== a.motmCount) return b.motmCount - a.motmCount;
+      if (b.avgRating !== a.avgRating) return b.avgRating - a.avgRating;
+      if (b.goals !== a.goals) return b.goals - a.goals;
+      return b.overall - a.overall;
+    });
+}
+
+/**
+ * Applies a simulated match result to the player collection,
+ * updating matches, appearances, goals, assists, clean sheets, MOTM honors, and avg rating.
+ */
+export function applyMatchToPlayerStats(
+  players: Player[],
+  result: MatchResult
+): Player[] {
+  const potmId = result.playerOfTheMatch?.playerId || result.potmPlayerId;
+  const isHomeCleanSheet = result.awayScore === 0;
+  const isAwayCleanSheet = result.homeScore === 0;
+
+  return players.map(p => {
+    const matchRating = result.playerRatings?.[p.id];
+    if (!matchRating) return p;
+
+    const prevMatches = p.stats?.matches || 0;
+    const newMatches = prevMatches + 1;
+    const newGoals = (p.stats?.goals || 0) + (matchRating.goals || 0);
+    const newAssists = (p.stats?.assists || 0) + (matchRating.assists || 0);
+
+    const isHome = matchRating.teamId === result.homeTeamId;
+    const earnedCleanSheet =
+      (p.position === 'GK' || p.position === 'DEF') &&
+      (isHome ? isHomeCleanSheet : isAwayCleanSheet);
+    const newCleanSheets = (p.stats?.cleanSheets || 0) + (earnedCleanSheet ? 1 : 0);
+
+    const isMotm = potmId === p.id;
+    const newMotm = (p.stats?.motm || 0) + (isMotm ? 1 : 0);
+
+    const prevAvg = p.stats?.avgRating || 7.0;
+    const newAvg = Number(
+      (((prevAvg * prevMatches) + matchRating.rating) / newMatches).toFixed(1)
+    );
+
+    return {
+      ...p,
+      stats: {
+        ...p.stats,
+        matches: newMatches,
+        appearances: newMatches,
+        goals: newGoals,
+        assists: newAssists,
+        cleanSheets: newCleanSheets,
+        motm: newMotm,
+        avgRating: newAvg,
+      },
+      goals: newGoals,
+      assists: newAssists,
+      appearances: newMatches,
+      cleanSheets: newCleanSheets,
+      rating: newAvg,
+    };
+  });
+}
+

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { Player } from '../types';
 import { StatBar } from './StatBar';
 import { getPositionBadgeColor, formatCurrency, formatThousands } from '../utils/formatters';
@@ -22,10 +23,23 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
   const [activeTab, setActiveTab] = useState<'3d' | 'stats'>('3d');
   const fallbacks = useMemo(() => player ? getPlayerAvatarFallbacks(player) : [], [player]);
   const [fallbackIndex, setFallbackIndex] = useState(0);
+  const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   useEffect(() => {
     setFallbackIndex(0);
+    setImgError(false);
+    setImgLoaded(false);
   }, [player?.id, player?.name]);
+
+  const handleImageError = () => {
+    setImgLoaded(false);
+    if (fallbackIndex + 1 < fallbacks.length) {
+      setFallbackIndex(prev => prev + 1);
+    } else {
+      setImgError(true);
+    }
+  };
 
   if (!player) return null;
 
@@ -37,13 +51,13 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
     .substring(0, 2)
     .toUpperCase();
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+  return typeof document !== 'undefined' ? createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn overflow-y-auto">
       {/* Background click to dismiss */}
       <div className="absolute inset-0" onClick={onClose} />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg bg-[#0E1324] border border-[#FF1744]/40 rounded-3xl shadow-glow-cyan overflow-hidden z-10 max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-lg bg-[#0E1324] border border-[#FF1744]/40 rounded-3xl shadow-glow-cyan overflow-hidden z-10 max-h-[92vh] flex flex-col my-auto">
         
         {/* Modal Header */}
         <div className="relative p-5 sm:p-6 bg-gradient-to-br from-[#0E1324] via-[#0A0A14] to-[#12182D] border-b border-slate-800">
@@ -60,29 +74,43 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               const currentAvatar = fallbacks[fallbackIndex] || getPlayerAvatarUrl(player);
               return (
                 <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-slate-800 to-[#0A0A14] border-2 border-[#FF1744]/50 flex items-center justify-center text-white font-black text-xl shadow-glow-cyan overflow-hidden flex-shrink-0">
-                  {currentAvatar ? (
+                  {/* Styled Club Crest / Silhouette Badge Backdrop */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
+                    <Shield className="w-12 h-12 opacity-20 absolute text-amber-400" />
+                    <span className="font-display font-black text-lg tracking-wider text-slate-200 drop-shadow-md z-0">
+                      {initials}
+                    </span>
+                    <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 mt-0.5">
+                      {player.position}
+                    </span>
+                  </div>
+
+                  {currentAvatar && !imgError && (
                     <img
                       key={`${player.id || player.name}-${fallbackIndex}`}
                       src={currentAvatar}
                       alt={player.name}
                       referrerPolicy="no-referrer"
-                      className="w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
-                      onError={() => {
-                        if (fallbackIndex + 1 < fallbacks.length) {
-                          setFallbackIndex(prev => prev + 1);
-                        }
+                      onLoad={() => setImgLoaded(true)}
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                        handleImageError();
                       }}
+                      className={`absolute inset-0 w-full h-full object-contain object-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-all duration-300 z-10 ${
+                        imgLoaded ? 'opacity-100' : 'opacity-0'
+                      }`}
                     />
-                  ) : null}
-                  <span className={`tracking-wider ${currentAvatar ? 'hidden' : ''}`}>{initials}</span>
+                  )}
+
                   {player.number && (
-                    <div className="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full bg-slate-950 border border-slate-700 text-[10px] font-bold text-slate-300 z-10">
+                    <div className="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full bg-slate-950 border border-slate-700 text-[10px] font-bold text-slate-300 z-20">
                       #{player.number}
                     </div>
                   )}
                 </div>
               );
             })()}
+
 
             {/* Name & Basic Info */}
             <div className="flex-1">
@@ -214,10 +242,10 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="p-4 bg-[#0A0A14] border-t border-slate-800 flex items-center justify-end gap-2.5">
+        <div className="p-3.5 sm:p-4 pb-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] bg-[#0A0A14] border-t border-slate-800 flex items-center justify-end gap-2.5">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-850 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold transition border border-slate-700 uppercase"
+            className="px-4 py-2 min-h-[38px] rounded-xl bg-slate-850 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold transition border border-slate-700 uppercase"
           >
             Close
           </button>
@@ -227,7 +255,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
                 onSwapLineup(player);
                 onClose();
               }}
-              className="px-5 py-2 rounded-xl bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan"
+              className="px-5 py-2 min-h-[38px] rounded-xl bg-[#FF1744] hover:bg-[#FF4D6D] text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan"
             >
               {isStartingLineup ? 'Move To Bench' : 'Place in Starting 7'}
             </button>
@@ -235,6 +263,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
         </div>
 
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 };

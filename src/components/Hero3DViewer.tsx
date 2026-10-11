@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { RotateCcw, Sparkles, Eye, Shield, Zap, Flame } from 'lucide-react';
 import { Player } from '../types';
 import { renderEASportsFCCard } from '../utils/cardRenderer';
-import { getCORSPlayerAvatarUrl, getPlayerAvatarUrl } from '../data/playerAvatars';
+import { getCORSPlayerAvatarUrl, getPlayerAvatarUrl, getPlayerAvatarFallbacks } from '../data/playerAvatars';
 
 interface Hero3DViewerProps {
   player?: Player | null;
@@ -147,9 +147,14 @@ export const Hero3DViewer: React.FC<Hero3DViewerProps> = ({
     texture.anisotropy = 8;
     texture.generateMipmaps = true;
 
-    // Load actual high-res player portrait from EA Sports FC CDN
-    const avatarUrl = getCORSPlayerAvatarUrl(player);
-    if (avatarUrl) {
+    // Load actual high-res player portrait from multi-tier authentic fallbacks
+    const fallbacks = player ? getPlayerAvatarFallbacks(player) : [];
+    // Ensure CORS-friendly URLs for Three.js texture rendering
+    const corsFallbacks = fallbacks.map(u => u.includes('pulse.ea.com') || u.includes('futbin.com') ? `https://wsrv.nl/?url=${encodeURIComponent(u)}&output=png` : u);
+    let fbIdx = 0;
+
+    const tryLoadPortrait = (url: string) => {
+      if (!url) return;
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
@@ -161,10 +166,18 @@ export const Hero3DViewer: React.FC<Hero3DViewerProps> = ({
         texture.needsUpdate = true;
       };
       img.onerror = () => {
-        // Fallback is already beautifully rendered with high-res stylized silhouette, stats & gold shield!
+        fbIdx++;
+        if (fbIdx < corsFallbacks.length) {
+          tryLoadPortrait(corsFallbacks[fbIdx]);
+        }
       };
-      img.src = avatarUrl;
+      img.src = url;
+    };
+
+    if (corsFallbacks.length > 0) {
+      tryLoadPortrait(corsFallbacks[0]);
     }
+
 
     // Geometry matching EA FC card aspect ratio (800x1120 -> 1.35 x 1.89)
     const cardGeo = new THREE.BoxGeometry(1.35, 1.89, 0.04);

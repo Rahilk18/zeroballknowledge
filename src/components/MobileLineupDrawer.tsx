@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Player } from '../types';
 import { getPositionBadgeColor, getRatingBadgeStyle } from '../utils/formatters';
 import { FORMATIONS } from '../utils/formation';
@@ -67,7 +68,7 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
   return (
     <>
       {/* ===== 1. FLOATING BOTTOM ACTION PILL (COLLAPSED) ===== */}
-      <div className="fixed bottom-[60px] left-2 right-2 z-40 lg:hidden">
+      <div className="fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px)+8px)] left-2 right-2 z-40 lg:hidden">
         <div className="bg-[#0E1324]/95 backdrop-blur-xl border border-[#FF1744]/40 rounded-2xl p-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.85)] flex items-center justify-between gap-2 ring-1 ring-white/5">
           {/* Left: Squad Overview */}
           <div
@@ -94,7 +95,7 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
                 sound.playClick();
                 setIsOpen(true);
               }}
-              className="px-2.5 py-1.5 bg-[#0A0D1A] hover:bg-[#12182D] border border-amber-500/40 text-amber-300 rounded-xl text-xs font-bold uppercase transition flex items-center gap-1.5 active:scale-95"
+              className="px-2.5 py-1.5 min-h-[38px] bg-[#0A0D1A] hover:bg-[#12182D] border border-amber-500/40 text-amber-300 rounded-xl text-xs font-bold uppercase transition flex items-center gap-1.5 active:scale-95"
             >
               <ArrowLeftRight className="w-3.5 h-3.5 text-amber-400" />
               <span>Bench ({bench.length})</span>
@@ -107,7 +108,7 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
                 sound.playPowerUp();
                 onAutoOptimize();
               }}
-              className="p-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 rounded-xl transition active:scale-95"
+              className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 rounded-xl transition active:scale-95"
               title="Auto-Optimize Starting 7"
             >
               <Zap className="w-4 h-4 fill-slate-950" />
@@ -120,7 +121,7 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
                 sound.playClick();
                 onLockIn();
               }}
-              className={`p-1.5 rounded-xl border transition ${
+              className={`p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-xl border transition ${
                 isLockedIn
                   ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
                   : 'bg-[#FF1744]/20 border-[#FF1744]/40 text-[#FF1744]'
@@ -134,8 +135,8 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
       </div>
 
       {/* ===== 2. POPUP BOTTOM SHEET MODAL ===== */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col justify-end lg:hidden animate-fadeIn">
+      {isOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex flex-col justify-end lg:hidden animate-fadeIn">
           {/* Backdrop Tap to Close */}
           <div
             className="absolute inset-0"
@@ -146,7 +147,7 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
           />
 
           {/* Drawer Content */}
-          <div className="relative bg-[#0E1324] border-t-2 border-[#FF1744]/40 rounded-t-3xl p-4 sm:p-5 max-h-[85vh] overflow-y-auto shadow-[0_-10px_40px_rgba(0,0,0,0.9)] space-y-3.5">
+          <div className="relative bg-[#0E1324] border-t-2 border-[#FF1744]/40 rounded-t-3xl p-4 sm:p-5 pb-[max(1.75rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] max-h-[88vh] overflow-y-auto shadow-[0_-10px_40px_rgba(0,0,0,0.9)] space-y-3.5">
             {/* Top Handle Bar */}
             <div className="w-12 h-1 bg-slate-700 rounded-full mx-auto" />
 
@@ -177,16 +178,20 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
                 {/* Active Selected Card Banner */}
                 <div className="bg-emerald-950/80 border border-emerald-500/50 rounded-2xl p-3 flex items-center justify-between">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-slate-800 border border-emerald-500/40 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    <div className="relative w-10 h-10 rounded-xl bg-slate-800 border border-emerald-500/40 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      <span className="text-xs font-black text-slate-300 font-display select-none">
+                        {selectedPlayer.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                      </span>
                       <img
                         src={getPlayerAvatarUrl(selectedPlayer)}
                         alt={selectedPlayer.name}
-                        className="w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-contain"
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
                     </div>
+
                     <div className="truncate">
                       <div className="flex items-center gap-1.5">
                         <span className={`text-[9px] font-black font-mono px-1 py-0.2 rounded border ${getRatingBadgeStyle(selectedPlayer.overall)}`}>
@@ -248,16 +253,20 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
                               <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                                 {bp.position}
                               </span>
-                              <div className="w-7 h-7 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0">
+                              <div className="relative w-7 h-7 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                <span className="text-[9px] font-black text-slate-300 font-display select-none">
+                                  {bp.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                </span>
                                 <img
                                   src={getPlayerAvatarUrl(bp)}
                                   alt={bp.name}
-                                  className="w-full h-full object-cover"
+                                  className="absolute inset-0 w-full h-full object-contain"
                                   onError={(e) => {
                                     (e.target as HTMLElement).style.display = 'none';
                                   }}
                                 />
                               </div>
+
                               <div className="truncate">
                                 <p className="text-xs font-black text-white truncate">{bp.name}</p>
                                 <p className="text-[10px] text-slate-400 font-mono">Form: {bp.form} • #{bp.number ?? '10'}</p>
@@ -360,16 +369,20 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
                               <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                                 {p.position}
                               </span>
-                              <div className="w-7 h-7 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0">
+                              <div className="relative w-7 h-7 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                <span className="text-[9px] font-black text-slate-300 font-display select-none">
+                                  {p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                </span>
                                 <img
                                   src={getPlayerAvatarUrl(p)}
                                   alt={p.name}
-                                  className="w-full h-full object-cover"
+                                  className="absolute inset-0 w-full h-full object-contain"
                                   onError={(e) => {
                                     (e.target as HTMLElement).style.display = 'none';
                                   }}
                                 />
                               </div>
+
                               <div className="truncate">
                                 <p className="text-xs font-black text-white truncate">{p.name}</p>
                                 <p className="text-[10px] text-slate-400 font-mono">#{p.number ?? '10'} • Form: {p.form}</p>
@@ -469,7 +482,8 @@ export const MobileLineupDrawer: React.FC<MobileLineupDrawerProps> = ({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

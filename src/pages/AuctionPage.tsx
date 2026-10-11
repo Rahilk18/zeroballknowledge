@@ -416,7 +416,7 @@ export function AuctionPage({ setActiveTab }: any) {
   const timerPulse = timeLeft <= 5 ? 'animate-pulse' : '';
 
   return (
-    <div className="p-2 sm:p-4 max-w-6xl mx-auto space-y-3.5 animate-fadeIn pb-28 sm:pb-8">
+    <div className="p-2 sm:p-4 max-w-6xl mx-auto space-y-3.5 animate-fadeIn pb-32 sm:pb-8">
       
       {/* ARENA HEADER: ROOM CODE & 3D STAGE TOGGLE */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-[#0E1324] border border-[#FF1744]/25 shadow-glow-cyan">
@@ -552,7 +552,7 @@ export function AuctionPage({ setActiveTab }: any) {
               <Hero3DViewer
                 player={currentPlayer}
                 auraHex={currentPlayer?.overall && currentPlayer.overall >= 90 ? '#F59E0B' : '#FF1744'}
-                height={380}
+                height={typeof window !== 'undefined' && window.innerWidth < 640 ? 270 : 380}
                 showControls={true}
               />
             </div>

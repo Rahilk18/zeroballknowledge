@@ -152,7 +152,7 @@ export const Navigation: React.FC<NavigationProps> = ({
       )}
 
       {/* Mobile Fixed Bottom Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0A0A14]/95 backdrop-blur-md border-t border-[#FF1744]/20 px-3 py-2 flex items-center justify-around shadow-2xl">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0A0A14]/95 backdrop-blur-md border-t border-[#FF1744]/20 px-2 pt-1.5 pb-[max(0.5rem,calc(env(safe-area-inset-bottom,0px)+0.35rem))] flex items-center justify-around shadow-2xl">
         {[
           { id: 'dashboard', label: 'Hub', icon: LayoutDashboard },
           { id: 'auction', label: '3D Arena', icon: Gavel },
@@ -166,13 +166,13 @@ export const Navigation: React.FC<NavigationProps> = ({
             <button
               key={item.id}
               onClick={() => handleSelectTab(item.id as ActiveTab)}
-              className={`flex flex-col items-center justify-center py-1 px-2 rounded-lg transition-colors ${
+              className={`flex flex-col items-center justify-center py-1 px-2.5 min-h-[44px] rounded-lg transition-colors active:scale-95 ${
                 isActive ? 'text-[#FF1744] text-glow-cyan' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-bold mt-1 tracking-wider uppercase">{item.label}</span>
-              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#FF1744] mt-0.5 shadow-glow-cyan" />}
+              <Icon className="w-5 h-5 flex-shrink-0" />
+              <span className="text-[10px] font-bold mt-0.5 tracking-wider uppercase leading-none">{item.label}</span>
+              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#FF1744] mt-1 shadow-glow-cyan" />}
             </button>
           );
         })}

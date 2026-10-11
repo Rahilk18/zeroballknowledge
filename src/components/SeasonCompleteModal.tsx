@@ -1,10 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import confetti from 'canvas-confetti';
-import { Trophy, Award, Medal, ArrowRight, RotateCcw, Globe, Users } from 'lucide-react';
+import { Trophy, Award, Medal, ArrowRight, RotateCcw, Globe, Users, Target, Star } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useSession } from '../contexts/SessionContext';
 import type { LeagueStanding, ActiveTab } from '../types';
+import { computeTournamentGoldenBoot, computeTournamentMotmLeaders } from '../utils/tournament';
+import { getPlayerAvatarUrl } from '../data/playerAvatars';
 
 interface SeasonCompleteModalProps {
   standings: LeagueStanding[];
@@ -20,10 +23,21 @@ export function SeasonCompleteModal({
   onViewLeaderboard
 }: SeasonCompleteModalProps) {
   const { user, profile, refreshProfile } = useAuth();
-  const { currentSession, myTeam } = useSession();
+  const { currentSession, myTeam, sessionPlayers, sessionMatches, allTeams } = useSession();
   const [pointsAwarded, setPointsAwarded] = useState<number>(0);
   const [awardedSuccess, setAwardedSuccess] = useState(false);
   const awardProcessed = useRef(false);
+
+  const goldenBootLeaders = useMemo(() => {
+    return computeTournamentGoldenBoot(sessionPlayers || [], sessionMatches || [], allTeams || []);
+  }, [sessionPlayers, sessionMatches, allTeams]);
+
+  const motmLeaders = useMemo(() => {
+    return computeTournamentMotmLeaders(sessionPlayers || [], sessionMatches || [], allTeams || []);
+  }, [sessionPlayers, sessionMatches, allTeams]);
+
+  const topScorer = goldenBootLeaders[0];
+  const topMvp = motmLeaders[0];
 
   // Sort standings by points, GD, GF
   const sorted = [...standings].sort((a, b) => {
@@ -134,9 +148,9 @@ export function SeasonCompleteModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-gradient-to-b from-[#111e28] via-[#0c141c] to-[#070b0e] border-2 border-amber-500/60 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 animate-fadeIn my-8">
+  return typeof document !== 'undefined' ? createPortal(
+    <div className="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-gradient-to-b from-[#111e28] via-[#0c141c] to-[#070b0e] border-2 border-amber-500/60 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-5 animate-fadeIn my-auto max-h-[92vh] overflow-y-auto">
         
         {/* Header */}
         <div className="text-center space-y-2">
@@ -208,6 +222,45 @@ export function SeasonCompleteModal({
           </div>
         </div>
 
+        {/* Individual Honors: Golden Boot & Tournament MVP */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Golden Boot Award */}
+          <div className="bg-gradient-to-r from-amber-950/40 to-slate-900 border border-amber-500/50 rounded-2xl p-3.5 flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center text-xl flex-shrink-0">
+              🥇
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[9px] font-black uppercase tracking-wider text-amber-400 block">
+                TOURNAMENT GOLDEN BOOT
+              </span>
+              <h4 className="font-black text-white text-xs sm:text-sm truncate mt-0.5">
+                {topScorer ? `${topScorer.playerName}` : 'No Goalscorer'}
+              </h4>
+              <p className="text-[10px] text-slate-300 font-mono">
+                {topScorer ? `${topScorer.goals} Goals • ${topScorer.teamName}` : '0 Goals Recorded'}
+              </p>
+            </div>
+          </div>
+
+          {/* Tournament MVP / MOTM Leader */}
+          <div className="bg-gradient-to-r from-purple-950/40 to-slate-900 border border-purple-500/50 rounded-2xl p-3.5 flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center justify-center text-xl flex-shrink-0">
+              ⭐
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[9px] font-black uppercase tracking-wider text-purple-400 block">
+                PLAYER OF THE TOURNAMENT
+              </span>
+              <h4 className="font-black text-white text-xs sm:text-sm truncate mt-0.5">
+                {topMvp ? `${topMvp.playerName}` : 'Tournament MVP'}
+              </h4>
+              <p className="text-[10px] text-slate-300 font-mono">
+                {topMvp ? `${topMvp.motmCount} MOTM Honors • ${topMvp.avgRating} ★ Rating` : 'Outstanding Performance'}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* User Reward Card */}
         <div className="bg-emerald-950/40 border border-emerald-500/40 rounded-2xl p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -259,8 +312,9 @@ export function SeasonCompleteModal({
           💰 The €130M transfer budget was for this room only and resets to fresh €130.0M for your next game. Your manager career ELO points persist permanently!
         </p>
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 }
 
 export default SeasonCompleteModal;

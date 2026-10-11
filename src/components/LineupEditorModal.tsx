@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Player, Team, PlayerPosition } from '../types';
 import { getPositionBadgeColor, getRatingBadgeStyle } from '../utils/formatters';
 import { getPlayerAvatarUrl } from '../data/playerAvatars';
@@ -138,11 +139,11 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
     .map(id => getPlayer(id))
     .filter((p): p is Player => p !== undefined);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-3 bg-black/80 backdrop-blur-md">
+  return typeof document !== 'undefined' ? createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="relative w-full max-w-4xl bg-[#0d151d] border border-rose-500/40 rounded-2xl shadow-2xl overflow-hidden z-10 max-h-[92vh] flex flex-col my-auto">
+      <div className="relative w-full max-w-4xl bg-[#0d151d] border border-rose-500/40 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[92vh] flex flex-col my-auto">
         
         {/* Header */}
         <div className="p-3 sm:p-3.5 bg-gradient-to-r from-slate-900 via-[#0e1a24] to-slate-900 border-b border-slate-800 flex items-center justify-between">
@@ -398,16 +399,20 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                             {p.position}
                           </span>
-                          <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          <div className="relative w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <span className="text-[10px] font-black text-slate-300 font-display select-none">
+                              {p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                            </span>
                             <img
                               src={getPlayerAvatarUrl(p)}
                               alt={p.name}
-                              className="w-full h-full object-cover"
+                              className="absolute inset-0 w-full h-full object-contain"
                               onError={(e) => {
                                 (e.target as HTMLElement).style.display = 'none';
                               }}
                             />
                           </div>
+
                           <div>
                             <p className="text-xs font-black text-white">{p.name}</p>
                             <p className="text-[10px] text-slate-400">#{p.number} • Form: {p.form}</p>
@@ -449,16 +454,20 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border flex-shrink-0 ${badge.bg} ${badge.text} ${badge.border}`}>
                             {p.position}
                           </span>
-                          <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          <div className="relative w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <span className="text-[10px] font-black text-slate-300 font-display select-none">
+                              {p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                            </span>
                             <img
                               src={getPlayerAvatarUrl(p)}
                               alt={p.name}
-                              className="w-full h-full object-cover"
+                              className="absolute inset-0 w-full h-full object-contain"
                               onError={(e) => {
                                 (e.target as HTMLElement).style.display = 'none';
                               }}
                             />
                           </div>
+
                           <div>
                             <p className="text-xs font-bold text-slate-200">{p.name}</p>
                             <p className="text-[10px] text-slate-400">#{p.number} • Form: {p.form}</p>
@@ -476,7 +485,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
         </div>
 
         {/* STICKY FOOTER: Always visible on mobile & laptop screens without hidden fold */}
-        <div className="sticky bottom-0 z-20 p-2.5 sm:p-3 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 flex-shrink-0">
+        <div className="sticky bottom-0 z-20 p-2.5 sm:p-3 pb-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 flex-shrink-0">
           <div className="text-[11px] sm:text-xs text-slate-400 font-mono text-center sm:text-left">
             Lineup: <strong className="text-white">{starting.length}</strong> Starters • <strong className="text-white">{bench.length}</strong> Bench • Formation <strong className="text-[#FF1744]">{formation}</strong>
           </div>
@@ -484,13 +493,13 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               onClick={onClose}
-              className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition text-center"
+              className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[38px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition text-center"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="flex-1 sm:flex-initial px-5 py-2 rounded-xl bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan active:scale-95 text-center whitespace-nowrap"
+              className="flex-1 sm:flex-initial px-5 py-2 min-h-[38px] rounded-xl bg-gradient-to-r from-[#FF1744] to-rose-700 hover:from-[#FF4D6D] hover:to-rose-600 text-slate-950 text-xs font-black tracking-wide uppercase transition shadow-glow-cyan active:scale-95 text-center whitespace-nowrap"
             >
               CONFIRM LINEUP & TACTICS
             </button>
@@ -498,6 +507,7 @@ export const LineupEditorModal: React.FC<LineupEditorModalProps> = ({
         </div>
 
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 };
